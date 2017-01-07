@@ -22,6 +22,7 @@ public class HomeFragment extends Fragment {
     private ViewPager mPager;
     private TabLayout mTabLayout;
     private Context mContext;
+    private MoviePagerAdapter mPagerAdapter;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -56,14 +57,15 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView: HomeFragment created");
+
         // Inflate the layout for this fragment
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_home, container, false);
+
         //get viewpager ref and set adapter for it
         mPager = (ViewPager) view.findViewById(R.id.view_pager);
-        MoviePagerAdapter pagerAdapter = new MoviePagerAdapter(getFragmentManager(), mContext);
-        mPager.setAdapter(pagerAdapter);
-        mPager.setOffscreenPageLimit(3);
+//            mPager.setOffscreenPageLimit(3);
+        mPagerAdapter = new MoviePagerAdapter(getChildFragmentManager(), mContext);
+        mPager.setAdapter(mPagerAdapter);
         mPager.addOnPageChangeListener(new ViewPageChangeListener());
 
         //get tab layout ref and incorporate viewpager with it

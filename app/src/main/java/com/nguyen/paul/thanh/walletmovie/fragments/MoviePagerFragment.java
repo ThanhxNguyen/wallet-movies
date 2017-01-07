@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +37,7 @@ public class MoviePagerFragment extends Fragment implements MovieRecyclerViewAda
     private static final String TAG = "MoviePagerFragment";
 
     private static final String TAB_POSITION = "tab_position";
-    public static final String NETWORK_REQUEST_TAG = "network_request_tag";
+    private static final String NETWORK_REQUEST_TAG = "network_request_tag";
     private int mTabPosition;
     private Context mContext;
     private NetworkRequest mNetworkRequest;
@@ -90,10 +89,10 @@ public class MoviePagerFragment extends Fragment implements MovieRecyclerViewAda
                     url = MovieQueryBuilder.getInstance().discover().build().toString();
                     break;
                 case 1:
-                    url = MovieQueryBuilder.getInstance().discover().build().toString();
+                    url = "https://api.themoviedb.org/3/discover/movie?api_key=1bd3f3a91c22eef0c9d9c15212f43593&primary_release_date.gte=2014-09-15&primary_release_date.lte=2014-10-22";
                     break;
                 case 2:
-                    url = MovieQueryBuilder.getInstance().discover().build().toString();
+                    url = "https://api.themoviedb.org/3/discover/movie?api_key=1bd3f3a91c22eef0c9d9c15212f43593&certification_country=US&certification=R&sort_by=vote_average.desc";
                     break;
                 default:
                     url = MovieQueryBuilder.getInstance().discover().build().toString();
@@ -136,9 +135,8 @@ public class MoviePagerFragment extends Fragment implements MovieRecyclerViewAda
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView: Top pager");
         // Inflate the layout for this fragment
-        ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_movie_pager, container, false);
+        ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_movie_pager_item, container, false);
 
         mRecylerView = (RecyclerView) view.findViewById(R.id.movie_list);
         //layout manager
@@ -180,10 +178,11 @@ public class MoviePagerFragment extends Fragment implements MovieRecyclerViewAda
 
     @Override
     public void onRecyclerViewClick(Movie movie) {
-        getFragmentManager()
+        getActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.content_frame, MovieDetailsFragment.newInstance(movie))
                 .addToBackStack(null)
                 .commit();
     }
+    
 }
