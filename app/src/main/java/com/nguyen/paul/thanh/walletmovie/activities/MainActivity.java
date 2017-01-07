@@ -1,5 +1,6 @@
 package com.nguyen.paul.thanh.walletmovie.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -100,6 +101,12 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "onNavigationItemSelected: home");
                 fragment = HomeFragment.newInstance();
                 break;
+            case R.id.nav_signin:
+                Log.d(TAG, "onNavigationItemSelected: signin");
+                //navigate to signin activity
+                Intent intent = new Intent(MainActivity.this, SigninActivity.class);
+                startActivity(intent);
+                return true;
             default:
                 fragment = HomeFragment.newInstance();
                 break;

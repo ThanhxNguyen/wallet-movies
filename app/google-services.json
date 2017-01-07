@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "942602126326",
+    "firebase_url": "https://wallet-movie.firebaseio.com",
+    "project_id": "wallet-movie",
+    "storage_bucket": "wallet-movie.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:942602126326:android:ddfed2a50e7d808f",
+        "android_client_info": {
+          "package_name": "com.nguyen.paul.thanh.walletmovie"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "942602126326-2lmm35r3hspbas4ej20bg3dag32cavnh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nguyen.paul.thanh.walletmovie",
+            "certificate_hash": "8B91E91EC2CF05471D9A82939C9A7D36B4806EA2"
+          }
+        },
+        {
+          "client_id": "942602126326-ke37lv5i3u1nb02lb7cr4ai1tvcedq21.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASofF0E6Lmss9m-u1e75MXPxZTcToeF9c"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "942602126326-ke37lv5i3u1nb02lb7cr4ai1tvcedq21.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

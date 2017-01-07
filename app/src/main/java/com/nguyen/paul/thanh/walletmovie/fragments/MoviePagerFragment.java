@@ -184,5 +184,5 @@ public class MoviePagerFragment extends Fragment implements MovieRecyclerViewAda
                 .addToBackStack(null)
                 .commit();
     }
-    
+
 }
