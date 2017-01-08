@@ -1,11 +1,14 @@
 package com.nguyen.paul.thanh.walletmovie.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -16,14 +19,22 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.fragments.HomeFragment;
+import com.nguyen.paul.thanh.walletmovie.fragments.ProfileFragment;
+import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MainActivity";
     private DrawerLayout mDrawerLayout;
+    private NavigationView mNavigationView;
+    private Menu mNavMenu;
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +42,9 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //initialize Firebase auth
+        mAuth = FirebaseAuth.getInstance();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -47,23 +61,77 @@ public class MainActivity extends AppCompatActivity
         mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        //get navigation menu refs for show/hide menu items when authenticating users
+        mNavMenu = mNavigationView.getMenu();
+        mNavigationView.setNavigationItemSelectedListener(this);
         //set home navigation option selected by default
         if(savedInstanceState == null) {
-            onNavigationItemSelected(navigationView.getMenu().getItem(0));
+            onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
         }
 
+        prepareFireBaseAuthListener();
+
+    }
+
+    private void prepareFireBaseAuthListener() {
+        //setup listener for authentication changes (when user signin/signout)
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                //get authenticated user, if user==null, user is signed out otherwise user is signed in
+                FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+
+                if(currentUser != null) {
+                    Log.d(TAG, "onAuthStateChanged: user signed in");
+                    //since user is signed in, disable guest mode
+                    SharedPreferences.Editor editor = getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, MODE_PRIVATE).edit();
+                    editor.putBoolean(PreferenceConst.Auth.GUEST_MODE_PREF_KEY, false);
+                    editor.apply();
+                    
+                    //show/hide navigation menu items appropriately
+                    mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, true);
+                    mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(false);
+
+                } else {
+                    //user is signed out
+                    Log.d(TAG, "onAuthStateChanged: user signed out");
+                    mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, false);
+                    mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(true);
+                }
+            }
+        };
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //listen for auth changes
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(mAuthListener != null) {
+            //remove auth listener
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
     }
 
     @Override
     public void onBackPressed() {
+        FragmentManager fm = getSupportFragmentManager();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            if(fm.getBackStackEntryCount() == 0) {
+                finish();
+            } else {
+                super.onBackPressed();
+            }
         }
     }
 
@@ -98,15 +166,20 @@ public class MainActivity extends AppCompatActivity
 
         switch (id) {
             case R.id.nav_home:
-                Log.d(TAG, "onNavigationItemSelected: home");
                 fragment = HomeFragment.newInstance();
                 break;
+            case R.id.nav_profile:
+                fragment = ProfileFragment.newInstance();
+                break;
             case R.id.nav_signin:
-                Log.d(TAG, "onNavigationItemSelected: signin");
                 //navigate to signin activity
                 Intent intent = new Intent(MainActivity.this, SigninActivity.class);
                 startActivity(intent);
                 return true;
+            case R.id.nav_signout:
+                //sign out user
+                mAuth.signOut();
+                break;
             default:
                 fragment = HomeFragment.newInstance();
                 break;
@@ -117,6 +190,7 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.content_frame, fragment)
+                    .addToBackStack(null)
                     .commit();
         }
 

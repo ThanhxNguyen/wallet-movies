@@ -20,4 +20,5 @@
     <string name="last_name_tv_hint">Last name</string>
     <string name="email_tv_hint">Email address</string>
     <string name="confirm_password_tv_hint">Re-type password</string>
+    <string name="update_button_text">Update</string>
 </resources>
