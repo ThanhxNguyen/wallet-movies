@@ -1,5 +1,6 @@
 package com.nguyen.paul.thanh.walletmovie.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -94,6 +95,8 @@ public class SignupActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<Void> task) {
                             if(task.isSuccessful()) {
                                 Log.d(TAG, "onComplete: updated user profile successfully");
+                                Intent intent = new Intent(SignupActivity.this, MainActivity.class);
+                                startActivity(intent);
                             }    
                         }
                     });

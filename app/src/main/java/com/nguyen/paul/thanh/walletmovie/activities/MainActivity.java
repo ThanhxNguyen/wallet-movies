@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     //user is signed out
                     Log.d(TAG, "onAuthStateChanged: user signed out");
+                    onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
                     mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, false);
                     mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(true);
                 }
@@ -126,13 +127,16 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
-            if(fm.getBackStackEntryCount() == 0) {
-                finish();
-            } else {
-                super.onBackPressed();
-            }
         }
+
+        super.onBackPressed();
+// else {
+//            if(fm.getBackStackEntryCount() == 0) {
+//                finish();
+//            } else {
+//                super.onBackPressed();
+//            }
+//        }
     }
 
     @Override
@@ -190,7 +194,7 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.content_frame, fragment)
-                    .addToBackStack(null)
+//                    .addToBackStack(null)
                     .commit();
         }
 
