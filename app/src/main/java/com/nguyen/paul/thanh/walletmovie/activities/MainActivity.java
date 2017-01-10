@@ -1,5 +1,6 @@
 package com.nguyen.paul.thanh.walletmovie.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -43,6 +44,17 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //determine if this is the first time user accesses the app
+        SharedPreferences prefs = getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
+        boolean isFirstTimeUser = prefs.getBoolean(PreferenceConst.Auth.FIRST_TIME_USER_PREF_KEY, true);
+        if(isFirstTimeUser) {
+            //user accesses the app for the first time, show welcome page
+            Intent intent = new Intent(MainActivity.this, WelcomeActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
+
         //initialize Firebase auth
         mAuth = FirebaseAuth.getInstance();
 
@@ -71,7 +83,6 @@ public class MainActivity extends AppCompatActivity
         }
 
         prepareFireBaseAuthListener();
-
     }
 
     private void prepareFireBaseAuthListener() {
@@ -84,10 +95,15 @@ public class MainActivity extends AppCompatActivity
 
                 if(currentUser != null) {
                     Log.d(TAG, "onAuthStateChanged: user signed in");
-                    //since user is signed in, disable guest mode
-                    SharedPreferences.Editor editor = getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, MODE_PRIVATE).edit();
-                    editor.putBoolean(PreferenceConst.Auth.GUEST_MODE_PREF_KEY, false);
-                    editor.apply();
+                    //since user is signed in, disable guest mode if it's enabled
+                    SharedPreferences prefs = getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    boolean isGuest = prefs.getBoolean(PreferenceConst.Auth.GUEST_MODE_PREF_KEY, true);
+
+                    if(isGuest) {
+                        editor.putBoolean(PreferenceConst.Auth.GUEST_MODE_PREF_KEY, false);
+                        editor.apply();
+                    }
                     
                     //show/hide navigation menu items appropriately
                     mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, true);

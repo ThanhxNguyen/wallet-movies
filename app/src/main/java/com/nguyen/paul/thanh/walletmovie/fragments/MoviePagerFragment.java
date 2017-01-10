@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +18,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
+import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
+import com.nguyen.paul.thanh.walletmovie.utilities.AddFavouriteTask;
 import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
 
@@ -33,7 +36,9 @@ import java.util.List;
  * Use the {@link MoviePagerFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MoviePagerFragment extends Fragment implements MovieRecyclerViewAdapter.OnRecyclerViewClickListener {
+public class MoviePagerFragment extends Fragment 
+        implements MovieRecyclerViewAdapter.OnRecyclerViewClickListener {
+    
     private static final String TAG = "MoviePagerFragment";
 
     private static final String TAB_POSITION = "tab_position";
@@ -42,6 +47,7 @@ public class MoviePagerFragment extends Fragment implements MovieRecyclerViewAda
     private Context mContext;
     private NetworkRequest mNetworkRequest;
     private List<Movie> mMoviesList;
+    private List<Genre> mGenreListFromApi;
     private MovieRecyclerViewAdapter mAdapter;
     private RecyclerView mRecylerView;
 
@@ -69,6 +75,10 @@ public class MoviePagerFragment extends Fragment implements MovieRecyclerViewAda
         mContext = context;
         mNetworkRequest = NetworkRequest.getInstance(mContext);
         mMoviesList = new ArrayList<>();
+        mGenreListFromApi = new ArrayList<>();
+
+        String genreListUrl = MovieQueryBuilder.getInstance().getGenreListUrl();
+        sendRequestToGetGenreList(genreListUrl);
     }
 
     @Override
@@ -99,36 +109,7 @@ public class MoviePagerFragment extends Fragment implements MovieRecyclerViewAda
                     break;
             }
 
-            //create JsonObjectRequest and pass it to Volley
-            JsonObjectRequest moviesListJsonObject = new JsonObjectRequest(Request.Method.GET, url, null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            //successfully
-                            try {
-                                JSONArray results = response.getJSONArray("results");
-                                for(int i=0; i<results.length(); i++) {
-                                    JSONObject tempMovieJsonObj = results.getJSONObject(i);
-                                    Movie movie = parseMovieJsonObject(tempMovieJsonObj);
-                                    mMoviesList.add(movie);
-                                }
-
-                                //notify adapter about changes
-                                mAdapter.notifyDataSetChanged();
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            //errors occur, handle here
-                        }
-                    });
-            //making network request to get json object from themoviedb.org
-            mNetworkRequest.addToRequestQueue(moviesListJsonObject, NETWORK_REQUEST_TAG);
+            sendRequestToGetMovieList(url);
         }
     }
 
@@ -157,6 +138,39 @@ public class MoviePagerFragment extends Fragment implements MovieRecyclerViewAda
         mNetworkRequest.cancelPendingRequests(NETWORK_REQUEST_TAG);
     }
 
+    private void sendRequestToGetMovieList(String url) {
+        //create JsonObjectRequest and pass it to Volley
+        JsonObjectRequest moviesListJsonObject = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        //successfully
+                        try {
+                            JSONArray results = response.getJSONArray("results");
+                            for(int i=0; i<results.length(); i++) {
+                                JSONObject tempMovieJsonObj = results.getJSONObject(i);
+                                Movie movie = parseMovieJsonObject(tempMovieJsonObj);
+                                mMoviesList.add(movie);
+                            }
+
+                            //notify adapter about changes
+                            mAdapter.notifyDataSetChanged();
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //errors occur, handle here
+                    }
+                });
+        //making network request to get json object from themoviedb.org
+        mNetworkRequest.addToRequestQueue(moviesListJsonObject, NETWORK_REQUEST_TAG);
+    }
+
     private Movie parseMovieJsonObject(JSONObject obj) {
         Movie movie = new Movie();
         try {
@@ -169,11 +183,72 @@ public class MoviePagerFragment extends Fragment implements MovieRecyclerViewAda
             movie.setStatus(null);
             movie.setVoteAverage(obj.getDouble("vote_average"));
             movie.setPosterPath(obj.getString("poster_path"));
+            //get genre id from movie json object and use it to get genre name from genre list
+            JSONArray genreIds = obj.getJSONArray("genre_ids");
+            if(mGenreListFromApi.size() == 0) {
+                //list empty
+                Log.d(TAG, "parseMovieJsonObject: genre list is empty");
+            } else {
+                List<Genre> movieGenreList = new ArrayList<>();
+                for(int i=0; i<genreIds.length(); i++) {
+                    for(Genre g : mGenreListFromApi) {
+                        if(genreIds.getInt(i) == g.getId()) {
+                            //found matching id
+                            movieGenreList.add(g);
+                            break;
+                        }
+                    }
+                }
+
+                movie.setGenres(movieGenreList);
+            }
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         return movie;
+    }
+
+    private void sendRequestToGetGenreList(String url) {
+        JsonObjectRequest genreJsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        //successfully get data
+                        try {
+                            JSONArray genres = response.getJSONArray("genres");
+                            parseGenreList(genres);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(TAG, "onErrorResponse: Error getting genre list " + error.toString());
+                    }
+                });
+
+        mNetworkRequest.addToRequestQueue(genreJsonRequest, NETWORK_REQUEST_TAG);
+    }
+
+    private void parseGenreList(JSONArray genres) {
+        for(int i=0; i<genres.length(); i++) {
+            try {
+                JSONObject genreJsonObj = genres.getJSONObject(i);
+                int genreId = genreJsonObj.getInt("id");
+                String genreName = genreJsonObj.getString("name");
+
+                Genre genre = new Genre(genreId, genreName);
+                mGenreListFromApi.add(genre);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -183,6 +258,22 @@ public class MoviePagerFragment extends Fragment implements MovieRecyclerViewAda
                 .replace(R.id.content_frame, MovieDetailsFragment.newInstance(movie))
                 .addToBackStack(null)
                 .commit();
+    }
+
+    @Override
+    public void onPopupMenuClick(Movie movie, int action) {
+        switch (action) {
+            case MovieRecyclerViewAdapter.OnRecyclerViewClickListener.ADD_TO_FAVOURITE_TRIGGERED:
+                addMovieToFavourites(movie);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void addMovieToFavourites(Movie movie) {
+        AddFavouriteTask task = new AddFavouriteTask(mContext);
+        task.execute(movie);
     }
 
 }

@@ -11,7 +11,6 @@ public class MovieQueryBuilder {
     private static MovieQueryBuilder mInstance;
 
     private MovieQueryBuilder() {
-
     }
 
     public static MovieQueryBuilder getInstance() {
@@ -27,9 +26,17 @@ public class MovieQueryBuilder {
         return TMDBDiscoverQueryBuilder.getInstance(apiKey);
     }
 
-    public static String getImageBaseUrl(String sizeConfig) {
+    //static method to get poster image for a movie with different sizes
+    public String getImageBaseUrl(String sizeConfig) {
         String baseImageUrl = "http://image.tmdb.org/t/p/" + sizeConfig;
 
         return baseImageUrl;
     }
+
+    public String getGenreListUrl() {
+        String genreListUrl = "https://api.themoviedb.org/3/genre/movie/list?api_key=" + apiKey;
+
+        return genreListUrl;
+    }
+
 }

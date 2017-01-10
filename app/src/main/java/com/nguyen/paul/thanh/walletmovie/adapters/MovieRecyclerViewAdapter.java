@@ -1,8 +1,11 @@
 package com.nguyen.paul.thanh.walletmovie.adapters;
 
 import android.content.Context;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -27,7 +30,9 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
     private OnRecyclerViewClickListener mListener;
 
     public interface OnRecyclerViewClickListener {
+        public static final int ADD_TO_FAVOURITE_TRIGGERED = 1000;
         public void onRecyclerViewClick(Movie movie);
+        public void onPopupMenuClick(Movie movie, int action);
     }
 
     public MovieRecyclerViewAdapter(Context mContext, List<Movie> moviesList, OnRecyclerViewClickListener listener) {
@@ -41,7 +46,7 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
         View view = LayoutInflater.from(parent.getContext())
                                     .inflate(R.layout.movie_list_item, parent, false);
 
-        MovieViewHolder holder = new MovieViewHolder(view, mListener);
+        MovieViewHolder holder = new MovieViewHolder(mContext, view, mListener);
 
         return holder;
     }
@@ -49,8 +54,9 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
     @Override
     public void onBindViewHolder(MovieRecyclerViewAdapter.MovieViewHolder holder, int position) {
         Movie movie = mMoviesList.get(position);
+        holder.setMovie(movie);
         //binding view holder
-        holder.bind(mContext, movie);
+        holder.bind();
     }
 
     @Override
@@ -58,41 +64,88 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
         return mMoviesList.size();
     }
 
-    public static class MovieViewHolder extends RecyclerView.ViewHolder {
+    public static class MovieViewHolder extends RecyclerView.ViewHolder implements PopupMenu.OnMenuItemClickListener {
 
+        private Context mContext;
         private View mView;
         private OnRecyclerViewClickListener mListener;
-        public TextView title;
-        public ImageView thumbnail;
+        private View.OnClickListener mThumbnailClickListener;
+        private View.OnClickListener mThreeDotsMenuClickListener;
+        private Movie mMovie;
+        public TextView mTitle;
+        public ImageView mThumbnail;
+        public ImageView mThreeDotsMenu;
 
-        public MovieViewHolder(View view, OnRecyclerViewClickListener listener) {
+        public MovieViewHolder(Context context, View view, OnRecyclerViewClickListener listener) {
             super(view);
-            this.mView = view;
-            this.mListener = listener;
-            title = (TextView) mView.findViewById(R.id.movie_title);
-            thumbnail = (ImageView) mView.findViewById(R.id.movie_thumbnail);
+            mContext = context;
+            mView = view;
+            mListener = listener;
+            mTitle = (TextView) mView.findViewById(R.id.movie_title);
+            mThumbnail = (ImageView) mView.findViewById(R.id.movie_thumbnail);
+            mThreeDotsMenu = (ImageView) mView.findViewById(R.id.three_dots_menu);
+
+            //initialize click listeners
+            mThumbnailClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mListener.onRecyclerViewClick(mMovie);
+                }
+            };
+            mThreeDotsMenuClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    displayPopupMenu();
+                }
+            };
+        }
+
+        private void displayPopupMenu() {
+            PopupMenu popupMenu = new PopupMenu(mContext, mThreeDotsMenu);
+            MenuInflater inflater = popupMenu.getMenuInflater();
+            //inflate popup menu
+            inflater.inflate(R.menu.movie_list_item_popup_menu, popupMenu.getMenu());
+            //set listener for popup menu
+            popupMenu.setOnMenuItemClickListener(this);
+            //display popup menu
+            popupMenu.show();
         }
 
         //populate UI and set listener appropriately
-        public void bind(Context context, final Movie movie) {
-            title.setText(movie.getTitle());
+        public void bind() {
+            mTitle.setText(mMovie.getTitle());
 
-            thumbnail.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mListener.onRecyclerViewClick(movie);
-                }
-            });
+            //set click listener for image thumbnail, when it's clicked, navigate to movie details
+            mThumbnail.setOnClickListener(mThumbnailClickListener);
+
+            //set click listener for 3-dots popup menu
+            mThreeDotsMenu.setOnClickListener(mThreeDotsMenuClickListener);
 
             //load movie thumb from internet
-            String imgUrl = MovieQueryBuilder.getImageBaseUrl("w185") + movie.getPosterPath();
+            String imgUrl = MovieQueryBuilder.getInstance().getImageBaseUrl("w185") + mMovie.getPosterPath();
 
-            Glide.with(context).load(imgUrl)
+            Glide.with(mContext).load(imgUrl)
                     .thumbnail(0.5f)
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(thumbnail);
+                    .into(mThumbnail);
         }
 
+        public void setMovie(Movie movie) {
+            this.mMovie = movie;
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            //handle popup menu click events here
+            switch (item.getItemId()) {
+                case R.id.popup_add_favourite:
+                    mListener.onPopupMenuClick(mMovie, OnRecyclerViewClickListener.ADD_TO_FAVOURITE_TRIGGERED);
+                    return true;
+                default:
+                    return false;
+            }
+
+        }
     }
 }

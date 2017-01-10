@@ -25,13 +25,7 @@ public class TMDBDiscoverQueryBuilder implements CustomBuilder {
 
     private TMDBDiscoverQueryBuilder(String apiKey) {
         this.apiKey = apiKey;
-        urlBuilder = Uri.parse(BASE_URL)
-                .buildUpon()
-                .appendQueryParameter("api_key", apiKey)
-                .appendQueryParameter("language", "en-US")
-                .appendQueryParameter("include_video", "false")
-                .appendQueryParameter("include_adult", "false")
-                .appendQueryParameter("page", Integer.toString(RESULT_LIMIT));;
+        urlBuilder = Uri.parse(BASE_URL).buildUpon();
     }
 
     public static TMDBDiscoverQueryBuilder getInstance(String apiKey) {
@@ -42,9 +36,9 @@ public class TMDBDiscoverQueryBuilder implements CustomBuilder {
         return mInstance;
     }
 
-    public Uri.Builder mostPopular() {
-        return urlBuilder
-                .appendQueryParameter("sort_by", "popularity.desc");
+    public TMDBDiscoverQueryBuilder mostPopular() {
+        urlBuilder.appendQueryParameter("sort_by", "popularity.desc");
+        return this;
     }
 
     public Uri.Builder showing() {
@@ -52,7 +46,17 @@ public class TMDBDiscoverQueryBuilder implements CustomBuilder {
     }
 
     @Override
-    public Uri build() {
-        return urlBuilder.build();
+    public String build() {
+        //append api key to request param for authentication
+        urlBuilder.appendQueryParameter("api_key", apiKey)
+                    .appendQueryParameter("language", "en-US")
+                    .appendQueryParameter("include_video", "false")
+                    .appendQueryParameter("include_adult", "false")
+                    .appendQueryParameter("page", Integer.toString(RESULT_LIMIT));
+        String url = urlBuilder.build().toString();
+        //clear url params
+        urlBuilder.clearQuery();
+
+        return url;
     }
 }

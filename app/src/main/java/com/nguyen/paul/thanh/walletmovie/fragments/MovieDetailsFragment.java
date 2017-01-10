@@ -3,18 +3,22 @@ package com.nguyen.paul.thanh.walletmovie.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class MovieDetailsFragment extends Fragment {
+
+    private static final String TAG = "MovieDetailsFragment";
 
     private static final String MOVIE_PARCELABLE_KEY = "movie_parcelable_key";
     private TextView title;
@@ -44,6 +48,11 @@ public class MovieDetailsFragment extends Fragment {
         if(args != null) {
             Movie movie = args.getParcelable(MOVIE_PARCELABLE_KEY);
             title.setText(movie.getTitle());
+
+            //will replace soon to populate genre list value
+            for(Genre g : movie.getGenres()) {
+                Log.d(TAG, "onCreateView: genre: " + g.getName());
+            }
         }
 
         return view;

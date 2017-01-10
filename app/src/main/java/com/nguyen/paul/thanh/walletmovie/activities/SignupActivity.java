@@ -1,6 +1,8 @@
 package com.nguyen.paul.thanh.walletmovie.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -66,6 +69,22 @@ public class SignupActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if(task.isSuccessful()) {
+                                    //since user signed in, disable guest mode
+                                    SharedPreferences prefs = getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = prefs.edit();
+
+                                    boolean isFirstTimeUser = prefs.getBoolean(PreferenceConst.Auth.FIRST_TIME_USER_PREF_KEY, true);
+                                    boolean isGuest = prefs.getBoolean(PreferenceConst.Auth.GUEST_MODE_PREF_KEY, true);
+
+                                    if(isFirstTimeUser) {
+                                        editor.putBoolean(PreferenceConst.Auth.FIRST_TIME_USER_PREF_KEY, false);
+                                        editor.apply();
+                                    }
+                                    if(isGuest) {
+                                        editor.putBoolean(PreferenceConst.Auth.GUEST_MODE_PREF_KEY, false);
+                                        editor.apply();
+                                    }
+
                                     Toast.makeText(SignupActivity.this, "Sign up Successfully", Toast.LENGTH_LONG).show();
                                     //update profile info
                                     setUserDisplayNameAfterSignup(firstName, lastName);

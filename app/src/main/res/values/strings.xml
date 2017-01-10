@@ -21,4 +21,7 @@
     <string name="email_tv_hint">Email address</string>
     <string name="confirm_password_tv_hint">Re-type password</string>
     <string name="update_button_text">Update</string>
+    <string name="popup_add_to_favourites">Add to favourites</string>
+    <string name="welcome_message_text">Welcome to Wallet Movie app. Here you can do bunch of things such as view a movie, search for a movie or add a movie to your favourites etc...</string>
+    <string name="signin_as_guest_btn">Sign in as guest</string>
 </resources>
