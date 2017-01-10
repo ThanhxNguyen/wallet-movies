@@ -1,6 +1,12 @@
 package com.nguyen.paul.thanh.walletmovie.database;
 
+import android.database.sqlite.SQLiteDatabase;
+
 import com.nguyen.paul.thanh.walletmovie.database.interfaces.DatabaseOperation;
+import com.nguyen.paul.thanh.walletmovie.model.Genre;
+import com.nguyen.paul.thanh.walletmovie.model.Movie;
+
+import java.util.List;
 
 /**
  * The purpose of this class is to provide a convenient way to implement DatabaseOperation.
@@ -20,8 +26,8 @@ public class SimpleSQLiteDatabaseOperation implements DatabaseOperation {
     }
 
     @Override
-    public void insert() {
-
+    public long insert(Movie movie, List<Genre> genreList) {
+        return 0;
     }
 
     @Override
@@ -31,6 +37,16 @@ public class SimpleSQLiteDatabaseOperation implements DatabaseOperation {
 
     @Override
     public void delete(int id) {
+
+    }
+
+    @Override
+    public SQLiteDatabase openDB() {
+        return null;
+    }
+
+    @Override
+    public void closeDB() {
 
     }
 }

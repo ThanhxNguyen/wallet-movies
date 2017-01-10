@@ -14,8 +14,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.nguyen.paul.thanh.walletmovie.database.MoviesTableOperator;
+import com.nguyen.paul.thanh.walletmovie.database.interfaces.DatabaseOperation;
 import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
+import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
+
+import java.util.List;
 
 /**
  * Created by THANH on 10/01/2017.
@@ -29,9 +34,11 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
     private FirebaseAuth mAuth;
     private FirebaseDatabase mFirebaseDB;
     private DatabaseReference mUsersRef;
+    private List<Genre> mGenreListFromApi;
 
-    public AddFavouriteTask(Context context) {
+    public AddFavouriteTask(Context context, List<Genre> genreList) {
         mContext = context;
+        mGenreListFromApi = genreList;
         mAuth = FirebaseAuth.getInstance();
         mFirebaseDB = FirebaseDatabase.getInstance();
         mUsersRef = mFirebaseDB.getReference("users");
@@ -48,6 +55,8 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
         if(isGuest) {
             //user is in guest mode
             //store movie in local db (SQLite)
+            DatabaseOperation movieDBOperator = MoviesTableOperator.getInstance(mContext);
+            movieDBOperator.insert(movie, mGenreListFromApi);
 
         } else {
             FirebaseUser currentUser = mAuth.getCurrentUser();

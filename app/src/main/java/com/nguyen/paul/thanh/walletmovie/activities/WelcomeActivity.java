@@ -13,7 +13,7 @@ import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
 
 public class WelcomeActivity extends AppCompatActivity {
 
-    private Button mSigninBtn;
+    private Button mSignupBtn;
     private Button mSigninAsGuestBtn;
 
     @Override
@@ -21,7 +21,7 @@ public class WelcomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
 
-        mSigninBtn = (Button) findViewById(R.id.signup_btn);
+        mSignupBtn = (Button) findViewById(R.id.signup_btn);
         mSigninAsGuestBtn = (Button) findViewById(R.id.signin_as_guest_btn);
 
         setClickListenerForSigninBtn();
@@ -29,7 +29,7 @@ public class WelcomeActivity extends AppCompatActivity {
     }
 
     private void setClickListenerForSigninBtn() {
-        mSigninBtn.setOnClickListener(new View.OnClickListener() {
+        mSignupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //redirect to sign in page
@@ -49,8 +49,15 @@ public class WelcomeActivity extends AppCompatActivity {
                 //enable guest mode for this user
                 SharedPreferences.Editor editor = getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE)
                                                         .edit();
+                editor.putBoolean(PreferenceConst.Auth.FIRST_TIME_USER_PREF_KEY, false);
                 editor.putBoolean(PreferenceConst.Auth.GUEST_MODE_PREF_KEY, true);
                 editor.apply();
+
+                Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+                startActivity(intent);
+                //remove this activity from back stack because user shouldn't be able to
+                //access this page again after the first time by clicking back button
+                finish();
             }
         });
     }

@@ -179,8 +179,8 @@ public class MoviePagerFragment extends Fragment
             movie.setOverview(obj.getString("overview"));
             movie.setReleaseDate(obj.getString("release_date"));
             movie.setRuntime(0);
-            movie.setCountry(null);
-            movie.setStatus(null);
+            movie.setCountry("Unknown");
+            movie.setStatus("Unknown");
             movie.setVoteAverage(obj.getDouble("vote_average"));
             movie.setPosterPath(obj.getString("poster_path"));
             //get genre id from movie json object and use it to get genre name from genre list
@@ -264,15 +264,15 @@ public class MoviePagerFragment extends Fragment
     public void onPopupMenuClick(Movie movie, int action) {
         switch (action) {
             case MovieRecyclerViewAdapter.OnRecyclerViewClickListener.ADD_TO_FAVOURITE_TRIGGERED:
-                addMovieToFavourites(movie);
+                addMovieToFavourites(movie, mGenreListFromApi);
                 break;
             default:
                 break;
         }
     }
 
-    private void addMovieToFavourites(Movie movie) {
-        AddFavouriteTask task = new AddFavouriteTask(mContext);
+    private void addMovieToFavourites(Movie movie, List<Genre> genreList) {
+        AddFavouriteTask task = new AddFavouriteTask(mContext, genreList);
         task.execute(movie);
     }
 
