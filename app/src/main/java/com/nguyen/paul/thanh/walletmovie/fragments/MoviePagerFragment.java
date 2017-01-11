@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -126,7 +127,7 @@ public class MoviePagerFragment extends Fragment
         mRecylerView.setItemAnimator(new DefaultItemAnimator());
         mRecylerView.setLayoutManager(layoutManager);
         //setup recyclerview adapter here
-        mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this);
+        mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this, R.menu.home_movie_list_item_popup_menu);
         mRecylerView.setAdapter(mAdapter);
 
         return view;
@@ -178,7 +179,7 @@ public class MoviePagerFragment extends Fragment
             movie.setTitle(obj.getString("title"));
             movie.setOverview(obj.getString("overview"));
             movie.setReleaseDate(obj.getString("release_date"));
-            movie.setRuntime(0);
+            movie.setRuntime(0);//put ternary condition here maybe
             movie.setCountry("Unknown");
             movie.setStatus("Unknown");
             movie.setVoteAverage(obj.getDouble("vote_average"));
@@ -261,7 +262,8 @@ public class MoviePagerFragment extends Fragment
     }
 
     @Override
-    public void onPopupMenuClick(Movie movie, int action) {
+    public void onPopupMenuClick(PopupMenu popupMenu, Movie movie, int action) {
+
         switch (action) {
             case MovieRecyclerViewAdapter.OnRecyclerViewClickListener.ADD_TO_FAVOURITE_TRIGGERED:
                 addMovieToFavourites(movie, mGenreListFromApi);

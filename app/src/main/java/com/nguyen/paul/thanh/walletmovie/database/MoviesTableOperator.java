@@ -12,13 +12,14 @@ import com.nguyen.paul.thanh.walletmovie.database.interfaces.GenresTableConst;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * This class follows singlton pattern
  */
 
-public class MoviesTableOperator extends SimpleSQLiteDatabaseOperation {
+public class MoviesTableOperator extends SimpleSQLiteDatabaseOperator {
 
     private static MoviesTableOperator mInstance;
     private SQLiteOpenHelper mDatabase;
@@ -57,6 +58,71 @@ public class MoviesTableOperator extends SimpleSQLiteDatabaseOperation {
 
         return lastInsertedMovieId;
 
+    }
+
+    @Override
+    public List<Movie> findAll() {
+        List<Movie> movieList = new ArrayList<>();
+
+        SQLiteDatabase db = openDB();
+        String sql = "SELECT * FROM " + MoviesTableConst.TABLE_NAME;
+        Cursor cursor = db.rawQuery(sql, null);
+
+        //loop through results and add each to movie list
+        if(cursor.moveToFirst()) {//if the result is not empty
+            //keep looping until no more row
+            do {
+                Movie movie = new Movie();
+                movie.setId(cursor.getInt(cursor.getColumnIndex(MoviesTableConst.COLUMN_ID)));
+                movie.setTitle(cursor.getString(cursor.getColumnIndex(MoviesTableConst.COLUMN_TITLE)));
+                movie.setOverview(cursor.getString(cursor.getColumnIndex(MoviesTableConst.COLUMN_OVERVIEW)));
+                movie.setReleaseDate(cursor.getString(cursor.getColumnIndex(MoviesTableConst.COLUMN_RELEASE_DATE)));
+                movie.setRuntime(cursor.getInt(cursor.getColumnIndex(MoviesTableConst.COLUMN_RUNTIME)));
+                movie.setCountry(cursor.getString(cursor.getColumnIndex(MoviesTableConst.COLUMN_COUNTRY)));
+                movie.setStatus(cursor.getString(cursor.getColumnIndex(MoviesTableConst.COLUMN_STATUS)));
+                movie.setVoteAverage(cursor.getDouble(cursor.getColumnIndex(MoviesTableConst.COLUMN_VOTE_AVERAGE)));
+                movie.setPosterPath(cursor.getString(cursor.getColumnIndex(MoviesTableConst.COLUMN_POSTER_PATH)));
+
+                //get genre values related to this movie
+                String sqlForMovieGenres = "SELECT * FROM " + GenresMoviesPivotTableConst.TABLE_NAME + " gm inner join " +
+                                            GenresTableConst.TABLE_NAME + " g ON gm." + GenresMoviesPivotTableConst.COLUMN_GENRE_ID + " = g." +
+                                            GenresTableConst.COLUMN_ID + " WHERE gm." + GenresMoviesPivotTableConst.COLUMN_MOVIE_ID + " = " + movie.getId();
+                Cursor pivotCursor = db.rawQuery(sqlForMovieGenres, null);
+                if(pivotCursor.moveToFirst()) {
+                    List<Genre> genres = new ArrayList<>();
+                    do {
+                        Genre genre = new Genre();
+                        genre.setId(pivotCursor.getInt(pivotCursor.getColumnIndex(GenresTableConst.COLUMN_ID)));
+                        genre.setName(pivotCursor.getString(pivotCursor.getColumnIndex(GenresTableConst.COLUMN_NAME)));
+                        //add to genres list
+                        genres.add(genre);
+
+                    } while(pivotCursor.moveToNext());
+
+                    //add to this movie
+                    movie.setGenres(genres);
+                }
+
+                //add to movie list
+                movieList.add(movie);
+
+            } while(cursor.moveToNext());
+
+        }
+
+        return movieList;
+    }
+
+    @Override
+    public int delete(int id) {
+        SQLiteDatabase db = openDB();
+        //remove genre ids associated with this movie id in pivot table genres_movies first
+        //to avoid left-over when the movie get deleted
+        db.delete(GenresMoviesPivotTableConst.TABLE_NAME, GenresMoviesPivotTableConst.COLUMN_MOVIE_ID+"="+id, null);
+        //remove the movie
+        int result = db.delete(MoviesTableConst.TABLE_NAME, MoviesTableConst.COLUMN_ID+"="+id, null);
+
+        return result;
     }
 
     private void insertGenreValues(SQLiteDatabase db, List<Genre> genreListFromApi) {

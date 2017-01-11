@@ -23,6 +23,7 @@ import android.view.View;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.fragments.FavouriteMoviesFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.HomeFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.ProfileFragment;
 import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
@@ -187,6 +188,9 @@ public class MainActivity extends AppCompatActivity
         switch (id) {
             case R.id.nav_home:
                 fragment = HomeFragment.newInstance();
+                break;
+            case R.id.nav_favourites:
+                fragment = FavouriteMoviesFragment.newInstance();
                 break;
             case R.id.nav_profile:
                 fragment = ProfileFragment.newInstance();

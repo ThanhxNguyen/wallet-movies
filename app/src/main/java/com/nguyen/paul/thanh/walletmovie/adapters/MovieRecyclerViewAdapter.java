@@ -28,17 +28,20 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
     private Context mContext;
     private List<Movie> mMoviesList;
     private OnRecyclerViewClickListener mListener;
+    private int mLayoutForPopupMenu;
 
     public interface OnRecyclerViewClickListener {
         public static final int ADD_TO_FAVOURITE_TRIGGERED = 1000;
+        public static final int REMOVE_MOVIE_TRIGGERED = 1001;
         public void onRecyclerViewClick(Movie movie);
-        public void onPopupMenuClick(Movie movie, int action);
+        public void onPopupMenuClick(PopupMenu popupMenu, Movie movie, int action);
     }
 
-    public MovieRecyclerViewAdapter(Context mContext, List<Movie> moviesList, OnRecyclerViewClickListener listener) {
-        this.mContext = mContext;
-        this.mMoviesList = moviesList;
-        this.mListener = listener;
+    public MovieRecyclerViewAdapter(Context context, List<Movie> moviesList, OnRecyclerViewClickListener listener, int layoutForPopupMenu) {
+        mContext = context;
+        mMoviesList = moviesList;
+        mListener = listener;
+        mLayoutForPopupMenu = layoutForPopupMenu;
     }
 
     @Override
@@ -46,7 +49,7 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
         View view = LayoutInflater.from(parent.getContext())
                                     .inflate(R.layout.movie_list_item, parent, false);
 
-        MovieViewHolder holder = new MovieViewHolder(mContext, view, mListener);
+        MovieViewHolder holder = new MovieViewHolder(mContext, view, mListener, mLayoutForPopupMenu);
 
         return holder;
     }
@@ -68,19 +71,23 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
 
         private Context mContext;
         private View mView;
+        private PopupMenu mPopupMenu;
         private OnRecyclerViewClickListener mListener;
         private View.OnClickListener mThumbnailClickListener;
         private View.OnClickListener mThreeDotsMenuClickListener;
+        private int mLayoutForPopupmenu;
         private Movie mMovie;
         public TextView mTitle;
         public ImageView mThumbnail;
         public ImageView mThreeDotsMenu;
 
-        public MovieViewHolder(Context context, View view, OnRecyclerViewClickListener listener) {
+        public MovieViewHolder(Context context, View view, OnRecyclerViewClickListener listener, int layoutForPopupMenu) {
             super(view);
             mContext = context;
             mView = view;
             mListener = listener;
+            mLayoutForPopupmenu = layoutForPopupMenu;
+
             mTitle = (TextView) mView.findViewById(R.id.movie_title);
             mThumbnail = (ImageView) mView.findViewById(R.id.movie_thumbnail);
             mThreeDotsMenu = (ImageView) mView.findViewById(R.id.three_dots_menu);
@@ -101,14 +108,14 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
         }
 
         private void displayPopupMenu() {
-            PopupMenu popupMenu = new PopupMenu(mContext, mThreeDotsMenu);
-            MenuInflater inflater = popupMenu.getMenuInflater();
-            //inflate popup menu
-            inflater.inflate(R.menu.movie_list_item_popup_menu, popupMenu.getMenu());
+            mPopupMenu = new PopupMenu(mContext, mThreeDotsMenu);
+            MenuInflater inflater = mPopupMenu.getMenuInflater();
+            //inflate popup based on different pages. For example, home page popup menu doesn't have "remove movie" option etc...
+            inflater.inflate(mLayoutForPopupmenu, mPopupMenu.getMenu());
             //set listener for popup menu
-            popupMenu.setOnMenuItemClickListener(this);
+            mPopupMenu.setOnMenuItemClickListener(this);
             //display popup menu
-            popupMenu.show();
+            mPopupMenu.show();
         }
 
         //populate UI and set listener appropriately
@@ -140,8 +147,10 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
             //handle popup menu click events here
             switch (item.getItemId()) {
                 case R.id.popup_add_favourite:
-                    mListener.onPopupMenuClick(mMovie, OnRecyclerViewClickListener.ADD_TO_FAVOURITE_TRIGGERED);
+                    mListener.onPopupMenuClick(mPopupMenu, mMovie, OnRecyclerViewClickListener.ADD_TO_FAVOURITE_TRIGGERED);
                     return true;
+                case R.id.popup_remove_movie:
+                    mListener.onPopupMenuClick(mPopupMenu, mMovie, OnRecyclerViewClickListener.REMOVE_MOVIE_TRIGGERED);
                 default:
                     return false;
             }

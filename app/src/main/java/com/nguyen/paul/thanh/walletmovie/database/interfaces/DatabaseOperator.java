@@ -14,10 +14,10 @@ import java.util.List;
 
 public interface DatabaseOperator {
     public void find(int id);
-    public void findAll();
+    public List<Movie> findAll();
     public long insert(Movie movie, List<Genre> genreList);
-    public void update(int id);
-    public void delete(int id);
+    public long update(int id);
+    public int delete(int id);
     public SQLiteDatabase openDB();
     public void closeDB();
 }

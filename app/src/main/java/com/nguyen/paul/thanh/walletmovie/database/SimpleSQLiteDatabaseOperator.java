@@ -21,8 +21,8 @@ public class SimpleSQLiteDatabaseOperator implements DatabaseOperator {
     }
 
     @Override
-    public void findAll() {
-
+    public List<Movie> findAll() {
+        return null;
     }
 
     @Override
@@ -31,13 +31,13 @@ public class SimpleSQLiteDatabaseOperator implements DatabaseOperator {
     }
 
     @Override
-    public void update(int id) {
-
+    public long update(int id) {
+        return 0;
     }
 
     @Override
-    public void delete(int id) {
-
+    public int delete(int id) {
+        return 0;
     }
 
     @Override

@@ -15,7 +15,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.nguyen.paul.thanh.walletmovie.database.MoviesTableOperator;
-import com.nguyen.paul.thanh.walletmovie.database.interfaces.DatabaseOperation;
+import com.nguyen.paul.thanh.walletmovie.database.interfaces.DatabaseOperator;
 import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
@@ -55,8 +55,10 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
         if(isGuest) {
             //user is in guest mode
             //store movie in local db (SQLite)
-            DatabaseOperation movieDBOperator = MoviesTableOperator.getInstance(mContext);
+            DatabaseOperator movieDBOperator = MoviesTableOperator.getInstance(mContext);
             movieDBOperator.insert(movie, mGenreListFromApi);
+            //close database to avoid memory leaks
+            movieDBOperator.closeDB();
 
         } else {
             FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -87,7 +89,9 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
      */
     private void writeDataToFirebase(final Movie movie, final String uid) {
 
-        mUsersRef.child(uid).child(String.valueOf(movie.getId()))
+        mUsersRef.child(uid)
+                    .child("favourite_movies")
+                    .child(String.valueOf(movie.getId()))
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -97,7 +101,9 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
 
                             } else {
                                 //no existing movie, safe to add
-                                mUsersRef.child(uid).child(String.valueOf(movie.getId()))
+                                mUsersRef.child(uid)
+                                        .child("favourite_movies")
+                                        .child(String.valueOf(movie.getId()))
                                         .setValue(movie, new DatabaseReference.CompletionListener() {
                                             @Override
                                             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
