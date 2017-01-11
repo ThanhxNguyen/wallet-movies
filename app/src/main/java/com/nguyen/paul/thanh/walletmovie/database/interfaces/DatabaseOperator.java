@@ -12,7 +12,7 @@ import java.util.List;
  * The Purpose is to provide a uniform way for database operations.
  */
 
-public interface DatabaseOperation {
+public interface DatabaseOperator {
     public void find(int id);
     public void findAll();
     public long insert(Movie movie, List<Genre> genreList);
