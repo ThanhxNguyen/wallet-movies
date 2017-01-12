@@ -18,6 +18,8 @@ public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
 
+    public static final String FRAGMENT_TAG = HomeFragment.class.getSimpleName();
+
     private OnFragmentInteractionListener mListener;
     private ViewPager mPager;
     private TabLayout mTabLayout;
@@ -52,6 +54,8 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //retain this fragment state during activity re-creation progress
+        setRetainInstance(true);
     }
 
     @Override

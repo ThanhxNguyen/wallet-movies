@@ -25,4 +25,6 @@
     <string name="welcome_message_text">Welcome to Wallet Movie app. Here you can do bunch of things such as view a movie, search for a movie or add a movie to your favourites etc...</string>
     <string name="signin_as_guest_btn">Sign in as guest</string>
     <string name="remove_movie_from_favourites_text">Remove from favourites</string>
+    <string name="search_hint"/>
+    <string name="action_search"/>
 </resources>

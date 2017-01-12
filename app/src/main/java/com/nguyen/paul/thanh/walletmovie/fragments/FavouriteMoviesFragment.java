@@ -45,6 +45,8 @@ public class FavouriteMoviesFragment extends Fragment
 
     private static final String TAG = "FavouriteMoviesFragment";
 
+    public static final String FRAGMENT_TAG = FavouriteMoviesFragment.class.getSimpleName();
+
     private Context mContext;
     private NetworkRequest mNetworkRequest;
     private List<Movie> mMoviesList;
@@ -116,7 +118,8 @@ public class FavouriteMoviesFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        //retain this fragment state during activity re-creation progress
+        setRetainInstance(true);
     }
 
     @Override

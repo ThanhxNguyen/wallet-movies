@@ -146,14 +146,15 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         }
 
-        super.onBackPressed();
-// else {
-//            if(fm.getBackStackEntryCount() == 0) {
-//                finish();
-//            } else {
+//        super.onBackPressed();
+        else {
+            if(fm.getBackStackEntryCount() == 0) {
+                finish();
+            } else {
 //                super.onBackPressed();
-//            }
-//        }
+                fm.popBackStack();
+            }
+        }
     }
 
     @Override
@@ -182,18 +183,22 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         Fragment fragment = null;
+        String FRAGMENT_TAG = null;
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         switch (id) {
             case R.id.nav_home:
                 fragment = HomeFragment.newInstance();
+                FRAGMENT_TAG = HomeFragment.FRAGMENT_TAG;
                 break;
             case R.id.nav_favourites:
                 fragment = FavouriteMoviesFragment.newInstance();
+                FRAGMENT_TAG = FavouriteMoviesFragment.FRAGMENT_TAG;
                 break;
             case R.id.nav_profile:
                 fragment = ProfileFragment.newInstance();
+                FRAGMENT_TAG = ProfileFragment.FRAGMENT_TAG;
                 break;
             case R.id.nav_signin:
                 //navigate to signin activity
@@ -206,6 +211,7 @@ public class MainActivity extends AppCompatActivity
                 break;
             default:
                 fragment = HomeFragment.newInstance();
+                FRAGMENT_TAG = HomeFragment.FRAGMENT_TAG;
                 break;
         }
 
@@ -213,8 +219,8 @@ public class MainActivity extends AppCompatActivity
         if(fragment != null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.content_frame, fragment)
-//                    .addToBackStack(null)
+                    .replace(R.id.content_frame, fragment, FRAGMENT_TAG)
+                    .addToBackStack(null)
                     .commit();
         }
 

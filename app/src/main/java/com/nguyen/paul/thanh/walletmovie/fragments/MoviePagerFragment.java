@@ -42,6 +42,8 @@ public class MoviePagerFragment extends Fragment
     
     private static final String TAG = "MoviePagerFragment";
 
+    public static final String FRAGMENT_TAG = MoviePagerFragment.class.getSimpleName();
+
     private static final String TAB_POSITION = "tab_position";
     private static final String NETWORK_REQUEST_TAG = "network_request_tag";
     private int mTabPosition;

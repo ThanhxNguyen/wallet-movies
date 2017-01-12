@@ -1,14 +1,21 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.nguyen.paul.thanh.walletmovie.fragments.MovieDetailsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <!--display youtube trailer video here-->
+    <FrameLayout
+        android:id="@+id/youtube_video_frame"
+        android:layout_width="match_parent"
+        android:layout_height="200dp" />
+
     <TextView
         android:id="@+id/movie_title"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="Hello movie details" />
 
-</FrameLayout>
+</LinearLayout>

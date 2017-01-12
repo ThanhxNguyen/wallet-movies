@@ -21,6 +21,8 @@ import com.nguyen.paul.thanh.walletmovie.activities.MainActivity;
  */
 public class ProfileFragment extends Fragment {
 
+    public static final String FRAGMENT_TAG = ProfileFragment.class.getSimpleName();
+
     private FirebaseAuth mAuth;
     private Context mContext;
 
@@ -50,6 +52,8 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //retain this fragment state during activity re-creation progress
+        setRetainInstance(true);
         //initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
     }
