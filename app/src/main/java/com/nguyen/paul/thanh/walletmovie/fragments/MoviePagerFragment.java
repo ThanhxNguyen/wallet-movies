@@ -190,7 +190,7 @@ public class MoviePagerFragment extends Fragment
             JSONArray genreIds = obj.getJSONArray("genre_ids");
             if(mGenreListFromApi.size() == 0) {
                 //list empty
-                Log.d(TAG, "parseMovieJsonObject: genre list is empty");
+
             } else {
                 List<Genre> movieGenreList = new ArrayList<>();
                 for(int i=0; i<genreIds.length(); i++) {

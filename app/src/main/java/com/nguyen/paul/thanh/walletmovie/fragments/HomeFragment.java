@@ -1,26 +1,27 @@
 package com.nguyen.paul.thanh.walletmovie.fragments;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.activities.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.adapters.MoviePagerAdapter;
+import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements MainActivity.OnActivityInteractionListener {
 
     private static final String TAG = "HomeFragment";
 
     public static final String FRAGMENT_TAG = HomeFragment.class.getSimpleName();
 
-    private OnFragmentInteractionListener mListener;
     private ViewPager mPager;
     private TabLayout mTabLayout;
     private Context mContext;
@@ -43,12 +44,6 @@ public class HomeFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = context;
-//        if (context instanceof OnFragmentInteractionListener) {
-//            mListener = (OnFragmentInteractionListener) context;
-//        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-//        }
     }
 
     @Override
@@ -56,6 +51,8 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         //retain this fragment state during activity re-creation progress
         setRetainInstance(true);
+
+        Log.d(TAG, "onCreate: " + TAG);
     }
 
     @Override
@@ -67,10 +64,9 @@ public class HomeFragment extends Fragment {
 
         //get viewpager ref and set adapter for it
         mPager = (ViewPager) view.findViewById(R.id.view_pager);
-//            mPager.setOffscreenPageLimit(3);
+//        mPager.setOffscreenPageLimit(3);
         mPagerAdapter = new MoviePagerAdapter(getChildFragmentManager(), mContext);
         mPager.setAdapter(mPagerAdapter);
-        mPager.addOnPageChangeListener(new ViewPageChangeListener());
 
         //get tab layout ref and incorporate viewpager with it
         mTabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
@@ -79,34 +75,26 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        //since this is the home page, when the home page gets destroyed
+        //remove the MainActivity container as well and exit the app
+        //Note: when navigate between home page to other pages, the fragment doesn't get destroyed
+        //only the view associated with the fragment gets destroyed.
+        getActivity().finish();
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     */
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
-    }
-
-    private static class ViewPageChangeListener extends ViewPager.SimpleOnPageChangeListener {
-
-        @Override
-        public void onPageSelected(int position) {
-            Log.d(TAG, "onPageSelected: position - " + position);
+    @Override
+    public void onSearchUpdateFragment(String query) {
+        if(!TextUtils.isEmpty(query)) {
+            String searchUrl = MovieQueryBuilder.getInstance()
+                    .search()
+                    .query(query)
+                    .build();
+            Log.d(TAG, "onSearchUpdateFragment: HomeFragment query - " + searchUrl);
         }
+
     }
 
 }

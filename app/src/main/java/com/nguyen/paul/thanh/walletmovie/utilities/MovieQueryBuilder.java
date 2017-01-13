@@ -26,6 +26,11 @@ public class MovieQueryBuilder {
         return TMDBDiscoverQueryBuilder.getInstance(apiKey);
     }
 
+    //initialize search (query search) funciton from TMDB (themoviedb.org)
+    public TMDBSearchQueryBuilder search() {
+        return TMDBSearchQueryBuilder.getInstance(apiKey);
+    }
+
     //static method to get poster image for a movie with different sizes
     public String getImageBaseUrl(String sizeConfig) {
         String baseImageUrl = "http://image.tmdb.org/t/p/" + sizeConfig;

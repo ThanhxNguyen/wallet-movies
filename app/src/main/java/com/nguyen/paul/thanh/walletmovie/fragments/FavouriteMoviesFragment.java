@@ -120,6 +120,8 @@ public class FavouriteMoviesFragment extends Fragment
         super.onCreate(savedInstanceState);
         //retain this fragment state during activity re-creation progress
         setRetainInstance(true);
+
+        Log.d(TAG, "onCreate: " + TAG);
     }
 
     @Override

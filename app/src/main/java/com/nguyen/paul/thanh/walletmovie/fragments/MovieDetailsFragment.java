@@ -53,6 +53,8 @@ public class MovieDetailsFragment extends Fragment implements YouTubePlayer.OnIn
         super.onCreate(savedInstanceState);
         //retain this fragment state during activity re-creation progress
         setRetainInstance(true);
+
+        Log.d(TAG, "onCreate: " + TAG);
     }
 
     @Override
@@ -88,7 +90,7 @@ public class MovieDetailsFragment extends Fragment implements YouTubePlayer.OnIn
 
             //will replace soon to populate genre list value
             for(Genre g : movie.getGenres()) {
-                Log.d(TAG, "onCreateView: genre: " + g.getName());
+//                Log.d(TAG, "onCreateView: genre: " + g.getName());
             }
         }
 
