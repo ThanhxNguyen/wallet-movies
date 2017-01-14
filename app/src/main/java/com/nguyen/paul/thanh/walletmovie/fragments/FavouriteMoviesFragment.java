@@ -132,7 +132,7 @@ public class FavouriteMoviesFragment extends Fragment
 
         mRecylerView = (RecyclerView) view.findViewById(R.id.favourite_movie_list);
         //layout manager
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, 2);
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, 1);
 //        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(mContext);
         mRecylerView.setItemAnimator(new DefaultItemAnimator());
         mRecylerView.setLayoutManager(layoutManager);

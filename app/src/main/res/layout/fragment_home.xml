@@ -17,7 +17,10 @@
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:tabMode="fixed" />
+            app:tabMode="fixed"
+            app:tabTextColor="@color/colorSecondaryText"
+            app:tabSelectedTextColor="@color/colorPrimaryText"
+            app:tabBackground="@color/colorPrimary"/>
 
     </android.support.v4.view.ViewPager>
 

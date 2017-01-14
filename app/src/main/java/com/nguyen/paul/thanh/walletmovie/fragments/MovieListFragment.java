@@ -2,6 +2,7 @@ package com.nguyen.paul.thanh.walletmovie.fragments;
 
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -9,6 +10,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +26,7 @@ import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import com.nguyen.paul.thanh.walletmovie.utilities.AddFavouriteTask;
 import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
+import com.nguyen.paul.thanh.walletmovie.utilities.RecyclerViewGridSpaceItemDecorator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -150,7 +153,7 @@ public class MovieListFragment extends Fragment
         mRecylerView = (RecyclerView) view.findViewById(R.id.movie_list);
         //layout manager
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, 1);
-//        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(mContext);
+        mRecylerView.addItemDecoration(new RecyclerViewGridSpaceItemDecorator(1, dpToPx(10), true));
         mRecylerView.setItemAnimator(new DefaultItemAnimator());
         mRecylerView.setLayoutManager(layoutManager);
         //setup recycler view adapter here
@@ -166,6 +169,14 @@ public class MovieListFragment extends Fragment
         //having trouble when add to request queue using singleton class methods
 //        mNetworkRequest.cancelPendingRequests(NETWORK_REQUEST_TAG);
         mNetworkRequest.getRequestQueue().cancelAll(NETWORK_REQUEST_TAG);
+    }
+
+    /**
+     * Converting dp to pixel
+     */
+    private int dpToPx(int dp) {
+        Resources r = getResources();
+        return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
     }
 
     private void sendRequestToGetMovieList(String url) {

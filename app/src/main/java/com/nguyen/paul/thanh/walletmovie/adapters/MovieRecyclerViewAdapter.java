@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
 
@@ -74,13 +75,17 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
         private View mView;
         private PopupMenu mPopupMenu;
         private OnRecyclerViewClickListener mListener;
-        private View.OnClickListener mThumbnailClickListener;
+        private View.OnClickListener mItemClickListener;
         private View.OnClickListener mThreeDotsMenuClickListener;
         private int mLayoutForPopupmenu;
         private Movie mMovie;
         public TextView mTitle;
         public ImageView mThumbnail;
         public ImageView mThreeDotsMenu;
+        public TextView mReleaseDate;
+        public TextView mVoteValue;
+        public TextView mGenres;
+        public TextView mDescription;
 
         public MovieViewHolder(Context context, View view, OnRecyclerViewClickListener listener, int layoutForPopupMenu) {
             super(view);
@@ -92,9 +97,13 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
             mTitle = (TextView) mView.findViewById(R.id.movie_title);
             mThumbnail = (ImageView) mView.findViewById(R.id.movie_thumbnail);
             mThreeDotsMenu = (ImageView) mView.findViewById(R.id.three_dots_menu);
+            mReleaseDate = (TextView) mView.findViewById(R.id.movie_release_date);
+            mVoteValue = (TextView) mView.findViewById(R.id.movie_vote_value);
+            mGenres = (TextView) mView.findViewById(R.id.movie_genres);
+            mDescription = (TextView) mView.findViewById(R.id.movie_description);
 
             //initialize click listeners
-            mThumbnailClickListener = new View.OnClickListener() {
+            mItemClickListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     mListener.onRecyclerViewClick(mMovie);
@@ -122,9 +131,22 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
         //populate UI and set listener appropriately
         public void bind() {
             mTitle.setText(mMovie.getTitle());
+            mReleaseDate.setText(mMovie.getReleaseDate());
+            mVoteValue.setText(String.valueOf(mMovie.getVoteAverage()));
+
+            List<Genre> genres = mMovie.getGenres();
+            StringBuilder genreValues = new StringBuilder();
+            String prefix = " | ";
+            for(int i=0; i<genres.size(); i++) {
+                genreValues.append(genres.get(i).getName());
+                genreValues.append(prefix);
+
+            }
+            mGenres.setText( (genreValues.toString().length()>0) ? genreValues.delete(genreValues.length()-2, genreValues.length()-1) : "Unknown");
+            mDescription.setText( (mMovie.getOverview().length() > 100) ? mMovie.getOverview().substring(0, 101) + "..." : mMovie.getOverview() );
 
             //set click listener for image thumbnail, when it's clicked, navigate to movie details
-            mThumbnail.setOnClickListener(mThumbnailClickListener);
+            mView.setOnClickListener(mItemClickListener);
 
             //set click listener for 3-dots popup menu
             mThreeDotsMenu.setOnClickListener(mThreeDotsMenuClickListener);
@@ -141,7 +163,7 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
                 String imgUrl = MovieQueryBuilder.getInstance().getImageBaseUrl("w185") + mMovie.getPosterPath();
 
                 Glide.with(mContext).load(imgUrl)
-                        .thumbnail(0.5f)
+                        .thumbnail(0.1f)
                         .crossFade()
                         .fitCenter()
                         .placeholder(R.drawable.ic_image_placeholder_white)
