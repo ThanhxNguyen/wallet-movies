@@ -34,17 +34,19 @@ import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link MoviePagerFragment#newInstance} factory method to
+ * Use the {@link MovieListFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MoviePagerFragment extends Fragment 
+public class MovieListFragment extends Fragment
         implements MovieRecyclerViewAdapter.OnRecyclerViewClickListener {
     
-    private static final String TAG = "MoviePagerFragment";
+    private static final String TAG = "MovieListFragment";
 
-    public static final String FRAGMENT_TAG = MoviePagerFragment.class.getSimpleName();
+    public static final String FRAGMENT_TAG = MovieListFragment.class.getSimpleName();
 
     private static final String TAB_POSITION = "tab_position";
+    private static final String SEARCH_QUERY = "search_query";
+    public static final String USE_FOR_DISPLAY_SEARCH_RESULT = "use_for_display_search_result";
     private static final String NETWORK_REQUEST_TAG = "network_request_tag";
     private int mTabPosition;
     private Context mContext;
@@ -54,7 +56,7 @@ public class MoviePagerFragment extends Fragment
     private MovieRecyclerViewAdapter mAdapter;
     private RecyclerView mRecylerView;
 
-    public MoviePagerFragment() {
+    public MovieListFragment() {
         // Required empty public constructor
     }
 
@@ -62,15 +64,26 @@ public class MoviePagerFragment extends Fragment
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @return A new instance of fragment MoviePagerFragment.
+     * @return A new instance of fragment MovieListFragment.
      */
-    public static MoviePagerFragment newInstance(int tabPosition) {
-        MoviePagerFragment fragment = new MoviePagerFragment();
+    public static MovieListFragment newInstance(int tabPosition) {
+        MovieListFragment fragment = new MovieListFragment();
         Bundle args = new Bundle();
+        args.putBoolean(USE_FOR_DISPLAY_SEARCH_RESULT, false);
         args.putInt(TAB_POSITION, tabPosition);
         fragment.setArguments(args);
         return fragment;
     }
+
+    public static MovieListFragment newInstance(String searchQuery) {
+        MovieListFragment fragment = new MovieListFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(USE_FOR_DISPLAY_SEARCH_RESULT, true);
+        args.putString(SEARCH_QUERY, searchQuery);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
 
     @Override
     public void onAttach(Context context) {
@@ -88,32 +101,44 @@ public class MoviePagerFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
+        String url = null;
         if(args != null) {
-            String url;
-            mTabPosition = args.getInt(TAB_POSITION, 0);
+            boolean displaySearchResult = args.getBoolean(USE_FOR_DISPLAY_SEARCH_RESULT);
 
-            /* grab movies according tab position
-            * 0: top movies list
-            * 1: now showing movies list
-            * 3: upcoming movies list
-            */
-            switch (mTabPosition) {
-                case 0:
-                    url = MovieQueryBuilder.getInstance().discover().build().toString();
-                    break;
-                case 1:
-                    url = "https://api.themoviedb.org/3/discover/movie?api_key=1bd3f3a91c22eef0c9d9c15212f43593&primary_release_date.gte=2014-09-15&primary_release_date.lte=2014-10-22";
-                    break;
-                case 2:
-                    url = "https://api.themoviedb.org/3/discover/movie?api_key=1bd3f3a91c22eef0c9d9c15212f43593&certification_country=US&certification=R&sort_by=vote_average.desc";
-                    break;
-                default:
-                    url = MovieQueryBuilder.getInstance().discover().build().toString();
-                    break;
+            if(displaySearchResult) {
+                //get search query from searchable activity
+                String searchQuery = args.getString(SEARCH_QUERY);
+                url = MovieQueryBuilder.getInstance().search().query(searchQuery).build();
+                sendRequestToGetMovieList(url);
+
+            } else {
+                //display movies in view pager as a list
+                mTabPosition = args.getInt(TAB_POSITION, 0);
+
+                /* grab movies according tab position
+                * 0: top movies list
+                * 1: now showing movies list
+                * 3: upcoming movies list
+                */
+                switch (mTabPosition) {
+                    case 0:
+                        url = MovieQueryBuilder.getInstance().discover().build().toString();
+                        break;
+                    case 1:
+                        url = "https://api.themoviedb.org/3/discover/movie?api_key=1bd3f3a91c22eef0c9d9c15212f43593&primary_release_date.gte=2014-09-15&primary_release_date.lte=2014-10-22";
+                        break;
+                    case 2:
+                        url = "https://api.themoviedb.org/3/discover/movie?api_key=1bd3f3a91c22eef0c9d9c15212f43593&certification_country=US&certification=R&sort_by=vote_average.desc";
+                        break;
+                    default:
+                        url = MovieQueryBuilder.getInstance().discover().build().toString();
+                        break;
+                }
+                sendRequestToGetMovieList(url);
             }
 
-            sendRequestToGetMovieList(url);
         }
+
     }
 
     @Override
@@ -124,11 +149,11 @@ public class MoviePagerFragment extends Fragment
 
         mRecylerView = (RecyclerView) view.findViewById(R.id.movie_list);
         //layout manager
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, 2);
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, 1);
 //        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(mContext);
         mRecylerView.setItemAnimator(new DefaultItemAnimator());
         mRecylerView.setLayoutManager(layoutManager);
-        //setup recyclerview adapter here
+        //setup recycler view adapter here
         mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this, R.menu.home_movie_list_item_popup_menu);
         mRecylerView.setAdapter(mAdapter);
 
@@ -138,10 +163,13 @@ public class MoviePagerFragment extends Fragment
     @Override
     public void onStop() {
         super.onStop();
-        mNetworkRequest.cancelPendingRequests(NETWORK_REQUEST_TAG);
+        //having trouble when add to request queue using singleton class methods
+//        mNetworkRequest.cancelPendingRequests(NETWORK_REQUEST_TAG);
+        mNetworkRequest.getRequestQueue().cancelAll(NETWORK_REQUEST_TAG);
     }
 
     private void sendRequestToGetMovieList(String url) {
+        mMoviesList.clear();
         //create JsonObjectRequest and pass it to Volley
         JsonObjectRequest moviesListJsonObject = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -153,7 +181,9 @@ public class MoviePagerFragment extends Fragment
                             for(int i=0; i<results.length(); i++) {
                                 JSONObject tempMovieJsonObj = results.getJSONObject(i);
                                 Movie movie = parseMovieJsonObject(tempMovieJsonObj);
-                                mMoviesList.add(movie);
+                                if(movie != null) {
+                                    mMoviesList.add(movie);
+                                }
                             }
 
                             //notify adapter about changes
@@ -168,15 +198,20 @@ public class MoviePagerFragment extends Fragment
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         //errors occur, handle here
+                        Log.d(TAG, "onErrorResponse: error: " + error.toString());
                     }
                 });
         //making network request to get json object from themoviedb.org
-        mNetworkRequest.addToRequestQueue(moviesListJsonObject, NETWORK_REQUEST_TAG);
+        //having trouble when add to request queue using singleton class methods
+//        mNetworkRequest.addToRequestQueue(moviesListJsonObject, NETWORK_REQUEST_TAG);
+        moviesListJsonObject.setTag(NETWORK_REQUEST_TAG);
+        mNetworkRequest.getRequestQueue().add(moviesListJsonObject);
     }
 
     private Movie parseMovieJsonObject(JSONObject obj) {
         Movie movie = new Movie();
         try {
+
             movie.setId(obj.getInt("id"));
             movie.setTitle(obj.getString("title"));
             movie.setOverview(obj.getString("overview"));
@@ -185,7 +220,9 @@ public class MoviePagerFragment extends Fragment
             movie.setCountry("Unknown");
             movie.setStatus("Unknown");
             movie.setVoteAverage(obj.getDouble("vote_average"));
-            movie.setPosterPath(obj.getString("poster_path"));
+            movie.setPosterPath( (obj.isNull("poster_path"))
+                                    ? ""
+                                    : obj.getString("poster_path"));
             //get genre id from movie json object and use it to get genre name from genre list
             JSONArray genreIds = obj.getJSONArray("genre_ids");
             if(mGenreListFromApi.size() == 0) {
@@ -208,6 +245,7 @@ public class MoviePagerFragment extends Fragment
 
         } catch (JSONException e) {
             e.printStackTrace();
+            return null;
         }
 
         return movie;

@@ -3,6 +3,7 @@ package com.nguyen.paul.thanh.walletmovie.adapters;
 import android.content.Context;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -128,14 +129,26 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
             //set click listener for 3-dots popup menu
             mThreeDotsMenu.setOnClickListener(mThreeDotsMenuClickListener);
 
-            //load movie thumb from internet
-            String imgUrl = MovieQueryBuilder.getInstance().getImageBaseUrl("w185") + mMovie.getPosterPath();
+            if(mMovie.getPosterPath().equals("")) {
+                Log.d("something", "bind: poster path is null for " + mMovie.getTitle());
+                Glide.with(mContext)
+                        .load("")
+                        .placeholder(R.drawable.ic_favorite)
+                        .crossFade()
+                        .into(mThumbnail);
+            } else {
+                //load movie thumb from internet
+                String imgUrl = MovieQueryBuilder.getInstance().getImageBaseUrl("w185") + mMovie.getPosterPath();
 
-            Glide.with(mContext).load(imgUrl)
-                    .thumbnail(0.5f)
-                    .crossFade()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(mThumbnail);
+                Glide.with(mContext).load(imgUrl)
+                        .thumbnail(0.5f)
+                        .crossFade()
+                        .fitCenter()
+                        .placeholder(R.drawable.ic_image_placeholder_white)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .error(R.drawable.ic_image_placeholder_white)
+                        .into(mThumbnail);
+            }
         }
 
         public void setMovie(Movie movie) {

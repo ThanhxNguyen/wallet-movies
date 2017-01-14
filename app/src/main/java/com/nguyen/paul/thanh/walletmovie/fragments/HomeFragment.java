@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.activities.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.adapters.MoviePagerAdapter;
-import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
 
 public class HomeFragment extends Fragment implements MainActivity.OnActivityInteractionListener {
 
@@ -58,6 +57,8 @@ public class HomeFragment extends Fragment implements MainActivity.OnActivityInt
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        //test
+        Log.d(TAG, "onCreateView:");
 
         // Inflate the layout for this fragment
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_home, container, false);
@@ -88,11 +89,14 @@ public class HomeFragment extends Fragment implements MainActivity.OnActivityInt
     @Override
     public void onSearchUpdateFragment(String query) {
         if(!TextUtils.isEmpty(query)) {
-            String searchUrl = MovieQueryBuilder.getInstance()
-                    .search()
-                    .query(query)
-                    .build();
-            Log.d(TAG, "onSearchUpdateFragment: HomeFragment query - " + searchUrl);
+            Log.d(TAG, "onSearchUpdateFragment: received search query: " + query);
+            Fragment fragment = MovieSearchResultFragment.newInstance(query);
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_frame, fragment, MovieSearchResultFragment.FRAGMENT_TAG)
+                    .addToBackStack(null)
+                    .commit();
+
         }
 
     }

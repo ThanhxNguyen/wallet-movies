@@ -21,7 +21,7 @@ public class NetworkRequest {
 
     private NetworkRequest(Context context) {
         mContext = context;
-        mRequestQueue = getRequestQueue();
+//        mRequestQueue = getRequestQueue();
     }
 
     public static synchronized NetworkRequest getInstance(Context context) {
@@ -39,13 +39,13 @@ public class NetworkRequest {
              * ensures hat the RequestQueue will last for the lifetime of your app, instead
              * of being recreated every time the activity is recreated (for example, when the user rotates the device).
              */
-            mRequestQueue = Volley.newRequestQueue(mContext.getApplicationContext());
         }
+        mRequestQueue = Volley.newRequestQueue(mContext.getApplicationContext());
 
         return mRequestQueue;
     }
 
-    public <T> void addToRequestQueue(Request<T> request, String tag) {
+    public synchronized <T> void addToRequestQueue(Request<T> request, String tag) {
         if(TextUtils.isEmpty(tag)) throw new AssertionError("Tag cannot be empty!");
         //set tag for request object
         request.setTag(tag);

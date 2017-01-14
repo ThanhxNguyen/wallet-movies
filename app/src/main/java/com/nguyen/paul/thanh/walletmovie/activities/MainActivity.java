@@ -18,6 +18,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,6 +31,7 @@ import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.WalletMovieApp;
 import com.nguyen.paul.thanh.walletmovie.fragments.FavouriteMoviesFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.HomeFragment;
+import com.nguyen.paul.thanh.walletmovie.fragments.MovieListFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.ProfileFragment;
 import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
 
@@ -98,15 +100,16 @@ public class MainActivity extends AppCompatActivity
         //get navigation menu refs for show/hide menu items when authenticating users
         mNavMenu = mNavigationView.getMenu();
         mNavigationView.setNavigationItemSelectedListener(this);
-        //set home navigation option selected by default
-        if(savedInstanceState == null) {
-            //set home option selected by default
-            mNavigationView.getMenu().getItem(0).setChecked(true);
-            //display home content by default
-            onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
-        }
+//        //set home navigation option selected by default
+//        if(savedInstanceState == null) {
+//            //set home option selected by default
+//            mNavigationView.getMenu().getItem(0).setChecked(true);
+//            //display home content by default
+//            onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
+//        }
 
         prepareFireBaseAuthListener();
+
 
         //test
         Log.e(TAG, "onCreate: ");
@@ -115,20 +118,19 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        //get search query from base application class
-        String searchQuery = ( (WalletMovieApp) getApplicationContext()).getSearchQuery();
-        HomeFragment homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentByTag(HomeFragment.FRAGMENT_TAG);
-        if(homeFragment != null) {
-            homeFragment.onSearchUpdateFragment(searchQuery);
-            Log.e(TAG, "onResume: pass to HomeFragment search query: " + searchQuery);
+        String query = ( (WalletMovieApp) getApplicationContext()).getSearchQuery();
+        Log.e(TAG, "onResume: search query: " + query);
+
+        if(!TextUtils.isEmpty(query)) {
+            //display search result
+            Fragment fragment = MovieListFragment.newInstance(query);
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_frame, fragment, MovieListFragment.FRAGMENT_TAG)
+                    .addToBackStack(null)
+                    .commit();
         }
-
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.e(TAG, "onRestart: ");
     }
 
     /**
@@ -149,6 +151,7 @@ public class MainActivity extends AppCompatActivity
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             ( (WalletMovieApp) getApplicationContext()).setSearchQuery(query);
+            Log.d(TAG, "handleIntent: query: " + query);
         }
     }
 
@@ -321,6 +324,9 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+
+        Log.e(TAG, "onNavigationItemSelected: ");
+
         FragmentManager fm = getSupportFragmentManager();
         Fragment fragment = null;
         String FRAGMENT_TAG = null;
@@ -367,16 +373,19 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
 
+        Log.d(TAG, "onNavigationItemSelected: fragment_tag: " + FRAGMENT_TAG);
+
         //if fragment is not null, populate fragment content
         if(fragment != null) {
             fm.beginTransaction()
-                .replace(R.id.content_frame, fragment, FRAGMENT_TAG)
-                .addToBackStack(null)
-                .commit();
+                    .replace(R.id.content_frame, fragment, FRAGMENT_TAG)
+                    .addToBackStack(null)
+                    .commit();
         }
 
         mDrawerLayout.closeDrawer(GravityCompat.START);
         return true;
+
     }
 
 }

@@ -5,7 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.nguyen.paul.thanh.walletmovie.fragments.MoviePagerFragment;
+import com.nguyen.paul.thanh.walletmovie.fragments.MovieListFragment;
 
 /**
  * Created by THANH on 5/01/2017.
@@ -27,7 +27,7 @@ public class MoviePagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
 
-        return MoviePagerFragment.newInstance(position);
+        return MovieListFragment.newInstance(position);
     }
 
     @Override
