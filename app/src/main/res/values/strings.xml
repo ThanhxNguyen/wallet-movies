@@ -29,4 +29,5 @@
     <string name="action_search"/>
     <string name="movie_vote_text">Vote:</string>
     <string name="movie_release_date_text">Released on:</string>
+    <string name="movie_cast_list_text">Top Billed Casts</string>
 </resources>
