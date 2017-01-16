@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical">
 
     <android.support.v7.widget.CardView
+        android:id="@+id/movie_item_card"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:foreground="?android:attr/selectableItemBackground"
         android:elevation="5dp"
-        app:cardBackgroundColor="@color/cardview_light_background"
-        android:id="@+id/movie_item_card">
+        android:foreground="?android:attr/selectableItemBackground"
+        app:cardBackgroundColor="@color/colorCardDark">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
@@ -32,99 +31,123 @@
                 android:id="@+id/movie_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="32dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="32dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
                 android:contentDescription="@string/movie_title_des"
                 android:text="Movie Title"
-                android:textColor="?attr/colorPrimary"
-                app:layout_constraintLeft_toLeftOf="@+id/movie_thumbnail"
-                app:layout_goneMarginBottom="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
-                app:layout_constraintTop_toBottomOf="@+id/movie_thumbnail"
-                app:layout_constraintRight_toLeftOf="@+id/three_dots_menu"
-                android:layout_marginEnd="32dp"
-                android:layout_marginRight="32dp"
-                app:layout_constraintHorizontal_bias="0.0"
                 android:textAlignment="textStart"
+                android:gravity="start"
+                android:textColor="@color/colorPrimaryText"
+                android:textSize="20sp"
                 android:textStyle="normal|bold"
-                android:textSize="20sp"/>
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="@+id/movie_thumbnail"
+                app:layout_constraintRight_toLeftOf="@+id/three_dots_menu"
+                app:layout_constraintTop_toBottomOf="@+id/movie_thumbnail"
+                app:layout_goneMarginBottom="16dp"
+                android:elevation="24dp"/>
 
             <ImageView
                 android:id="@+id/three_dots_menu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
                 android:scaleType="centerCrop"
                 app:layout_constraintRight_toRightOf="@+id/movie_thumbnail"
-                app:srcCompat="@drawable/ic_3_dots"
-                android:layout_marginEnd="16dp"
-                android:layout_marginRight="16dp"
-                app:layout_constraintTop_toTopOf="@+id/movie_title"/>
+                app:layout_constraintTop_toTopOf="@+id/movie_title"
+                app:srcCompat="@drawable/ic_3_dots"/>
 
             <TextView
-                android:text="TextView"
+                android:id="@+id/movie_release_date_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/movie_release_date"
-                app:layout_constraintTop_toBottomOf="@+id/movie_title"
+                android:text="@string/movie_release_date_text"
                 app:layout_constraintLeft_toLeftOf="@+id/movie_title"
                 android:layout_marginTop="16dp"
-                app:layout_constraintRight_toLeftOf="@+id/movie_vote_text"
+                app:layout_constraintTop_toBottomOf="@+id/movie_title"
+                android:textColor="@color/colorPrimaryText"
+                android:textStyle="normal|bold"
+                android:textAlignment="textStart"
+                android:gravity="start"/>
+
+            <TextView
+                android:id="@+id/movie_release_date_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
-                app:layout_constraintHorizontal_bias="0.0"
+                android:text="TextView"
                 android:textAlignment="textStart"
+                android:textColor="@color/colorPrimaryText"
+                android:gravity="start"
+                android:textSize="14sp"
                 android:textStyle="normal|italic"
-                android:textSize="14sp"/>
+                app:layout_constraintRight_toLeftOf="@+id/movie_vote_text"
+                android:layout_marginStart="8dp"
+                app:layout_constraintLeft_toRightOf="@+id/movie_release_date_text"
+                android:layout_marginLeft="8dp"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintBaseline_toBaselineOf="@+id/movie_release_date_text"/>
 
             <TextView
-                android:text="@string/movie_vote_text"
+                android:id="@+id/movie_vote_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/movie_vote_text"
-                app:layout_constraintBaseline_toBaselineOf="@+id/movie_release_date"
-                app:layout_constraintRight_toLeftOf="@+id/movie_vote_value"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
+                android:textColor="@color/colorPrimaryText"
+                android:text="@string/movie_vote_text"
                 android:textSize="14sp"
-                android:textStyle="normal|bold"/>
+                android:textStyle="normal|bold"
+                app:layout_constraintBaseline_toBaselineOf="@+id/movie_release_date_value"
+                app:layout_constraintRight_toLeftOf="@+id/movie_vote_value"
+                />
 
             <TextView
-                android:text="TextView"
+                android:id="@+id/movie_vote_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/movie_vote_value"
+                android:textColor="@color/colorPrimaryText"
+                android:text="TextView"
+                android:textSize="14sp"
                 app:layout_constraintBaseline_toBaselineOf="@+id/movie_vote_text"
-                app:layout_constraintRight_toRightOf="@+id/three_dots_menu"
-                android:textSize="14sp"/>
+                app:layout_constraintRight_toRightOf="@+id/three_dots_menu"/>
 
             <TextView
-                android:text="TextView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:id="@+id/movie_genres"
-                app:layout_constraintTop_toBottomOf="@+id/movie_release_date"
-                android:layout_marginTop="16dp"
-                app:layout_constraintLeft_toLeftOf="@+id/movie_release_date"
-                app:layout_constraintRight_toRightOf="@+id/movie_vote_value"
-                app:layout_constraintHorizontal_bias="0.0"
-                android:textAlignment="textStart"
-                android:textStyle="normal|bold"
-                android:textSize="12sp"/>
-
-            <TextView
-                android:text="TextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/movie_description"
-                app:layout_constraintTop_toBottomOf="@+id/movie_genres"
-                app:layout_constraintLeft_toLeftOf="@+id/movie_genres"
-                app:layout_constraintBottom_toBottomOf="parent"
                 android:layout_marginTop="16dp"
-                app:layout_constraintRight_toRightOf="@+id/movie_vote_value"
-                app:layout_constraintHorizontal_bias="0.0"
+                android:text="TextView"
                 android:textAlignment="textStart"
-                android:layout_marginBottom="16dp"/>
+                android:textColor="@color/colorPrimaryText"
+                android:gravity="start"
+                android:textSize="12sp"
+                android:textStyle="normal|bold"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="@+id/movie_release_date_text"
+                app:layout_constraintRight_toRightOf="@+id/movie_vote_value"
+                app:layout_constraintTop_toBottomOf="@+id/movie_release_date_text"/>
 
+            <TextView
+                android:id="@+id/movie_description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="16dp"
+                android:textColor="@color/colorPrimaryText"
+                android:text="TextView"
+                android:textAlignment="textStart"
+                android:gravity="start"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="@+id/movie_genres"
+                app:layout_constraintRight_toRightOf="@+id/movie_vote_value"
+                app:layout_constraintTop_toBottomOf="@+id/movie_genres"/>
 
         </android.support.constraint.ConstraintLayout>
 

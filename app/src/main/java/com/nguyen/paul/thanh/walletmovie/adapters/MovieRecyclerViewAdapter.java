@@ -82,7 +82,7 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
         public TextView mTitle;
         public ImageView mThumbnail;
         public ImageView mThreeDotsMenu;
-        public TextView mReleaseDate;
+        public TextView mReleaseDateValue;
         public TextView mVoteValue;
         public TextView mGenres;
         public TextView mDescription;
@@ -97,7 +97,7 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
             mTitle = (TextView) mView.findViewById(R.id.movie_title);
             mThumbnail = (ImageView) mView.findViewById(R.id.movie_thumbnail);
             mThreeDotsMenu = (ImageView) mView.findViewById(R.id.three_dots_menu);
-            mReleaseDate = (TextView) mView.findViewById(R.id.movie_release_date);
+            mReleaseDateValue = (TextView) mView.findViewById(R.id.movie_release_date_value);
             mVoteValue = (TextView) mView.findViewById(R.id.movie_vote_value);
             mGenres = (TextView) mView.findViewById(R.id.movie_genres);
             mDescription = (TextView) mView.findViewById(R.id.movie_description);
@@ -131,7 +131,7 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
         //populate UI and set listener appropriately
         public void bind() {
             mTitle.setText(mMovie.getTitle());
-            mReleaseDate.setText(mMovie.getReleaseDate());
+            mReleaseDateValue.setText(mMovie.getReleaseDate());
             mVoteValue.setText(String.valueOf(mMovie.getVoteAverage()));
 
             List<Genre> genres = mMovie.getGenres();

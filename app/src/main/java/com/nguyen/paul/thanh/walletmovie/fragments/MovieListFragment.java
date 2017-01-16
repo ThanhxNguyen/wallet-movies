@@ -33,6 +33,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -117,7 +118,7 @@ public class MovieListFragment extends Fragment
             } else {
                 //display movies in view pager as a list
                 mTabPosition = args.getInt(TAB_POSITION, 0);
-
+                MovieQueryBuilder movieQueryBuilder = MovieQueryBuilder.getInstance();
                 /* grab movies according tab position
                 * 0: top movies list
                 * 1: now showing movies list
@@ -125,22 +126,23 @@ public class MovieListFragment extends Fragment
                 */
                 switch (mTabPosition) {
                     case 0:
-                        url = MovieQueryBuilder.getInstance().discover().build().toString();
+                        url = movieQueryBuilder.movies().popular().build();
                         break;
                     case 1:
-                        url = "https://api.themoviedb.org/3/discover/movie?api_key=1bd3f3a91c22eef0c9d9c15212f43593&primary_release_date.gte=2014-09-15&primary_release_date.lte=2014-10-22";
+                        url = movieQueryBuilder.movies().showing().build();
                         break;
                     case 2:
-                        url = "https://api.themoviedb.org/3/discover/movie?api_key=1bd3f3a91c22eef0c9d9c15212f43593&certification_country=US&certification=R&sort_by=vote_average.desc";
+                        url = movieQueryBuilder.movies().upcoming().build();
                         break;
                     default:
-                        url = MovieQueryBuilder.getInstance().discover().build().toString();
+                        url = movieQueryBuilder.movies().popular().build();
                         break;
                 }
+                Log.d(TAG, "onCreate: url: " + url);
                 sendRequestToGetMovieList(url);
-            }
+            }//end inner if-else
 
-        }
+        }//end if
 
     }
 
@@ -196,7 +198,8 @@ public class MovieListFragment extends Fragment
                                     mMoviesList.add(movie);
                                 }
                             }
-
+                            //sort the list by votes in descending order by default
+                            Collections.sort(mMoviesList, Movie.MovieVoteSort);
                             //notify adapter about changes
                             mAdapter.notifyDataSetChanged();
 

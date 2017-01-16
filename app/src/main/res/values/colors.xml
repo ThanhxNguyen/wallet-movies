@@ -3,9 +3,10 @@
     <color name="colorPrimary">#212121</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#2196F3</color>
-    <color name="colorBackground">#303030</color>
-    <color name="colorPrimaryText">#FFFFFF</color>
+    <color name="colorBackgroundDark">#303030</color>
+    <color name="colorPrimaryText">#ffffff</color>
     <color name="colorSecondaryText">#B3FFFFFF</color>
     <color name="colorDisabledText">#80FFFFFF</color>
-    <color name="colorCard">#424242</color>
+    <color name="colorCardDark">#424242</color>
+    <color name="colorBackgroundLight">#FAFAFA</color>
 </resources>

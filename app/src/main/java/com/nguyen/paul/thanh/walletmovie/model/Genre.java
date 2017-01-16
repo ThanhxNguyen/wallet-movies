@@ -1,10 +1,13 @@
 package com.nguyen.paul.thanh.walletmovie.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by THANH on 5/01/2017.
  */
 
-public class Genre {
+public class Genre implements Parcelable {
     private int id;
     private String name;
 
@@ -39,4 +42,33 @@ public class Genre {
                 ", name='" + name + '\'' +
                 '}';
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
+        dest.writeString(this.name);
+    }
+
+    protected Genre(Parcel in) {
+        this.id = in.readInt();
+        this.name = in.readString();
+    }
+
+    public static final Parcelable.Creator<Genre> CREATOR = new Parcelable.Creator<Genre>() {
+        @Override
+        public Genre createFromParcel(Parcel source) {
+            return new Genre(source);
+        }
+
+        @Override
+        public Genre[] newArray(int size) {
+            return new Genre[size];
+        }
+    };
 }

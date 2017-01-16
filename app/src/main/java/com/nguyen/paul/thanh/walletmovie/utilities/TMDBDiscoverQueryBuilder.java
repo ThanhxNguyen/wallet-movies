@@ -11,19 +11,18 @@ import com.nguyen.paul.thanh.walletmovie.interfaces.CustomBuilder;
  * - Find: the last but still very useful way to find data is with existing external IDs
  * Reference: https://www.themoviedb.org/documentation/api
  *
- * This builder class will build a query search for "discover" search function
+ * This builder class will build a query search for "discover" search function.
  */
 
 public class TMDBDiscoverQueryBuilder implements CustomBuilder {
 
     private static final String BASE_URL = "https://api.themoviedb.org/3/discover/movie";
     private static final int RESULT_LIMIT = 1;
-    private static final String DATE_FORMAT = "yyyy-MM-dd";
     private static TMDBDiscoverQueryBuilder mInstance;
     private String apiKey;
     private Uri.Builder mUrlBuilder;
 
-    private TMDBDiscoverQueryBuilder(String apiKey) {
+    TMDBDiscoverQueryBuilder(String apiKey) {
         this.apiKey = apiKey;
         mUrlBuilder = Uri.parse(BASE_URL).buildUpon();
     }
@@ -39,10 +38,6 @@ public class TMDBDiscoverQueryBuilder implements CustomBuilder {
     public TMDBDiscoverQueryBuilder mostPopular() {
         mUrlBuilder.appendQueryParameter("sort_by", "popularity.desc");
         return this;
-    }
-
-    public Uri.Builder showing() {
-        return null;
     }
 
     @Override

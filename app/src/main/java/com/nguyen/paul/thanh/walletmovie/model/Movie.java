@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -193,6 +194,31 @@ public class Movie implements Parcelable {
         @Override
         public Movie[] newArray(int size) {
             return new Movie[size];
+        }
+    };
+
+    //use for sorting arraylist of movies by movie name
+    public static Comparator<Movie> MovieNameSort = new Comparator<Movie>() {
+        @Override
+        public int compare(Movie movie1, Movie movie2) {
+            //get movie names
+            String movieName1 = movie1.getTitle().toUpperCase();
+            String movieName2 = movie2.getTitle().toUpperCase();
+
+            //sort in ascending order
+            return movieName1.compareTo(movieName2);
+        }
+    };
+
+    //use for sorting arraylist of movies by movie vote average
+    public static Comparator<Movie> MovieVoteSort = new Comparator<Movie>() {
+        @Override
+        public int compare(Movie movie1, Movie movie2) {
+            Double movie1Vote = movie1.getVoteAverage();
+            Double movie2Vote = movie2.getVoteAverage();
+
+            //sort in descending order
+            return movie2Vote.compareTo(movie1Vote);
         }
     };
 }
