@@ -2,7 +2,6 @@ package com.nguyen.paul.thanh.walletmovie.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -97,12 +96,11 @@ public class CastRecyclerViewAdapter extends RecyclerView.Adapter<CastRecyclerVi
             mCastName.setText(mCast.getName());
             mCastCharacter.setText(mCast.getCharacter());
 
-            String imgUrl = MovieQueryBuilder.getInstance().getImageBaseUrl("w185") + mCast.getProfilePath();
-            Log.d(TAG, "bind: profile url: " + imgUrl);
+            String imgUrl = MovieQueryBuilder.getInstance().getImageBaseUrl("w500") + mCast.getProfilePath();
             Glide.with(mContext).load(imgUrl)
                     .dontAnimate()
                     .placeholder(R.drawable.ic_account_circle_white_48dp)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                     .error(R.drawable.ic_account_circle_white_48dp)
                     .into(mCastThumbnail);
         }

@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity
 
         if(!TextUtils.isEmpty(query)) {
             //display search result
-            Fragment fragment = MovieListFragment.newInstance(query);
+            Fragment fragment = MovieListFragment.newInstance(MovieListFragment.DISPLAY_MOVIES_FOR_SEARCH_RESULT, query);
 
             getSupportFragmentManager()
                     .beginTransaction()

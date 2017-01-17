@@ -156,18 +156,19 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
                 Glide.with(mContext)
                         .load("")
                         .placeholder(R.drawable.ic_favorite)
+                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                         .crossFade()
                         .into(mThumbnail);
             } else {
                 //load movie thumb from internet
-                String imgUrl = MovieQueryBuilder.getInstance().getImageBaseUrl("w185") + mMovie.getPosterPath();
+                String imgUrl = MovieQueryBuilder.getInstance().getImageBaseUrl("w500") + mMovie.getPosterPath();
 
                 Glide.with(mContext).load(imgUrl)
-                        .thumbnail(0.1f)
+//                        .thumbnail(0.1f)
                         .crossFade()
                         .fitCenter()
                         .placeholder(R.drawable.ic_image_placeholder_white)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                         .error(R.drawable.ic_image_placeholder_white)
                         .into(mThumbnail);
             }

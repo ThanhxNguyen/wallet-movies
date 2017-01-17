@@ -30,4 +30,8 @@
     <string name="movie_vote_text">Vote:</string>
     <string name="movie_release_date_text">Released on:</string>
     <string name="movie_cast_list_text">Top Billed Casts</string>
+    <string name="movie_cast_birthday_text">Birthday:</string>
+    <string name="movie_cast_birth_place_text">Place of Birth:</string>
+    <string name="movie_cast_credit_text">Known For</string>
+    <string name="check_out_movies_for_cast">Movies For This Cast</string>
 </resources>

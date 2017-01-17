@@ -40,6 +40,11 @@ public class TMDBDiscoverQueryBuilder implements CustomBuilder {
         return this;
     }
 
+    public TMDBDiscoverQueryBuilder moviesRelatedTo(int castId) {
+        mUrlBuilder.appendQueryParameter("with_cast", String.valueOf(castId));
+        return this;
+    }
+
     @Override
     public String build() {
         //append api key to request param for authentication

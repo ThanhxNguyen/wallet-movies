@@ -3,6 +3,7 @@ package com.nguyen.paul.thanh.walletmovie.fragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +33,7 @@ import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
+import com.nguyen.paul.thanh.walletmovie.utilities.RecyclerViewGridSpaceItemDecorator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,7 +136,7 @@ public class FavouriteMoviesFragment extends Fragment
         mRecylerView = (RecyclerView) view.findViewById(R.id.favourite_movie_list);
         //layout manager
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, 1);
-//        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(mContext);
+        mRecylerView.addItemDecoration(new RecyclerViewGridSpaceItemDecorator(1, dpToPx(10), true));
         mRecylerView.setItemAnimator(new DefaultItemAnimator());
         mRecylerView.setLayoutManager(layoutManager);
 //        //setup recyclerview adapter here
@@ -195,6 +198,14 @@ public class FavouriteMoviesFragment extends Fragment
         }
 
         return movieList;
+    }
+
+    /**
+     * Converting dp to pixel
+     */
+    private int dpToPx(int dp) {
+        Resources r = getResources();
+        return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
     }
 
     @Override

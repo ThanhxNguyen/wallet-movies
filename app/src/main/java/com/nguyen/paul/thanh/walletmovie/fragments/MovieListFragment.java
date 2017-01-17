@@ -20,6 +20,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.WalletMovieApp;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
@@ -48,17 +49,24 @@ public class MovieListFragment extends Fragment
 
     public static final String FRAGMENT_TAG = MovieListFragment.class.getSimpleName();
 
-    private static final String TAB_POSITION = "tab_position";
-    private static final String SEARCH_QUERY = "search_query";
-    public static final String USE_FOR_DISPLAY_SEARCH_RESULT = "use_for_display_search_result";
+    private static final String TAB_POSITION_KEY = "tab_position_key";
+    private static final String SEARCH_QUERY_KEY = "search_query_key";
+    public static final String CAST_ID_KEY = "cast_id_key";
+
+    //these constants will be used to identify what kind of movies it should display
+    //such as movies for viewpager from home page, movies for user search query or
+    //movies related to a cast.
+    private static final String INIT_KEY = "initiating_key";
+    public static final int DISPLAY_MOVIES_FOR_VIEWPAGER = 1;
+    public static final int DISPLAY_MOVIES_FOR_SEARCH_RESULT = 2;
+    public static final int DISPLAY_MOVIES_RELATED_TO_CAST = 3;
+
     private static final String NETWORK_REQUEST_TAG = "network_request_tag";
-    private int mTabPosition;
     private Context mContext;
     private NetworkRequest mNetworkRequest;
     private List<Movie> mMoviesList;
     private List<Genre> mGenreListFromApi;
     private MovieRecyclerViewAdapter mAdapter;
-    private RecyclerView mRecylerView;
 
     public MovieListFragment() {
         // Required empty public constructor
@@ -70,20 +78,24 @@ public class MovieListFragment extends Fragment
      *
      * @return A new instance of fragment MovieListFragment.
      */
-    public static MovieListFragment newInstance(int tabPosition) {
+    public static MovieListFragment newInstance(int displayType, int param) {
         MovieListFragment fragment = new MovieListFragment();
         Bundle args = new Bundle();
-        args.putBoolean(USE_FOR_DISPLAY_SEARCH_RESULT, false);
-        args.putInt(TAB_POSITION, tabPosition);
+        args.putInt(INIT_KEY, displayType);
+        if(displayType == DISPLAY_MOVIES_FOR_VIEWPAGER) {
+            args.putInt(TAB_POSITION_KEY, param);
+        } else if(displayType == DISPLAY_MOVIES_RELATED_TO_CAST) {
+            args.putInt(CAST_ID_KEY, param);
+        }
         fragment.setArguments(args);
         return fragment;
     }
 
-    public static MovieListFragment newInstance(String searchQuery) {
+    public static MovieListFragment newInstance(int displayType, String searchQuery) {
         MovieListFragment fragment = new MovieListFragment();
         Bundle args = new Bundle();
-        args.putBoolean(USE_FOR_DISPLAY_SEARCH_RESULT, true);
-        args.putString(SEARCH_QUERY, searchQuery);
+        args.putInt(INIT_KEY, displayType);
+        args.putString(SEARCH_QUERY_KEY, searchQuery);
         fragment.setArguments(args);
         return fragment;
     }
@@ -95,55 +107,74 @@ public class MovieListFragment extends Fragment
         mContext = context;
         mNetworkRequest = NetworkRequest.getInstance(mContext);
         mMoviesList = new ArrayList<>();
-        mGenreListFromApi = new ArrayList<>();
+//        mGenreListFromApi = new ArrayList<>();
+        mGenreListFromApi = ((WalletMovieApp) getActivity().getApplication()).getGenreListFromApi();
 
-        String genreListUrl = MovieQueryBuilder.getInstance().getGenreListUrl();
-        sendRequestToGetGenreList(genreListUrl);
+        if(mGenreListFromApi.size() == 0) {
+            String genreListUrl = MovieQueryBuilder.getInstance().getGenreListUrl();
+            sendRequestToGetGenreList(genreListUrl);
+        }
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
         Bundle args = getArguments();
-        String url = null;
         if(args != null) {
-            boolean displaySearchResult = args.getBoolean(USE_FOR_DISPLAY_SEARCH_RESULT);
+            int displayType = args.getInt(INIT_KEY);
 
-            if(displaySearchResult) {
-                //get search query from searchable activity
-                String searchQuery = args.getString(SEARCH_QUERY);
-                url = MovieQueryBuilder.getInstance().search().query(searchQuery).build();
-                sendRequestToGetMovieList(url);
+            switch (displayType) {
+                case DISPLAY_MOVIES_FOR_VIEWPAGER:
+                    int tabPosition = args.getInt(TAB_POSITION_KEY, 0);
+                    displayMoviesForViewPager(tabPosition);
+                    break;
+                case DISPLAY_MOVIES_FOR_SEARCH_RESULT:
+                    String searchQuery = args.getString(SEARCH_QUERY_KEY);
+                    displayMoviesForSearchResult(searchQuery);
+                    break;
+                case DISPLAY_MOVIES_RELATED_TO_CAST:
+                    int castId = args.getInt(CAST_ID_KEY);
+                    displayMoviesRelatedToCast(castId);
+            }
 
-            } else {
-                //display movies in view pager as a list
-                mTabPosition = args.getInt(TAB_POSITION, 0);
-                MovieQueryBuilder movieQueryBuilder = MovieQueryBuilder.getInstance();
+        }//end if
+
+    }
+
+    private void displayMoviesForViewPager(int tabPosition) {
+        String url;
+        MovieQueryBuilder movieQueryBuilder = MovieQueryBuilder.getInstance();
                 /* grab movies according tab position
                 * 0: top movies list
                 * 1: now showing movies list
                 * 3: upcoming movies list
                 */
-                switch (mTabPosition) {
-                    case 0:
-                        url = movieQueryBuilder.movies().popular().build();
-                        break;
-                    case 1:
-                        url = movieQueryBuilder.movies().showing().build();
-                        break;
-                    case 2:
-                        url = movieQueryBuilder.movies().upcoming().build();
-                        break;
-                    default:
-                        url = movieQueryBuilder.movies().popular().build();
-                        break;
-                }
-                Log.d(TAG, "onCreate: url: " + url);
-                sendRequestToGetMovieList(url);
-            }//end inner if-else
+        switch (tabPosition) {
+            case 0:
+                url = movieQueryBuilder.movies().popular().build();
+                break;
+            case 1:
+                url = movieQueryBuilder.movies().showing().build();
+                break;
+            case 2:
+                url = movieQueryBuilder.movies().upcoming().build();
+                break;
+            default:
+                url = movieQueryBuilder.movies().popular().build();
+                break;
+        }
+        sendRequestToGetMovieList(url);
+    }
 
-        }//end if
+    private void displayMoviesForSearchResult(String searchQuery) {
+        String url = MovieQueryBuilder.getInstance().search().query(searchQuery).build();
+        sendRequestToGetMovieList(url);
+    }
 
+    private void displayMoviesRelatedToCast(int castId) {
+        String url = MovieQueryBuilder.getInstance().discover().moviesRelatedTo(castId).build();
+        sendRequestToGetMovieList(url);
     }
 
     @Override
@@ -152,15 +183,15 @@ public class MovieListFragment extends Fragment
         // Inflate the layout for this fragment
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_movie_pager_item, container, false);
 
-        mRecylerView = (RecyclerView) view.findViewById(R.id.movie_list);
+        RecyclerView recylerView = (RecyclerView) view.findViewById(R.id.movie_list);
         //layout manager
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, 1);
-        mRecylerView.addItemDecoration(new RecyclerViewGridSpaceItemDecorator(1, dpToPx(10), true));
-        mRecylerView.setItemAnimator(new DefaultItemAnimator());
-        mRecylerView.setLayoutManager(layoutManager);
+        recylerView.addItemDecoration(new RecyclerViewGridSpaceItemDecorator(1, dpToPx(10), true));
+        recylerView.setItemAnimator(new DefaultItemAnimator());
+        recylerView.setLayoutManager(layoutManager);
         //setup recycler view adapter here
         mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this, R.menu.home_movie_list_item_popup_menu);
-        mRecylerView.setAdapter(mAdapter);
+        recylerView.setAdapter(mAdapter);
 
         return view;
     }
@@ -194,6 +225,7 @@ public class MovieListFragment extends Fragment
                             for(int i=0; i<results.length(); i++) {
                                 JSONObject tempMovieJsonObj = results.getJSONObject(i);
                                 Movie movie = parseMovieJsonObject(tempMovieJsonObj);
+
                                 if(movie != null) {
                                     mMoviesList.add(movie);
                                 }
@@ -239,10 +271,7 @@ public class MovieListFragment extends Fragment
                                     : obj.getString("poster_path"));
             //get genre id from movie json object and use it to get genre name from genre list
             JSONArray genreIds = obj.getJSONArray("genre_ids");
-            if(mGenreListFromApi.size() == 0) {
-                //list empty
-
-            } else {
+            if(mGenreListFromApi.size() > 0) {
                 List<Genre> movieGenreList = new ArrayList<>();
                 for(int i=0; i<genreIds.length(); i++) {
                     for(Genre g : mGenreListFromApi) {
@@ -255,6 +284,7 @@ public class MovieListFragment extends Fragment
                 }
 
                 movie.setGenres(movieGenreList);
+
             }
 
         } catch (JSONException e) {
@@ -266,6 +296,7 @@ public class MovieListFragment extends Fragment
     }
 
     private void sendRequestToGetGenreList(String url) {
+        Log.d(TAG, "sendRequestToGetGenreList: url: " + url);
         JsonObjectRequest genreJsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -304,6 +335,8 @@ public class MovieListFragment extends Fragment
                 e.printStackTrace();
             }
         }
+        //cache genres list value to app
+        ( (WalletMovieApp) getActivity().getApplication()).setGenreListFromApi(mGenreListFromApi);
     }
 
     @Override

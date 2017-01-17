@@ -8,6 +8,7 @@ import android.os.Parcelable;
  */
 
 public class Cast implements Parcelable {
+    private int id;
     private String name;
     private String biography;
     private String birthday;
@@ -18,12 +19,22 @@ public class Cast implements Parcelable {
     public Cast() {
     }
 
-    public Cast(String name, String biography, String birthday, String placeOfBirth, String profilePath) {
+    public Cast(int id, String name, String biography, String birthday, String placeOfBirth, String profilePath, String character) {
+        this.id = id;
         this.name = name;
         this.biography = biography;
         this.birthday = birthday;
         this.placeOfBirth = placeOfBirth;
         this.profilePath = profilePath;
+        this.character = character;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {

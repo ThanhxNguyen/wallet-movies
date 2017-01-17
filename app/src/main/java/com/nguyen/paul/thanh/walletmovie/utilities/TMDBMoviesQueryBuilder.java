@@ -56,6 +56,11 @@ public class TMDBMoviesQueryBuilder implements CustomBuilder {
         return this;
     }
 
+    public TMDBMoviesQueryBuilder getSingleCast(int castId) {
+        mUrlBuilder.path("/3/person/" + castId);
+        return this;
+    }
+
     @Override
     public String build() {
         //append api key to request param for authentication

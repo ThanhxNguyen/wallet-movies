@@ -158,6 +158,7 @@ public class MovieDetailsFragment extends Fragment
                             for(int i=0; i<castLimit; i++) {
                                 JSONObject castJsonObj = casts.getJSONObject(i);
                                 Cast cast = new Cast();
+                                cast.setId(castJsonObj.getInt("id"));
                                 cast.setName(castJsonObj.getString("name"));
                                 cast.setCharacter(castJsonObj.getString("character"));
                                 cast.setProfilePath(castJsonObj.getString("profile_path"));
@@ -289,5 +290,10 @@ public class MovieDetailsFragment extends Fragment
     @Override
     public void onMovieCastItemClick(Cast cast) {
 
+        getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.content_frame, MovieCastDetailsFragment.newInstance(cast))
+                        .addToBackStack(null)
+                        .commit();
     }
 }
