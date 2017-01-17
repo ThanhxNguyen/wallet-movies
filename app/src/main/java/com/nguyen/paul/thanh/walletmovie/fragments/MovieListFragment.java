@@ -49,6 +49,8 @@ public class MovieListFragment extends Fragment
 
     public static final String FRAGMENT_TAG = MovieListFragment.class.getSimpleName();
 
+    private static final String SAVE_INSTANCE_MOVIES_KEY = "save_instance_movie_key";
+
     private static final String TAB_POSITION_KEY = "tab_position_key";
     private static final String SEARCH_QUERY_KEY = "search_query_key";
     public static final String CAST_ID_KEY = "cast_id_key";
@@ -64,7 +66,7 @@ public class MovieListFragment extends Fragment
     private static final String NETWORK_REQUEST_TAG = "network_request_tag";
     private Context mContext;
     private NetworkRequest mNetworkRequest;
-    private List<Movie> mMoviesList;
+    private ArrayList<Movie> mMoviesList;
     private List<Genre> mGenreListFromApi;
     private MovieRecyclerViewAdapter mAdapter;
 
@@ -120,26 +122,6 @@ public class MovieListFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        Bundle args = getArguments();
-        if(args != null) {
-            int displayType = args.getInt(INIT_KEY);
-
-            switch (displayType) {
-                case DISPLAY_MOVIES_FOR_VIEWPAGER:
-                    int tabPosition = args.getInt(TAB_POSITION_KEY, 0);
-                    displayMoviesForViewPager(tabPosition);
-                    break;
-                case DISPLAY_MOVIES_FOR_SEARCH_RESULT:
-                    String searchQuery = args.getString(SEARCH_QUERY_KEY);
-                    displayMoviesForSearchResult(searchQuery);
-                    break;
-                case DISPLAY_MOVIES_RELATED_TO_CAST:
-                    int castId = args.getInt(CAST_ID_KEY);
-                    displayMoviesRelatedToCast(castId);
-            }
-
-        }//end if
-
     }
 
     private void displayMoviesForViewPager(int tabPosition) {
@@ -192,6 +174,26 @@ public class MovieListFragment extends Fragment
         //setup recycler view adapter here
         mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this, R.menu.home_movie_list_item_popup_menu);
         recylerView.setAdapter(mAdapter);
+
+        Bundle args = getArguments();
+        if(args != null) {
+            int displayType = args.getInt(INIT_KEY);
+
+            switch (displayType) {
+                case DISPLAY_MOVIES_FOR_VIEWPAGER:
+                    int tabPosition = args.getInt(TAB_POSITION_KEY, 0);
+                    displayMoviesForViewPager(tabPosition);
+                    break;
+                case DISPLAY_MOVIES_FOR_SEARCH_RESULT:
+                    String searchQuery = args.getString(SEARCH_QUERY_KEY);
+                    displayMoviesForSearchResult(searchQuery);
+                    break;
+                case DISPLAY_MOVIES_RELATED_TO_CAST:
+                    int castId = args.getInt(CAST_ID_KEY);
+                    displayMoviesRelatedToCast(castId);
+            }
+
+        }//end if
 
         return view;
     }

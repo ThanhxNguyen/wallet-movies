@@ -4,6 +4,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -37,24 +38,17 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MainActivity";
+    private static final String FRAGMENT_TAG_KEY = "fragment_tag_key";
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
     private Menu mNavMenu;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-    /**
-     * This interface provides a callback and let this activity pass some data to the fragment which
-     * implements this interface
-     */
-    public interface OnActivityInteractionListener {
-        //when the user submit search query, this method will be invoked to handle the search result
-        void onSearchUpdateFragment(String query);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e(TAG, "onCreate: ");
         setContentView(R.layout.activity_main);
         /**
          * Follow android developer guide for launchMode="singleTop"
@@ -89,26 +83,24 @@ public class MainActivity extends AppCompatActivity
         //get navigation menu refs for show/hide menu items when authenticating users
         mNavMenu = mNavigationView.getMenu();
         mNavigationView.setNavigationItemSelectedListener(this);
-//        //set home navigation option selected by default
-//        if(savedInstanceState == null) {
-//            //set home option selected by default
-//            mNavigationView.getMenu().getItem(0).setChecked(true);
-//            //display home content by default
-//            onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
-//        }
 
         prepareFireBaseAuthListener();
 
-
         //test
-        Log.e(TAG, "onCreate: ");
+//        FragmentManager fm = getSupportFragmentManager();
+//        Fragment frag = fm.findFragmentByTag("Blank_tag");
+//        if(frag != null) {
+//            fm.beginTransaction().replace(R.id.content_frame, frag).commit();
+//        } else {
+//            fm.beginTransaction().replace(R.id.content_frame, BlankFragment.newInstance("hello", "world"), "Blank_tag").commit();
+//        }
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         String query = ( (WalletMovieApp) getApplicationContext()).getSearchQuery();
-        Log.e(TAG, "onResume: search query: " + query);
 
         if(!TextUtils.isEmpty(query)) {
             //display search result
@@ -140,7 +132,6 @@ public class MainActivity extends AppCompatActivity
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             ( (WalletMovieApp) getApplicationContext()).setSearchQuery(query.trim());
-            Log.d(TAG, "handleIntent: query: " + query);
         }
     }
 
@@ -186,9 +177,20 @@ public class MainActivity extends AppCompatActivity
         mAuth.addAuthStateListener(mAuthListener);
     }
 
+    /**
+     * This method helps to manage navigation drawer state, when activity is re-created
+     * it won't select the first item to display. Instead, it will display the menu item
+     * based on state (before configuration changed)
+     */
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
+
     @Override
     protected void onStop() {
         super.onStop();
+        Log.e(TAG, "onStop: ");
         if(mAuthListener != null) {
             //remove auth listener
             mAuth.removeAuthStateListener(mAuthListener);
@@ -198,7 +200,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.e(TAG, "onDestroy: test if MainActivity gets destroyed when search activates");
+        Log.e(TAG, "onDestroy: ");
     }
 
     @Override
@@ -317,33 +319,48 @@ public class MainActivity extends AppCompatActivity
         Log.e(TAG, "onNavigationItemSelected: ");
 
         FragmentManager fm = getSupportFragmentManager();
-        Fragment fragment = null;
-        String FRAGMENT_TAG = null;
+        String fragmentTag;
+        Fragment fragment;
+
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         switch (id) {
             case R.id.nav_home:
-                FRAGMENT_TAG = HomeFragment.FRAGMENT_TAG;
-                fragment = fm.findFragmentByTag(FRAGMENT_TAG);
+                Log.d(TAG, "onNavigationItemSelected: home");
+                fragmentTag = HomeFragment.FRAGMENT_TAG;
+                fragment = fm.findFragmentByTag(fragmentTag);
                 if(fragment == null) {
                     fragment = HomeFragment.newInstance();
+                    fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
+                } else {
+                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
                 break;
+
             case R.id.nav_favourites:
-                FRAGMENT_TAG = FavouriteMoviesFragment.FRAGMENT_TAG;
-                fragment = fm.findFragmentByTag(FRAGMENT_TAG);
+                Log.d(TAG, "onNavigationItemSelected: favourites");
+                fragmentTag = FavouriteMoviesFragment.FRAGMENT_TAG;
+                fragment = fm.findFragmentByTag(fragmentTag);
                 if(fragment == null) {
                     fragment = FavouriteMoviesFragment.newInstance();
+                    fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
+                } else {
+                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
                 break;
+
             case R.id.nav_profile:
-                FRAGMENT_TAG = ProfileFragment.FRAGMENT_TAG;
-                fragment = fm.findFragmentByTag(FRAGMENT_TAG);
+                fragmentTag = ProfileFragment.FRAGMENT_TAG;
+                fragment = fm.findFragmentByTag(fragmentTag);
                 if(fragment == null) {
                     fragment = ProfileFragment.newInstance();
+                    fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
+                } else {
+                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
                 break;
+
             case R.id.nav_signin:
                 //navigate to signin activity
                 Intent intent = new Intent(MainActivity.this, SigninActivity.class);
@@ -353,23 +370,18 @@ public class MainActivity extends AppCompatActivity
                 //sign out user
                 mAuth.signOut();
                 break;
+
             default:
-                FRAGMENT_TAG = HomeFragment.FRAGMENT_TAG;
-                fragment = fm.findFragmentByTag(FRAGMENT_TAG);
+                fragmentTag = HomeFragment.FRAGMENT_TAG;
+                fragment = fm.findFragmentByTag(fragmentTag);
                 if(fragment == null) {
                     fragment = HomeFragment.newInstance();
+                    fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
+                } else {
+                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
                 break;
-        }
 
-        Log.d(TAG, "onNavigationItemSelected: fragment_tag: " + FRAGMENT_TAG);
-
-        //if fragment is not null, populate fragment content
-        if(fragment != null) {
-            fm.beginTransaction()
-                    .replace(R.id.content_frame, fragment, FRAGMENT_TAG)
-                    .addToBackStack(null)
-                    .commit();
         }
 
         mDrawerLayout.closeDrawer(GravityCompat.START);

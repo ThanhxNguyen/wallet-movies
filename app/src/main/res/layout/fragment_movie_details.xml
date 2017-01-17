@@ -49,7 +49,10 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="@+id/youtube_video_frame"
         app:layout_constraintTop_toBottomOf="@+id/youtube_video_frame"
-        app:layout_goneMarginBottom="16dp"/>
+        app:layout_goneMarginBottom="16dp"
+        app:layout_constraintRight_toRightOf="@+id/youtube_video_frame"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"/>
 
     <TextView
         android:id="@+id/movie_release_date_text"
