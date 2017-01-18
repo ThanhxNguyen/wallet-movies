@@ -48,7 +48,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e(TAG, "onCreate: ");
         setContentView(R.layout.activity_main);
         /**
          * Follow android developer guide for launchMode="singleTop"
@@ -85,15 +84,6 @@ public class MainActivity extends AppCompatActivity
         mNavigationView.setNavigationItemSelectedListener(this);
 
         prepareFireBaseAuthListener();
-
-        //test
-//        FragmentManager fm = getSupportFragmentManager();
-//        Fragment frag = fm.findFragmentByTag("Blank_tag");
-//        if(frag != null) {
-//            fm.beginTransaction().replace(R.id.content_frame, frag).commit();
-//        } else {
-//            fm.beginTransaction().replace(R.id.content_frame, BlankFragment.newInstance("hello", "world"), "Blank_tag").commit();
-//        }
 
     }
 
@@ -190,17 +180,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
-        Log.e(TAG, "onStop: ");
         if(mAuthListener != null) {
             //remove auth listener
             mAuth.removeAuthStateListener(mAuthListener);
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.e(TAG, "onDestroy: ");
     }
 
     @Override
@@ -238,6 +221,7 @@ public class MainActivity extends AppCompatActivity
                     FragmentManager.BackStackEntry firstInBackstack = fm.getBackStackEntryAt(0);
                     fm.popBackStack(firstInBackstack.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 }
+                finish();
             } else if(currentPagerPosition > 0) {
                 //set the active pager manually
                 moviePager.setCurrentItem(currentPagerPosition - 1);
@@ -316,8 +300,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
-        Log.e(TAG, "onNavigationItemSelected: ");
-
         FragmentManager fm = getSupportFragmentManager();
         String fragmentTag;
         Fragment fragment;
@@ -327,7 +309,6 @@ public class MainActivity extends AppCompatActivity
 
         switch (id) {
             case R.id.nav_home:
-                Log.d(TAG, "onNavigationItemSelected: home");
                 fragmentTag = HomeFragment.FRAGMENT_TAG;
                 fragment = fm.findFragmentByTag(fragmentTag);
                 if(fragment == null) {
@@ -339,7 +320,6 @@ public class MainActivity extends AppCompatActivity
                 break;
 
             case R.id.nav_favourites:
-                Log.d(TAG, "onNavigationItemSelected: favourites");
                 fragmentTag = FavouriteMoviesFragment.FRAGMENT_TAG;
                 fragment = fm.findFragmentByTag(fragmentTag);
                 if(fragment == null) {

@@ -2,6 +2,7 @@ package com.nguyen.paul.thanh.walletmovie.fragments;
 
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -27,7 +28,7 @@ import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import com.nguyen.paul.thanh.walletmovie.utilities.AddFavouriteTask;
 import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
-import com.nguyen.paul.thanh.walletmovie.utilities.RecyclerViewGridSpaceItemDecorator;
+import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,6 +70,9 @@ public class MovieListFragment extends Fragment
     private ArrayList<Movie> mMoviesList;
     private List<Genre> mGenreListFromApi;
     private MovieRecyclerViewAdapter mAdapter;
+    private RecyclerView.LayoutManager mGridLayoutManager;
+    private RecyclerView mRecyclerView;
+    private ScreenMeasurer mScreenMeasurer;
 
     public MovieListFragment() {
         // Required empty public constructor
@@ -124,6 +128,18 @@ public class MovieListFragment extends Fragment
         setRetainInstance(true);
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        int numRows = getNumRowsForMovieList();
+
+        GridLayoutManager gridLayoutManager = (GridLayoutManager) mRecyclerView.getLayoutManager();
+        gridLayoutManager.setSpanCount(numRows);
+        mRecyclerView.setLayoutManager(gridLayoutManager);
+        mAdapter.notifyDataSetChanged();
+    }
+
     private void displayMoviesForViewPager(int tabPosition) {
         String url;
         MovieQueryBuilder movieQueryBuilder = MovieQueryBuilder.getInstance();
@@ -165,15 +181,16 @@ public class MovieListFragment extends Fragment
         // Inflate the layout for this fragment
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_movie_pager_item, container, false);
 
-        RecyclerView recylerView = (RecyclerView) view.findViewById(R.id.movie_list);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.movie_list);
         //layout manager
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, 1);
-        recylerView.addItemDecoration(new RecyclerViewGridSpaceItemDecorator(1, dpToPx(10), true));
-        recylerView.setItemAnimator(new DefaultItemAnimator());
-        recylerView.setLayoutManager(layoutManager);
+        int numRows = getNumRowsForMovieList();
+        mGridLayoutManager = new GridLayoutManager(mContext, numRows);
+//        mRecyclerView.addItemDecoration(new RecyclerViewGridSpaceItemDecorator(numRows, dpToPx(10), true));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.setLayoutManager(mGridLayoutManager);
         //setup recycler view adapter here
         mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this, R.menu.home_movie_list_item_popup_menu);
-        recylerView.setAdapter(mAdapter);
+        mRecyclerView.setAdapter(mAdapter);
 
         Bundle args = getArguments();
         if(args != null) {
@@ -196,6 +213,22 @@ public class MovieListFragment extends Fragment
         }//end if
 
         return view;
+    }
+
+    private int getNumRowsForMovieList() {
+        mScreenMeasurer = new ScreenMeasurer(getActivity());
+        //get screen size and display movie list appropriately
+        int numRows = 1;
+        int screenWidth = mScreenMeasurer.getDpWidth();
+        if(screenWidth < 480) {//phone portrait
+            numRows = 1;
+        } else if(screenWidth > 480 && screenWidth < 600) {//phone landscape or small tablet portrait
+            numRows = 2;
+        } else if(screenWidth > 600) {
+            numRows = 3;
+        }
+
+        return numRows;
     }
 
     @Override
