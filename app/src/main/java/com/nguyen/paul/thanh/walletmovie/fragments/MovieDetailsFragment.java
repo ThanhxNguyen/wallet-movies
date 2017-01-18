@@ -1,6 +1,7 @@
 package com.nguyen.paul.thanh.walletmovie.fragments;
 
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -69,6 +70,8 @@ public class MovieDetailsFragment extends Fragment
     private CastRecyclerViewAdapter mCastRecyclerViewAdapter;
     private List<Cast> mCastList;
 
+    private ProgressDialog mProgressDialog;
+
     public MovieDetailsFragment() {
         // Required empty public constructor
     }
@@ -95,6 +98,9 @@ public class MovieDetailsFragment extends Fragment
         mContext = context;
         mNetworkRequest = NetworkRequest.getInstance(mContext);
         mCastList = new ArrayList<>();
+
+        mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setMessage("Loading data...");
     }
 
     @Override
@@ -205,6 +211,9 @@ public class MovieDetailsFragment extends Fragment
     }
 
     private void displayMovieTrailerOrPoster(final Movie movie) {
+        //show progress dialog since loading youtube video might take sometimes
+        mProgressDialog.show();
+
         //get movie trailers url
         String movieTrailerUrl = MovieQueryBuilder.getInstance()
                                                     .movies()
@@ -258,6 +267,9 @@ public class MovieDetailsFragment extends Fragment
                 .beginTransaction()
                 .replace(R.id.youtube_video_frame, youTubePlayerSupportFragment)
                 .commit();
+
+        //hide progress dialog since movie details and movie trailer have been loaded
+        mProgressDialog.dismiss();
     }
 
     /**

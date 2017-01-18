@@ -1,10 +1,11 @@
 package com.nguyen.paul.thanh.walletmovie.fragments;
 
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,7 +14,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +35,7 @@ import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
-import com.nguyen.paul.thanh.walletmovie.utilities.RecyclerViewGridSpaceItemDecorator;
+import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +57,9 @@ public class FavouriteMoviesFragment extends Fragment
     private List<Movie> mMoviesList;
     private List<Genre> mGenreListFromApi;
     private MovieRecyclerViewAdapter mAdapter;
-    private RecyclerView mRecylerView;
+    private RecyclerView mRecyclerView;
+
+    private ProgressDialog mProgressDialog;
 
     //Firebase
     private FirebaseAuth mAuth;
@@ -68,6 +70,7 @@ public class FavouriteMoviesFragment extends Fragment
 
     //flag to indicate if the user is in guest mode or register mode
     private boolean isGuest;
+    private ScreenMeasurer mScreenMeasurer;
 
     public FavouriteMoviesFragment() {
         // Required empty public constructor
@@ -98,6 +101,10 @@ public class FavouriteMoviesFragment extends Fragment
         mNetworkRequest = NetworkRequest.getInstance(mContext);
         mMoviesList = new ArrayList<>();
 
+        //initiate ProgressDialog
+        mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setMessage("Loading favourite movies");
+
         mAuth = FirebaseAuth.getInstance();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mUserRef = mFirebaseDatabase.getReference("users");
@@ -109,7 +116,12 @@ public class FavouriteMoviesFragment extends Fragment
                 mMoviesList = parseMovieResultsFromFirebase(dataSnapshot);
                 //setup recyclerview adapter here
                 mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, FavouriteMoviesFragment.this, R.menu.favourite_movie_list_item_popup_menu);
-                mRecylerView.setAdapter(mAdapter);
+
+                //hide progress dialog when complete getting movies
+                mProgressDialog.dismiss();
+
+                mRecyclerView.setAdapter(mAdapter);
+
             }
 
             @Override
@@ -135,19 +147,48 @@ public class FavouriteMoviesFragment extends Fragment
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_favourite_movies, container, false);
 
-        mRecylerView = (RecyclerView) view.findViewById(R.id.favourite_movie_list);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.favourite_movie_list);
         //layout manager
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, 1);
-        mRecylerView.addItemDecoration(new RecyclerViewGridSpaceItemDecorator(1, dpToPx(10), true));
-        mRecylerView.setItemAnimator(new DefaultItemAnimator());
-        mRecylerView.setLayoutManager(layoutManager);
+        int numRows = getNumRowsForMovieList();
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, numRows);
+//        mRecyclerView.addItemDecoration(new RecyclerViewGridSpaceItemDecorator(1, dpToPx(10), true));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.setLayoutManager(layoutManager);
 //        //setup recyclerview adapter here
 //        mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this);
-//        mRecylerView.setAdapter(mAdapter);
+//        mRecyclerView.setAdapter(mAdapter);
 
         initMovieList();
 
         return view;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        int numRows = getNumRowsForMovieList();
+
+        GridLayoutManager gridLayoutManager = (GridLayoutManager) mRecyclerView.getLayoutManager();
+        gridLayoutManager.setSpanCount(numRows);
+        mRecyclerView.setLayoutManager(gridLayoutManager);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private int getNumRowsForMovieList() {
+        mScreenMeasurer = new ScreenMeasurer(getActivity());
+        //get screen size and display movie list appropriately
+        int numRows = 1;
+        int screenWidth = mScreenMeasurer.getDpWidth();
+        if(screenWidth < 480) {//phone portrait
+            numRows = 1;
+        } else if(screenWidth > 480 && screenWidth < 600) {//phone landscape or small tablet portrait
+            numRows = 2;
+        } else if(screenWidth > 600) {
+            numRows = 3;
+        }
+
+        return numRows;
     }
 
     @Override
@@ -163,6 +204,8 @@ public class FavouriteMoviesFragment extends Fragment
     }
 
     private void initMovieList() {
+        mProgressDialog.show();
+
         if(isGuest) {
             //get favourite movies from local db (Sqlite)
             getFavouriteMoviesFromLocalDB();
@@ -201,14 +244,6 @@ public class FavouriteMoviesFragment extends Fragment
         }
 
         return movieList;
-    }
-
-    /**
-     * Converting dp to pixel
-     */
-    private int dpToPx(int dp) {
-        Resources r = getResources();
-        return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
     }
 
     @Override
@@ -296,7 +331,12 @@ public class FavouriteMoviesFragment extends Fragment
             mMoviesList = movieList;
             //setup recyclerview adapter here
             mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, FavouriteMoviesFragment.this, R.menu.favourite_movie_list_item_popup_menu);
-            mRecylerView.setAdapter(mAdapter);
+
+            //hide ProgressDialog
+            mProgressDialog.dismiss();
+
+            mRecyclerView.setAdapter(mAdapter);
+
         }
     }
 }

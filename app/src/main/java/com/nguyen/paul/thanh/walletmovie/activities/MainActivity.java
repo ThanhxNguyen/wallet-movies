@@ -34,6 +34,7 @@ import com.nguyen.paul.thanh.walletmovie.fragments.HomeFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.MovieListFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.ProfileFragment;
 import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
+import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -93,6 +94,10 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
+
+        ScreenMeasurer sm = new ScreenMeasurer(this);
+
+        Log.d(TAG, "onStart: " + String.format("Width: %s and Height: %s", sm.getDpWidth(), sm.getDpHeight()));
     }
 
     @Override

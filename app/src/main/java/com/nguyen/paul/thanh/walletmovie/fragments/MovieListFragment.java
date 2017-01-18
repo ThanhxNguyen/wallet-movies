@@ -1,6 +1,7 @@
 package com.nguyen.paul.thanh.walletmovie.fragments;
 
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -74,6 +75,8 @@ public class MovieListFragment extends Fragment
     private RecyclerView mRecyclerView;
     private ScreenMeasurer mScreenMeasurer;
 
+    private ProgressDialog mProgressDialog;
+
     public MovieListFragment() {
         // Required empty public constructor
     }
@@ -113,7 +116,10 @@ public class MovieListFragment extends Fragment
         mContext = context;
         mNetworkRequest = NetworkRequest.getInstance(mContext);
         mMoviesList = new ArrayList<>();
-//        mGenreListFromApi = new ArrayList<>();
+        //initiate ProgressDialog
+        mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setMessage("Loading movies...");
+
         mGenreListFromApi = ((WalletMovieApp) getActivity().getApplication()).getGenreListFromApi();
 
         if(mGenreListFromApi.size() == 0) {
@@ -222,9 +228,9 @@ public class MovieListFragment extends Fragment
         int screenWidth = mScreenMeasurer.getDpWidth();
         if(screenWidth < 480) {//phone portrait
             numRows = 1;
-        } else if(screenWidth > 480 && screenWidth < 600) {//phone landscape or small tablet portrait
+        } else if(screenWidth > 480 && screenWidth < 840) {//phone landscape or small tablet portrait
             numRows = 2;
-        } else if(screenWidth > 600) {
+        } else if(screenWidth > 840) {
             numRows = 3;
         }
 
@@ -248,6 +254,8 @@ public class MovieListFragment extends Fragment
     }
 
     private void sendRequestToGetMovieList(String url) {
+        mProgressDialog.show();
+
         mMoviesList.clear();
         //create JsonObjectRequest and pass it to Volley
         JsonObjectRequest moviesListJsonObject = new JsonObjectRequest(Request.Method.GET, url, null,
@@ -267,6 +275,8 @@ public class MovieListFragment extends Fragment
                             }
                             //sort the list by votes in descending order by default
                             Collections.sort(mMoviesList, Movie.MovieVoteSort);
+                            //hide progress dialog when complete loading movies
+                            mProgressDialog.dismiss();
                             //notify adapter about changes
                             mAdapter.notifyDataSetChanged();
 
