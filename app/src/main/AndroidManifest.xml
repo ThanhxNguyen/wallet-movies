@@ -38,8 +38,12 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable"/>
         </activity>
-        <activity android:name=".activities.SigninActivity"/>
-        <activity android:name=".activities.SignupActivity"/>
+        <activity
+            android:name=".activities.SigninActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+        <activity
+            android:name=".activities.SignupActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
         <activity android:name=".activities.WelcomeActivity"/>
     </application>
 

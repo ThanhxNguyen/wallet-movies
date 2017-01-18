@@ -3,6 +3,8 @@ package com.nguyen.paul.thanh.walletmovie.utilities;
 import android.text.TextUtils;
 import android.util.Patterns;
 
+import java.util.regex.Pattern;
+
 /**
  * Helper class for form inputs validation
  */
@@ -14,6 +16,9 @@ public class FormInputValidator {
 
     private final int PASSWORD_MIN_LENGTH = 6;
     private final int PASSWORD_MAX_LENGTH = 100;
+
+    private String peopleNamePattern = "^[a-zA-Z-'\\.]{3,}$";
+    private Pattern PEOPLE_NAME = Pattern.compile(peopleNamePattern);
 
     private static FormInputValidator mInstance;
 
@@ -50,5 +55,13 @@ public class FormInputValidator {
         }
 
         return PASSWORD_OK;
+    }
+
+    public boolean isValidName(String input) {
+        if(!PEOPLE_NAME.matcher(input).matches()) {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -90,9 +90,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-        mAuth.addAuthStateListener(mAuthListener);
         String query = ( (WalletMovieApp) getApplicationContext()).getSearchQuery();
 
         if(!TextUtils.isEmpty(query)) {

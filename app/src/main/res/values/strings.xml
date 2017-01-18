@@ -49,5 +49,11 @@
     <string name="error_password_too_long">The password is too long!</string>
     <string name="error_password_fail_validate">Failed to validate password.</string>
     <string name="error_auth_fail">Authentication failed! Incorrect email or password!</string>
+    <string name="error_name_invalid">The name input is invalid!</string>
+    <string name="error_password_not_match">The passwords are not matched!</string>
+    <string name="signup_form_text">Signup Form</string>
+    <string name="ok">Ok</string>
+    <string name="dialog_title_registration_fail">Registration Failed</string>
+    <string name="dialog_message_registration_fail">Opps! Something went wrong!\nFailed to register new user.</string>
 
 </resources>
