@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         /**
          * Follow android developer guide for launchMode="singleTop"
          * Reference: https://developer.android.com/guide/topics/search/search-dialog.html
@@ -90,6 +92,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        mAuth.addAuthStateListener(mAuthListener);
         String query = ( (WalletMovieApp) getApplicationContext()).getSearchQuery();
 
         if(!TextUtils.isEmpty(query)) {
@@ -135,6 +138,8 @@ public class MainActivity extends AppCompatActivity
 
                 if(currentUser != null) {
                     Log.d(TAG, "onAuthStateChanged: user signed in");
+                    mNavigationView.getMenu().getItem(0).setChecked(true);
+                    onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
                     //since user is signed in, disable guest mode if it's enabled
                     SharedPreferences prefs = getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
@@ -158,13 +163,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         };
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        //listen for auth changes
-        mAuth.addAuthStateListener(mAuthListener);
     }
 
     /**
@@ -349,6 +347,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_signout:
                 //sign out user
                 mAuth.signOut();
+                Toast.makeText(this, "You have successfully signed out!", Toast.LENGTH_LONG).show();
                 break;
 
             default:

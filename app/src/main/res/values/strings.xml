@@ -14,8 +14,8 @@
     <string name="movie_title_des">Movie Title</string>
     <string name="signin_button_text">Signin</string>
     <string name="signup_button_text">Signup</string>
-    <string name="username_tv_hint">username...</string>
-    <string name="password_tv_hint">password...</string>
+    <string name="username_tv_hint">Username</string>
+    <string name="password_tv_hint">Password</string>
     <string name="first_name_tv_hint">First name</string>
     <string name="last_name_tv_hint">Last name</string>
     <string name="email_tv_hint">Email address</string>
@@ -34,4 +34,20 @@
     <string name="movie_cast_birth_place_text">Place of Birth:</string>
     <string name="movie_cast_credit_text">Known For</string>
     <string name="check_out_movies_for_cast">Movies For This Cast</string>
+    <string name="title_activity_login_test">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="signin_form_text">Signin Form</string>
+    <string name="or_text">Or</string>
+    <string name="error_field_required">This field is required!</string>
+    <string name="error_email_invalid">The email is invalid!</string>
+    <string name="error_password_too_short">The password must be greater than 6 characters!</string>
+    <string name="error_password_too_long">The password is too long!</string>
+    <string name="error_password_fail_validate">Failed to validate password.</string>
+    <string name="error_auth_fail">Authentication failed! Incorrect email or password!</string>
+
 </resources>
