@@ -60,6 +60,7 @@
                 android:scaleType="centerCrop"
                 app:layout_constraintRight_toRightOf="@+id/movie_thumbnail"
                 app:layout_constraintTop_toTopOf="@+id/movie_title"
+                android:tint="@color/colorPrimaryText"
                 app:srcCompat="@drawable/ic_3_dots"/>
 
             <TextView

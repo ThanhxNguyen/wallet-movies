@@ -17,9 +17,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!-- <meta-data -->
-        <!-- android:name="android.app.default_searchable" -->
-        <!-- android:value=".activities.MovieSearchActivity" /> -->
+        <provider android:name=".model.MovieSearchSuggestionProvider"
+                  android:authorities="com.nguyen.paul.thanh.walletmovie.MovieSearchSuggestionProvider" />
 
         <activity
             android:name=".activities.MainActivity"
