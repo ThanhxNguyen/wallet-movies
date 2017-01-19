@@ -3,14 +3,13 @@ package com.nguyen.paul.thanh.walletmovie.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.TypedValue;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -118,7 +117,6 @@ public class MovieDetailsFragment extends Fragment
         //setup recycler view list for movie casts
         mCastRecyclerView = (RecyclerView) view.findViewById(R.id.movie_cast_list);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayout.HORIZONTAL, false);
-//        mCastRecyclerView.addItemDecoration(new RecyclerViewGridSpaceItemDecorator(1, dpToPx(20), true));
         mCastRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         mCastRecyclerView.setLayoutManager(layoutManager);
@@ -195,9 +193,10 @@ public class MovieDetailsFragment extends Fragment
     }
 
     private void displayMovieDetails(Movie movie) {
+        String unknown = "Unknown";
         mTitle.setText(movie.getTitle());
-        mReleaseDateValue.setText(movie.getReleaseDate());
-        mVoteValue.setText(String.valueOf(movie.getVoteAverage()));
+        mReleaseDateValue.setText(TextUtils.isEmpty(movie.getReleaseDate()) ? unknown : movie.getReleaseDate());
+        mVoteValue.setText( TextUtils.isEmpty(String.valueOf(movie.getVoteAverage())) ? unknown : String.valueOf(movie.getVoteAverage()) );
         List<Genre> genres = movie.getGenres();
         StringBuilder genreValues = new StringBuilder();
         String prefix = " | ";
@@ -207,7 +206,7 @@ public class MovieDetailsFragment extends Fragment
 
         }
         mGenres.setText( (genreValues.toString().length()>0) ? genreValues.delete(genreValues.length()-2, genreValues.length()-1) : "Unknown");
-        mDescription.setText(movie.getOverview());
+        mDescription.setText(TextUtils.isEmpty(movie.getOverview()) ? unknown : movie.getOverview());
     }
 
     private void displayMovieTrailerOrPoster(final Movie movie) {
@@ -247,7 +246,8 @@ public class MovieDetailsFragment extends Fragment
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        //handle error
+                        Toast.makeText(mContext, "Failed to load trailer video!", Toast.LENGTH_SHORT).show();
+                        mProgressDialog.dismiss();
                     }
                 });
 
@@ -272,14 +272,6 @@ public class MovieDetailsFragment extends Fragment
         mProgressDialog.dismiss();
     }
 
-    /**
-     * Converting dp to pixel
-     */
-    private int dpToPx(int dp) {
-        Resources r = getResources();
-        return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
-    }
-
     @Override
     public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean wasRestored) {
         //successfully load youtube video
@@ -295,6 +287,7 @@ public class MovieDetailsFragment extends Fragment
         if (youTubeInitializationResult.isUserRecoverableError()) {
             //do something
         } else {
+            mProgressDialog.dismiss();
             Toast.makeText(mContext, youTubeInitializationResult.toString(), Toast.LENGTH_LONG).show();
         }
     }

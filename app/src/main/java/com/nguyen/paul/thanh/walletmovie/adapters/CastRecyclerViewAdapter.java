@@ -2,6 +2,7 @@ package com.nguyen.paul.thanh.walletmovie.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,15 +94,20 @@ public class CastRecyclerViewAdapter extends RecyclerView.Adapter<CastRecyclerVi
         }
 
         public void bind() {
+            String character = mCast.getCharacter();
             mCastName.setText(mCast.getName());
-            mCastCharacter.setText(mCast.getCharacter());
+            if(TextUtils.isEmpty(character)) {
+                mCastCharacter.setText("");
+            } else {
+                mCastCharacter.setText(character.contains("/") ? character.split("/")[0] : character);
+            }
 
             String imgUrl = MovieQueryBuilder.getInstance().getImageBaseUrl("w500") + mCast.getProfilePath();
             Glide.with(mContext).load(imgUrl)
                     .dontAnimate()
-                    .placeholder(R.drawable.ic_account_circle_white_48dp)
+                    .placeholder(R.drawable.ic_account_circle_white_24dp)
                     .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                    .error(R.drawable.ic_account_circle_white_48dp)
+                    .error(R.drawable.ic_account_circle_white_24dp)
                     .into(mCastThumbnail);
         }
     }

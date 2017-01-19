@@ -8,6 +8,7 @@
 
     <!--Navigation Drawers-->
     <string name="nav_home">Home</string>
+    <string name="action_clear_history">Clear Search History</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -25,7 +26,7 @@
     <string name="welcome_message_text">Welcome to Wallet Movie app. Here you can do bunch of things such as view a movie, search for a movie or add a movie to your favourites etc...</string>
     <string name="signin_as_guest_btn">Sign in as guest</string>
     <string name="remove_movie_from_favourites_text">Remove from favourites</string>
-    <string name="search_hint">Search movies...</string>
+    <string name="action_search_hint">Search movies...</string>
     <string name="action_search"/>
     <string name="movie_vote_text">Vote:</string>
     <string name="movie_release_date_text">Released on:</string>
@@ -55,6 +56,16 @@
     <string name="ok">Ok</string>
     <string name="dialog_title_registration_fail">Registration Failed</string>
     <string name="dialog_message_registration_fail">Opps! Something went wrong!\nFailed to register new user.</string>
-    <string name="action_clear_history">Clear History</string>
+    <string name="nav_clear_search_history">Clear Browsing History</string>
+    <string name="nav_favourites">Favourites</string>
+    <string name="nav_setting">Settings</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_logout">Logout</string>
+    <string name="nav_login">Login</string>
+    <string name="action_sort_by_name">Sort by name</string>
+    <string name="action_sort_by_date">Sort By Date</string>
+    <string name="action_sort_by_vote">Sort by vote</string>
+    <string name="loading_text">Loading...</string>
+
 
 </resources>

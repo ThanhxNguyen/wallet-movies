@@ -221,4 +221,16 @@ public class Movie implements Parcelable {
             return movie2Vote.compareTo(movie1Vote);
         }
     };
+
+    //use for sorting arraylist of movies by movie release date
+    public static Comparator<Movie> MovieReleaseDateSort = new Comparator<Movie>() {
+        @Override
+        public int compare(Movie movie1, Movie movie2) {
+            String movie1ReleaseDate = movie1.getReleaseDate();
+            String movie2ReleaseDate = movie2.getReleaseDate();
+
+            //sort in descending order
+            return movie2ReleaseDate.compareTo(movie1ReleaseDate);
+        }
+    };
 }

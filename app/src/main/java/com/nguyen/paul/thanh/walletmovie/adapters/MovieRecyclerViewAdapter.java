@@ -155,8 +155,9 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
                 Log.d("something", "bind: poster path is null for " + mMovie.getTitle());
                 Glide.with(mContext)
                         .load("")
-                        .placeholder(R.drawable.ic_favorite)
+                        .placeholder(R.drawable.ic_image_placeholder_white_24dp)
                         .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                        .error(R.drawable.ic_image_placeholder_white_24dp)
                         .crossFade()
                         .into(mThumbnail);
             } else {
@@ -166,10 +167,10 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
                 Glide.with(mContext).load(imgUrl)
 //                        .thumbnail(0.1f)
                         .crossFade()
-                        .fitCenter()
-                        .placeholder(R.drawable.ic_image_placeholder_white)
+//                        .fitCenter()
+                        .placeholder(R.drawable.ic_image_placeholder_white_24dp)
                         .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                        .error(R.drawable.ic_image_placeholder_white)
+                        .error(R.drawable.ic_image_placeholder_white_24dp)
                         .into(mThumbnail);
             }
         }

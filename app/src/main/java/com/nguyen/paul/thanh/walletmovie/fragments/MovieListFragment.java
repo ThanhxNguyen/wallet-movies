@@ -14,6 +14,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -135,6 +138,35 @@ public class MovieListFragment extends Fragment
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_action_movie, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.action_sort_by_name:
+                Collections.sort(mMoviesList, Movie.MovieNameSort);
+                mAdapter.notifyDataSetChanged();
+                break;
+
+            case R.id.action_sort_by_date:
+                Collections.sort(mMoviesList, Movie.MovieReleaseDateSort);
+                mAdapter.notifyDataSetChanged();
+                break;
+
+            case R.id.action_sort_by_vote:
+                Collections.sort(mMoviesList, Movie.MovieVoteSort);
+                mAdapter.notifyDataSetChanged();
+                break;
+        }
+
+        return false;
+    }
+
+    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
@@ -187,11 +219,13 @@ public class MovieListFragment extends Fragment
         // Inflate the layout for this fragment
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_movie_pager_item, container, false);
 
+        //enable fragment to append menu items to toolbar
+        setHasOptionsMenu(true);
+
         mRecyclerView = (RecyclerView) view.findViewById(R.id.movie_list);
         //layout manager
         int numRows = getNumRowsForMovieList();
         mGridLayoutManager = new GridLayoutManager(mContext, numRows);
-//        mRecyclerView.addItemDecoration(new RecyclerViewGridSpaceItemDecorator(numRows, dpToPx(10), true));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setLayoutManager(mGridLayoutManager);
         //setup recycler view adapter here
@@ -406,7 +440,7 @@ public class MovieListFragment extends Fragment
     }
 
     private void addMovieToFavourites(Movie movie, List<Genre> genreList) {
-        AddFavouriteTask task = new AddFavouriteTask(mContext, genreList);
+        AddFavouriteTask task = new AddFavouriteTask(mContext, genreList, getActivity());
         task.execute(movie);
     }
 

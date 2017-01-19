@@ -1,4 +1,4 @@
-package com.nguyen.paul.thanh.walletmovie.model;
+package com.nguyen.paul.thanh.walletmovie.database;
 
 import android.content.SearchRecentSuggestionsProvider;
 

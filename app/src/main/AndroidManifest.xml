@@ -17,7 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <provider android:name=".model.MovieSearchSuggestionProvider"
+        <provider android:name=".database.MovieSearchSuggestionProvider"
                   android:authorities="com.nguyen.paul.thanh.walletmovie.MovieSearchSuggestionProvider" />
 
         <activity

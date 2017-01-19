@@ -93,19 +93,4 @@ public class HomeFragment extends Fragment {
         Log.e(TAG, "onDestroyView: ");
     }
 
-//    @Override
-//    public void onSearchUpdateFragment(String query) {
-//        if(!TextUtils.isEmpty(query)) {
-//            Log.d(TAG, "onSearchUpdateFragment: received search query: " + query);
-//            Fragment fragment = MovieSearchResultFragment.newInstance(query);
-//            getActivity().getSupportFragmentManager()
-//                    .beginTransaction()
-//                    .replace(R.id.content_frame, fragment, MovieSearchResultFragment.FRAGMENT_TAG)
-//                    .addToBackStack(null)
-//                    .commit();
-//
-//        }
-//
-//    }
-
 }

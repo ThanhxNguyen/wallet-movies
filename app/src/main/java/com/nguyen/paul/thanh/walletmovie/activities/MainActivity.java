@@ -35,7 +35,7 @@ import com.nguyen.paul.thanh.walletmovie.fragments.HomeFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.MovieListFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.ProfileFragment;
 import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
-import com.nguyen.paul.thanh.walletmovie.model.MovieSearchSuggestionProvider;
+import com.nguyen.paul.thanh.walletmovie.database.MovieSearchSuggestionProvider;
 import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
 
 public class MainActivity extends AppCompatActivity
@@ -302,18 +302,7 @@ public class MainActivity extends AppCompatActivity
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        switch (id) {
-            case R.id.action_clear_history:
-                clearSearchHistory();
-                return true;
-            case R.id.action_search:
-//                onSearchRequested();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void clearSearchHistory() {
@@ -355,6 +344,10 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
+                break;
+
+            case R.id.nav_clear_search_history:
+                clearSearchHistory();
                 break;
 
             case R.id.nav_profile:

@@ -15,6 +15,9 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -38,6 +41,7 @@ import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
 import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -147,11 +151,13 @@ public class FavouriteMoviesFragment extends Fragment
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_favourite_movies, container, false);
 
+        //enable fragment to append menu items to toolbar
+        setHasOptionsMenu(true);
+
         mRecyclerView = (RecyclerView) view.findViewById(R.id.favourite_movie_list);
         //layout manager
         int numRows = getNumRowsForMovieList();
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, numRows);
-//        mRecyclerView.addItemDecoration(new RecyclerViewGridSpaceItemDecorator(1, dpToPx(10), true));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setLayoutManager(layoutManager);
 //        //setup recyclerview adapter here
@@ -161,6 +167,35 @@ public class FavouriteMoviesFragment extends Fragment
         initMovieList();
 
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_action_movie, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.action_sort_by_name:
+                Collections.sort(mMoviesList, Movie.MovieNameSort);
+                mAdapter.notifyDataSetChanged();
+                break;
+
+            case R.id.action_sort_by_date:
+                Collections.sort(mMoviesList, Movie.MovieReleaseDateSort);
+                mAdapter.notifyDataSetChanged();
+                break;
+
+            case R.id.action_sort_by_vote:
+                Collections.sort(mMoviesList, Movie.MovieVoteSort);
+                mAdapter.notifyDataSetChanged();
+                break;
+        }
+
+        return false;
     }
 
     @Override

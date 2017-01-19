@@ -4,6 +4,7 @@ package com.nguyen.paul.thanh.walletmovie.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -116,6 +117,7 @@ public class MovieCastDetailsFragment extends Fragment {
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
+                            String unknown = "Unknown";
                             //there is no need to set id, name, character, profile image path
                             //because they have been set from MovieDetailsFragment
                             try {
@@ -123,20 +125,24 @@ public class MovieCastDetailsFragment extends Fragment {
                                 cast.setPlaceOfBirth(response.getString("place_of_birth"));
                                 cast.setBiography(response.getString("biography"));
 
+                                String castBirthday = TextUtils.isEmpty(cast.getBirthday()) ? unknown : cast.getBirthday();
+                                String castBirthPlace = TextUtils.isEmpty(cast.getPlaceOfBirth()) ? unknown : cast.getPlaceOfBirth();
+                                String castBio = TextUtils.isEmpty(cast.getBiography()) ? unknown : cast.getBiography();
+
                                 //update UI
                                 mCastName.setText(cast.getName());
-                                mCastBirthdayValue.setText(cast.getBirthday());
-                                mCastBirthPlaceValue.setText(cast.getPlaceOfBirth());
-                                mCastBiography.setText(cast.getBiography());
+                                mCastBirthdayValue.setText(castBirthday);
+                                mCastBirthPlaceValue.setText(castBirthPlace);
+                                mCastBiography.setText(castBio);
                                 //load cast profile image
                                 String castProfileImageUrl = MovieQueryBuilder.getInstance()
                                                                 .getImageBaseUrl("w500") + cast.getProfilePath();
                                 Glide.with(mContext).load(castProfileImageUrl)
                                         .crossFade()
                                         .fitCenter()
-                                        .placeholder(R.drawable.ic_image_placeholder_white)
+                                        .placeholder(R.drawable.ic_account_circle_white_24dp)
                                         .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                                        .error(R.drawable.ic_image_placeholder_white)
+                                        .error(R.drawable.ic_account_circle_white_24dp)
                                         .into(mCastProfile);
 
                             } catch (JSONException e) {

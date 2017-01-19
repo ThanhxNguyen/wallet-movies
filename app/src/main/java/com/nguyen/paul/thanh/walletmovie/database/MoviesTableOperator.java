@@ -149,29 +149,36 @@ public class MoviesTableOperator extends SimpleSQLiteDatabaseOperator {
     }
 
     private long insertMovieValues(SQLiteDatabase db, Movie movie) {
-        //Create content values
-        ContentValues movieValues = new ContentValues();
-        movieValues.put(MoviesTableConst.COLUMN_ID, movie.getId());
-        movieValues.put(MoviesTableConst.COLUMN_TITLE, movie.getTitle());
-        movieValues.put(MoviesTableConst.COLUMN_OVERVIEW, movie.getOverview());
-        movieValues.put(MoviesTableConst.COLUMN_RELEASE_DATE, movie.getReleaseDate());
-        movieValues.put(MoviesTableConst.COLUMN_RUNTIME, movie.getRuntime());
-        movieValues.put(MoviesTableConst.COLUMN_COUNTRY, movie.getCountry());
-        movieValues.put(MoviesTableConst.COLUMN_STATUS, movie.getStatus());
-        movieValues.put(MoviesTableConst.COLUMN_VOTE_AVERAGE, movie.getVoteAverage());
-        movieValues.put(MoviesTableConst.COLUMN_POSTER_PATH, movie.getPosterPath());
+        Cursor cursor = db.rawQuery("SELECT * FROM " + MoviesTableConst.TABLE_NAME + " WHERE " + MoviesTableConst.COLUMN_ID + "=" + movie.getId(), null);
+        if(cursor.getCount() > 0) {
+            //movie is already existed
+            return Long.valueOf(0);
+        } else {
 
-        long lastInsertedMovieId = db.insert(MoviesTableConst.TABLE_NAME, null, movieValues);
+            //Create content values
+            ContentValues movieValues = new ContentValues();
+            movieValues.put(MoviesTableConst.COLUMN_ID, movie.getId());
+            movieValues.put(MoviesTableConst.COLUMN_TITLE, movie.getTitle());
+            movieValues.put(MoviesTableConst.COLUMN_OVERVIEW, movie.getOverview());
+            movieValues.put(MoviesTableConst.COLUMN_RELEASE_DATE, movie.getReleaseDate());
+            movieValues.put(MoviesTableConst.COLUMN_RUNTIME, movie.getRuntime());
+            movieValues.put(MoviesTableConst.COLUMN_COUNTRY, movie.getCountry());
+            movieValues.put(MoviesTableConst.COLUMN_STATUS, movie.getStatus());
+            movieValues.put(MoviesTableConst.COLUMN_VOTE_AVERAGE, movie.getVoteAverage());
+            movieValues.put(MoviesTableConst.COLUMN_POSTER_PATH, movie.getPosterPath());
 
-        //update pivot table genres_movies
-        for(Genre g : movie.getGenres()) {
-            ContentValues genreMovieValues = new ContentValues();
-            genreMovieValues.put(GenresMoviesPivotTableConst.COLUMN_GENRE_ID, g.getId());
-            genreMovieValues.put(GenresMoviesPivotTableConst.COLUMN_MOVIE_ID, movie.getId());
+            long lastInsertedMovieId = db.insert(MoviesTableConst.TABLE_NAME, null, movieValues);
 
-            db.insert(GenresMoviesPivotTableConst.TABLE_NAME, null, genreMovieValues);
+            //update pivot table genres_movies
+            for(Genre g : movie.getGenres()) {
+                ContentValues genreMovieValues = new ContentValues();
+                genreMovieValues.put(GenresMoviesPivotTableConst.COLUMN_GENRE_ID, g.getId());
+                genreMovieValues.put(GenresMoviesPivotTableConst.COLUMN_MOVIE_ID, movie.getId());
+
+                db.insert(GenresMoviesPivotTableConst.TABLE_NAME, null, genreMovieValues);
+            }
+
+            return lastInsertedMovieId;
         }
-
-        return lastInsertedMovieId;
     }
 }
