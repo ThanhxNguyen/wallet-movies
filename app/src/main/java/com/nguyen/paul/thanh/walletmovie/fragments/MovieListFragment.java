@@ -54,7 +54,7 @@ public class MovieListFragment extends Fragment
 
     public static final String FRAGMENT_TAG = MovieListFragment.class.getSimpleName();
 
-    private static final String SAVE_INSTANCE_MOVIES_KEY = "save_instance_movie_key";
+    private static final String SAVE_INSTANCE_RECYCLER_KEY = "save_instance_recycler_key";
 
     private static final String TAB_POSITION_KEY = "tab_position_key";
     private static final String SEARCH_QUERY_KEY = "search_query_key";

@@ -95,7 +95,7 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
             mLayoutForPopupmenu = layoutForPopupMenu;
 
             mTitle = (TextView) mView.findViewById(R.id.movie_title);
-            mThumbnail = (ImageView) mView.findViewById(R.id.movie_thumbnail);
+            mThumbnail = (ImageView) mView.findViewById(R.id.movie_poster);
             mThreeDotsMenu = (ImageView) mView.findViewById(R.id.three_dots_menu);
             mReleaseDateValue = (TextView) mView.findViewById(R.id.movie_release_date_value);
             mVoteValue = (TextView) mView.findViewById(R.id.movie_vote_value);

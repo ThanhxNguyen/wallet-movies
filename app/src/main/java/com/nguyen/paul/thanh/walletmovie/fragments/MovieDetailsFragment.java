@@ -13,6 +13,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +22,8 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
@@ -68,6 +71,9 @@ public class MovieDetailsFragment extends Fragment
     private RecyclerView mCastRecyclerView;
     private CastRecyclerViewAdapter mCastRecyclerViewAdapter;
     private List<Cast> mCastList;
+
+    //display movie poster image if there is no trailers available
+    private ImageView mMoviePoster;
 
     private ProgressDialog mProgressDialog;
 
@@ -129,6 +135,7 @@ public class MovieDetailsFragment extends Fragment
         mVoteValue = (TextView) view.findViewById(R.id.movie_vote_value);
         mGenres = (TextView) view.findViewById(R.id.movie_genres);
         mDescription = (TextView) view.findViewById(R.id.movie_description);
+        mMoviePoster = (ImageView) view.findViewById(R.id.movie_poster);
 
         Bundle args = getArguments();
         if(args != null) {
@@ -233,10 +240,18 @@ public class MovieDetailsFragment extends Fragment
                                 loadVideo(trailerVideoKey);
 
                             } else {
-                                //TMDB api provides a range of trailer videos link for each movie, there is a very low
-                                //chance that there is no movie trailer available. In this case, display movie poster instead for better UX
-                                //problem: having trouble rendering image correctly
-                                //clue: something to do with image size when append to framelayout or need to re-draw UI
+                                //no trailer available, display movie poster instead
+                                mMoviePoster.setVisibility(View.VISIBLE);
+                                //load movie thumb from internet
+                                String imgUrl = MovieQueryBuilder.getInstance().getImageBaseUrl("w500") + movie.getPosterPath();
+
+                                Glide.with(mContext).load(imgUrl)
+                                    .crossFade()
+                                    .placeholder(R.drawable.ic_image_placeholder_white_24dp)
+                                    .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                                    .error(R.drawable.ic_image_placeholder_white_24dp)
+                                    .into(mMoviePoster);
+                                mProgressDialog.dismiss();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
