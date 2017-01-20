@@ -11,4 +11,4 @@ This app is targeting movie lovers. Users can view a range of different movie re
 
 ### 3rd parties libs/tools
 
-* (Firebase)[www.google.com]
+* [Firebase](www.google.com)
