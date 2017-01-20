@@ -3,6 +3,7 @@ package com.nguyen.paul.thanh.walletmovie.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -76,6 +77,12 @@ public class MovieCastDetailsFragment extends Fragment {
         //retain this fragment state during activity re-creation progress
         setRetainInstance(true);
 
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getActivity().setTitle(R.string.title_cast_details);
     }
 
     @Override

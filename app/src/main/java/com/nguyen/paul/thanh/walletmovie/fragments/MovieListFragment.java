@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -129,6 +130,13 @@ public class MovieListFragment extends Fragment
             String genreListUrl = MovieQueryBuilder.getInstance().getGenreListUrl();
             sendRequestToGetGenreList(genreListUrl);
         }
+
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
     }
 
     @Override
@@ -171,7 +179,7 @@ public class MovieListFragment extends Fragment
         super.onConfigurationChanged(newConfig);
 
         int numRows = getNumRowsForMovieList();
-
+        //update grid layout based on new screen size
         GridLayoutManager gridLayoutManager = (GridLayoutManager) mRecyclerView.getLayoutManager();
         gridLayoutManager.setSpanCount(numRows);
         mRecyclerView.setLayoutManager(gridLayoutManager);
@@ -188,16 +196,16 @@ public class MovieListFragment extends Fragment
                 */
         switch (tabPosition) {
             case 0:
-                url = movieQueryBuilder.movies().popular().build();
+                url = movieQueryBuilder.discover().mostPopular().build();
                 break;
             case 1:
-                url = movieQueryBuilder.movies().showing().build();
+                url = movieQueryBuilder.discover().showing().build();
                 break;
             case 2:
-                url = movieQueryBuilder.movies().upcoming().build();
+                url = movieQueryBuilder.discover().upcoming().build();
                 break;
             default:
-                url = movieQueryBuilder.movies().popular().build();
+                url = movieQueryBuilder.discover().mostPopular().build();
                 break;
         }
         sendRequestToGetMovieList(url);
@@ -242,11 +250,13 @@ public class MovieListFragment extends Fragment
                     displayMoviesForViewPager(tabPosition);
                     break;
                 case DISPLAY_MOVIES_FOR_SEARCH_RESULT:
+                    getActivity().setTitle(R.string.title_search_result);
                     String searchQuery = args.getString(SEARCH_QUERY_KEY);
                     displayMoviesForSearchResult(searchQuery);
                     break;
                 case DISPLAY_MOVIES_RELATED_TO_CAST:
                     int castId = args.getInt(CAST_ID_KEY);
+                    getActivity().setTitle(R.string.title_movie_list);
                     displayMoviesRelatedToCast(castId);
             }
 
@@ -288,6 +298,7 @@ public class MovieListFragment extends Fragment
     }
 
     private void sendRequestToGetMovieList(String url) {
+        Log.d(TAG, "sendRequestToGetMovieList: url: " + url);
         mProgressDialog.show();
 
         mMoviesList.clear();

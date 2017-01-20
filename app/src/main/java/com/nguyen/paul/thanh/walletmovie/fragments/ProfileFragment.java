@@ -4,6 +4,7 @@ package com.nguyen.paul.thanh.walletmovie.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,6 +57,12 @@ public class ProfileFragment extends Fragment {
         setRetainInstance(true);
         //initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getActivity().setTitle(R.string.title_profile);
     }
 
     @Override

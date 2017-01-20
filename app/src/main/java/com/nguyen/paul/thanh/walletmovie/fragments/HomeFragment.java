@@ -2,10 +2,10 @@ package com.nguyen.paul.thanh.walletmovie.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,10 +31,6 @@ public class HomeFragment extends Fragment {
 
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
-        Log.d(TAG, "newInstance:");
-//        Bundle args = new Bundle();
-//
-//        fragment.setArguments(args);
         return fragment;
     }
 
@@ -42,7 +38,6 @@ public class HomeFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = context;
-        Log.e(TAG, "onAttach: ");
     }
 
     @Override
@@ -50,15 +45,11 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         //retain this fragment state during activity re-creation progress
         setRetainInstance(true);
-
-        Log.d(TAG, "onCreate: " + TAG);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        //test
-        Log.d(TAG, "onCreateView:");
 
         // Inflate the layout for this fragment
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_home, container, false);
@@ -76,21 +67,9 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        Log.e(TAG, "onSaveInstanceState: ");
-    }
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.e(TAG, "onDestroy: ");
+        getActivity().setTitle(R.string.title_home);
     }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.e(TAG, "onDestroyView: ");
-    }
-
 }

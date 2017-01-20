@@ -98,6 +98,13 @@ public class MovieDetailsFragment extends Fragment
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        getActivity().setTitle(R.string.title_movie_details);
+    }
+
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = context;

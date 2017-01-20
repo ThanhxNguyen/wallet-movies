@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -141,8 +142,12 @@ public class FavouriteMoviesFragment extends Fragment
         super.onCreate(savedInstanceState);
         //retain this fragment state during activity re-creation progress
         setRetainInstance(true);
+    }
 
-        Log.d(TAG, "onCreate: " + TAG);
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getActivity().setTitle(R.string.title_favourite_movies);
     }
 
     @Override

@@ -65,6 +65,17 @@
     <string name="action_sort_by_name">Sort by name</string>
     <string name="action_sort_by_date">Sort By Date</string>
     <string name="action_sort_by_vote">Sort by vote</string>
+
+    <!--Toolbar title-->
+    <string name="title_home">Home</string>
+    <string name="title_movie_details">Movie Details</string>
+    <string name="title_movie_list">Movies</string>
+    <string name="title_search_result">Search Results</string>
+    <string name="title_profile">Profile</string>
+    <string name="title_cast_details">Cast Details</string>
+    <string name="title_favourite_movies">Favourites</string>
+
+    <!--Misc-->
     <string name="loading_text">Loading...</string>
 
 

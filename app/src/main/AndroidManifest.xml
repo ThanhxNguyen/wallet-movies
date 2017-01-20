@@ -34,10 +34,25 @@
         </activity>
         <activity
             android:name=".activities.SigninActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"/>
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            android:parentActivityName=".activities.MainActivity">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity" />
+        </activity>
         <activity
             android:name=".activities.SignupActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"/>
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            android:parentActivityName=".activities.MainActivity">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.SigninActivity" />
+        </activity>
+
         <activity android:name=".activities.WelcomeActivity"/>
     </application>
 
