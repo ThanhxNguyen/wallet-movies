@@ -11,4 +11,14 @@ This app is targeting movie lovers. Users can view a range of different movie re
 
 ### 3rd parties libs/tools
 
-* [Firebase](https://firebase.google.com/)
+* [Firebase](https://firebase.google.com/) - cloud database
+* [themoviedb.org](https://www.themoviedb.org/) - free movie database api
+* [Glide](https://github.com/bumptech/glide) - image loading library
+* [CircleImageView](https://github.com/hdodenhof/CircleImageView) - displays image in circle with optional border
+* [Youtube API](https://developers.google.com/youtube/) - displays movie trailer videos
+
+### To-Do list
+[] users communicate with each other
+[] users can write review for a movie
+[] users can invite their friend to watch a movie
+[] show closest cinema location for a movie
