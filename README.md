@@ -19,10 +19,10 @@ This app is targeting movie lovers. Users can view a range of different movie re
 
 ### To-Do list
 - [x] signin with Google
-- [] signin with Facebook
-- [] signin with Twitter
-- [] users communicate with each other
-- [] users can write review for a movie
-- [] users can invite their friend to watch a movie
-- [] show closest cinema location for a movie
+- [ ] signin with Facebook
+- [ ] signin with Twitter
+- [ ] users communicate with each other
+- [ ] users can write review for a movie
+- [ ] users can invite their friend to watch a movie
+- [ ] show closest cinema location for a movie
 
