@@ -1,6 +1,7 @@
 package com.nguyen.paul.thanh.walletmovie.fragments;
 
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -46,6 +47,8 @@ public class MovieCastDetailsFragment extends Fragment {
     private TextView mCastBiography;
     private Button mMoviesForThisCastBtn;
 
+    private ProgressDialog mProgressDialog;
+
     public MovieCastDetailsFragment() {
         // Required empty public constructor
     }
@@ -63,6 +66,9 @@ public class MovieCastDetailsFragment extends Fragment {
         super.onAttach(context);
         mContext = context;
         mNetworkRequest = NetworkRequest.getInstance(mContext);
+
+        mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setMessage("Loading data...");
     }
 
     @Override
@@ -74,6 +80,9 @@ public class MovieCastDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState == null) {
+            mProgressDialog.show();
+        }
         //retain this fragment state during activity re-creation progress
         setRetainInstance(true);
 
@@ -132,27 +141,30 @@ public class MovieCastDetailsFragment extends Fragment {
                                 cast.setPlaceOfBirth(response.getString("place_of_birth"));
                                 cast.setBiography(response.getString("biography"));
 
-                                String castBirthday = TextUtils.isEmpty(cast.getBirthday()) ? unknown : cast.getBirthday();
-                                String castBirthPlace = TextUtils.isEmpty(cast.getPlaceOfBirth()) ? unknown : cast.getPlaceOfBirth();
-                                String castBio = TextUtils.isEmpty(cast.getBiography()) ? unknown : cast.getBiography();
+                                String castBirthday = ( TextUtils.isEmpty(cast.getBirthday()) || cast.getBirthday().equals("null") ) ? unknown : cast.getBirthday();
+                                String castBirthPlace = ( TextUtils.isEmpty(cast.getPlaceOfBirth()) || cast.getPlaceOfBirth().equals("null") ) ? unknown : cast.getPlaceOfBirth();
+                                String castBio = ( TextUtils.isEmpty(cast.getBiography()) || cast.getBiography().equals("null") ) ? unknown : cast.getBiography();
 
                                 //update UI
                                 mCastName.setText(cast.getName());
                                 mCastBirthdayValue.setText(castBirthday);
                                 mCastBirthPlaceValue.setText(castBirthPlace);
                                 mCastBiography.setText(castBio);
+
+                                //hide progress dialog
+                                mProgressDialog.dismiss();
+
                                 //load cast profile image
                                 String castProfileImageUrl = MovieQueryBuilder.getInstance()
                                                                 .getImageBaseUrl("w500") + cast.getProfilePath();
                                 Glide.with(mContext).load(castProfileImageUrl)
                                         .crossFade()
-                                        .fitCenter()
-                                        .placeholder(R.drawable.ic_account_circle_white_24dp)
                                         .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                                         .error(R.drawable.ic_account_circle_white_24dp)
                                         .into(mCastProfile);
 
                             } catch (JSONException e) {
+                                mProgressDialog.dismiss();
                                 e.printStackTrace();
                             }
                         }
@@ -161,6 +173,7 @@ public class MovieCastDetailsFragment extends Fragment {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             //handle error
+                            mProgressDialog.dismiss();
                         }
                     });
 

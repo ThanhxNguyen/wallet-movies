@@ -63,7 +63,7 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
 
         //get shared preference and check if user is in guest mode
         SharedPreferences prefs = mContext.getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
-        boolean isGuest = prefs.getBoolean(PreferenceConst.Auth.GUEST_MODE_PREF_KEY, false);
+        boolean isGuest = prefs.getBoolean(PreferenceConst.Authenticate.GUEST_MODE_PREF_KEY, false);
 
         if(isGuest) {
             //user is in guest mode
@@ -78,7 +78,7 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        makeToast("The movie has successfully added to your favourites!");
+                        makeToast("Successfully added to your favourites!");
                     }
                 });
 
@@ -151,7 +151,7 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
                                                     makeToast("Error! Failed to add the movie to your favourites!");
                                                 } else {
                                                     //successfully added new data to Firebase
-                                                    makeToast("The movie has successfully added to your favourites!");
+                                                    makeToast("Successfully added to your favourites!");
                                                 }
                                             }
                                         });

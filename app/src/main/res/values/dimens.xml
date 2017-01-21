@@ -9,4 +9,5 @@
     <dimen name="btn_padding_left">10dp</dimen>
     <dimen name="btn_padding_right">10dp</dimen>
     <dimen name="btn_elevation">5dp</dimen>
+    <dimen name="cardview_elevation">10dp</dimen>
 </resources>

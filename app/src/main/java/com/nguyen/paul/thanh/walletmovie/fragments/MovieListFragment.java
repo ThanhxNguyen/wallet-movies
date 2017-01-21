@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -20,6 +19,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -30,6 +30,7 @@ import com.nguyen.paul.thanh.walletmovie.WalletMovieApp;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
+import com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView;
 import com.nguyen.paul.thanh.walletmovie.utilities.AddFavouriteTask;
 import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
@@ -76,7 +77,7 @@ public class MovieListFragment extends Fragment
     private List<Genre> mGenreListFromApi;
     private MovieRecyclerViewAdapter mAdapter;
     private RecyclerView.LayoutManager mGridLayoutManager;
-    private RecyclerView mRecyclerView;
+    private RecyclerViewWithEmptyView mRecyclerView;
     private ScreenMeasurer mScreenMeasurer;
 
     private ProgressDialog mProgressDialog;
@@ -134,14 +135,11 @@ public class MovieListFragment extends Fragment
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState == null) {
+            mProgressDialog.show();
+        }
         setRetainInstance(true);
     }
 
@@ -230,12 +228,17 @@ public class MovieListFragment extends Fragment
         //enable fragment to append menu items to toolbar
         setHasOptionsMenu(true);
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.movie_list);
+        mRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.movie_list);
         //layout manager
         int numRows = getNumRowsForMovieList();
         mGridLayoutManager = new GridLayoutManager(mContext, numRows);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setLayoutManager(mGridLayoutManager);
+
+        //get placeholder view and set it to display when the list is empty
+        TextView placeholderView = (TextView) view.findViewById(R.id.placeholder_view);
+        mRecyclerView.setPlaceholderView(placeholderView);
+
         //setup recycler view adapter here
         mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this, R.menu.home_movie_list_item_popup_menu);
         mRecyclerView.setAdapter(mAdapter);
@@ -299,7 +302,7 @@ public class MovieListFragment extends Fragment
 
     private void sendRequestToGetMovieList(String url) {
         Log.d(TAG, "sendRequestToGetMovieList: url: " + url);
-        mProgressDialog.show();
+//        mProgressDialog.show();
 
         mMoviesList.clear();
         //create JsonObjectRequest and pass it to Volley
@@ -333,6 +336,8 @@ public class MovieListFragment extends Fragment
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        //hide progress dialog
+                        mProgressDialog.dismiss();
                         //errors occur, handle here
                         Log.d(TAG, "onErrorResponse: error: " + error.toString());
                     }

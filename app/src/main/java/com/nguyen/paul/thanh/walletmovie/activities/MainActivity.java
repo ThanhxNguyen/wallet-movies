@@ -2,6 +2,7 @@ package com.nguyen.paul.thanh.walletmovie.activities;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -15,6 +16,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -65,7 +67,7 @@ public class MainActivity extends AppCompatActivity
 
         //determine if this is the first time user accesses the app
         SharedPreferences prefs = getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
-        boolean isFirstTimeUser = prefs.getBoolean(PreferenceConst.Auth.FIRST_TIME_USER_PREF_KEY, true);
+        boolean isFirstTimeUser = prefs.getBoolean(PreferenceConst.Authenticate.FIRST_TIME_USER_PREF_KEY, true);
         if(isFirstTimeUser) {
             //user accesses the app for the first time, show welcome page
             Intent intent = new Intent(MainActivity.this, WelcomeActivity.class);
@@ -164,10 +166,10 @@ public class MainActivity extends AppCompatActivity
                     //since user is signed in, disable guest mode if it's enabled
                     SharedPreferences prefs = getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
-                    boolean isGuest = prefs.getBoolean(PreferenceConst.Auth.GUEST_MODE_PREF_KEY, true);
+                    boolean isGuest = prefs.getBoolean(PreferenceConst.Authenticate.GUEST_MODE_PREF_KEY, true);
 
                     if(isGuest) {
-                        editor.putBoolean(PreferenceConst.Auth.GUEST_MODE_PREF_KEY, false);
+                        editor.putBoolean(PreferenceConst.Authenticate.GUEST_MODE_PREF_KEY, false);
                         editor.apply();
                     }
                     
@@ -306,10 +308,27 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void clearSearchHistory() {
-        SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
-                                                                MovieSearchSuggestionProvider.AUTHORITY,
-                                                                MovieSearchSuggestionProvider.MODE);
-        suggestions.clearHistory();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Clear History");
+        builder.setMessage("Are you sure you want to clear your browsing history?");
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                SearchRecentSuggestions suggestions = new SearchRecentSuggestions(MainActivity.this,
+                        MovieSearchSuggestionProvider.AUTHORITY,
+                        MovieSearchSuggestionProvider.MODE);
+                suggestions.clearHistory();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+
+        builder.create().show();
+
     }
 
     @SuppressWarnings("StatementWithEmptyBody")

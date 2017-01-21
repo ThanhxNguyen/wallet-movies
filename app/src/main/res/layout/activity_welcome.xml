@@ -22,7 +22,7 @@
         android:layout_marginLeft="16dp" />
 
     <Button
-        android:text="@string/signup_button_text"
+        android:text="@string/no_account_signup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:layout_editor_absoluteX="135dp"

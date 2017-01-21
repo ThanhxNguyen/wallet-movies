@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.NestedScrollView
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
+    android:background="@color/colorBackgroundDark"
+    app:theme="@style/ThemeOverlay.AppCompat.Dark"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -20,14 +24,16 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="64dp"
+            android:layout_marginTop="32dp"
             android:text="@string/signin_form_text"
-            android:textAlignment="center"
-            android:textSize="24sp"
-            android:textStyle="normal|bold"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            android:textColor="@color/colorPrimaryText"
+            android:fontFamily="sans-serif-condensed"
+            android:textStyle="normal|bold"
+            android:textAlignment="center"/>
 
         <TextView
             android:id="@+id/auth_error_message"
@@ -58,7 +64,9 @@
                 android:layout_height="match_parent"
                 android:ems="10"
                 android:hint="@string/email_tv_hint"
-                android:inputType="textEmailAddress"/>
+                android:imeOptions="flagNoExtractUi"
+                android:inputType="textEmailAddress"
+                android:textColor="@color/colorPrimaryText"/>
 
         </android.support.design.widget.TextInputLayout>
 
@@ -77,7 +85,9 @@
                 android:layout_height="match_parent"
                 android:ems="10"
                 android:hint="@string/password_tv_hint"
-                android:inputType="textPassword"/>
+                android:inputType="textPassword"
+                android:imeOptions="flagNoExtractUi"
+                android:textColor="@color/colorPrimaryText"/>
 
         </android.support.design.widget.TextInputLayout>
 
@@ -86,36 +96,62 @@
             android:id="@+id/signin_btn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="32dp"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="64dp"
+            android:layout_marginTop="32dp"
             android:text="@string/signin_button_text"
             app:layout_constraintLeft_toLeftOf="@+id/password_wrapper"
-            app:layout_constraintTop_toBottomOf="@+id/password_wrapper"/>
+            app:layout_constraintTop_toBottomOf="@+id/password_wrapper"
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimaryText"
+            android:background="@color/colorCardDark"
+            app:layout_constraintRight_toRightOf="@+id/password_wrapper"
+            android:textAllCaps="false"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="normal|bold"
+            android:elevation="@dimen/cardview_elevation"/>
 
         <TextView
-            android:id="@+id/or_text"
+            android:id="@+id/or_tv"
+            android:text="@string/or_text"
+            android:layout_width="wrap_content"
+            android:background="@color/colorBackgroundDark"
+            app:layout_constraintTop_toBottomOf="@+id/signin_btn"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/colorAccent"/>
+
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/google_signin_btn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginStart="16dp"
-            android:text="@string/or_text"
-            android:textAlignment="center"
-            app:layout_constraintBaseline_toBaselineOf="@+id/signin_btn"
-            app:layout_constraintLeft_toRightOf="@+id/signin_btn"
-            app:layout_constraintRight_toLeftOf="@+id/signup_btn"/>
+            app:layout_constraintTop_toBottomOf="@+id/or_tv"
+            app:layout_constraintLeft_toLeftOf="@+id/signin_btn"
+            app:layout_constraintRight_toRightOf="@+id/signin_btn"
+            android:layout_marginTop="4dp"
+            app:layout_constraintHorizontal_bias="1.0"
+            android:elevation="@dimen/cardview_elevation"/>
 
         <Button
             android:id="@+id/signup_btn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="32dp"
-            android:layout_marginRight="32dp"
-            android:text="@string/signup_button_text"
-            app:layout_constraintBaseline_toBaselineOf="@+id/or_text"
-            app:layout_constraintRight_toRightOf="@+id/password_wrapper"/>
+            android:text="@string/no_account_signup"
+            style="?android:attr/borderlessButtonStyle"
+            android:textStyle="normal|italic"
+            android:textColor="@color/colorAccent"
+            app:layout_constraintTop_toBottomOf="@+id/google_signin_btn"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="@+id/google_signin_btn"
+            app:layout_constraintLeft_toLeftOf="@+id/google_signin_btn"
+            android:layout_marginTop="8dp"
+            android:textAllCaps="false"
+            android:textAlignment="center"/>
+
 
     </android.support.constraint.ConstraintLayout>
 

@@ -181,15 +181,15 @@ public class SignupActivity extends AppCompatActivity {
                                         SharedPreferences prefs = getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
                                         SharedPreferences.Editor editor = prefs.edit();
 
-                                        boolean isFirstTimeUser = prefs.getBoolean(PreferenceConst.Auth.FIRST_TIME_USER_PREF_KEY, true);
-                                        boolean isGuest = prefs.getBoolean(PreferenceConst.Auth.GUEST_MODE_PREF_KEY, true);
+                                        boolean isFirstTimeUser = prefs.getBoolean(PreferenceConst.Authenticate.FIRST_TIME_USER_PREF_KEY, true);
+                                        boolean isGuest = prefs.getBoolean(PreferenceConst.Authenticate.GUEST_MODE_PREF_KEY, true);
 
                                         if(isFirstTimeUser) {
-                                            editor.putBoolean(PreferenceConst.Auth.FIRST_TIME_USER_PREF_KEY, false);
+                                            editor.putBoolean(PreferenceConst.Authenticate.FIRST_TIME_USER_PREF_KEY, false);
                                             editor.apply();
                                         }
                                         if(isGuest) {
-                                            editor.putBoolean(PreferenceConst.Auth.GUEST_MODE_PREF_KEY, false);
+                                            editor.putBoolean(PreferenceConst.Authenticate.GUEST_MODE_PREF_KEY, false);
                                             editor.apply();
                                         }
 

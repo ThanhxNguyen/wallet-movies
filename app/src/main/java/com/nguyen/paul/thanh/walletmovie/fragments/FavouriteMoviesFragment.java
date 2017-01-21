@@ -14,13 +14,13 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,6 +38,7 @@ import com.nguyen.paul.thanh.walletmovie.database.interfaces.DatabaseOperator;
 import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
+import com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
 import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
 
@@ -62,7 +63,7 @@ public class FavouriteMoviesFragment extends Fragment
     private List<Movie> mMoviesList;
     private List<Genre> mGenreListFromApi;
     private MovieRecyclerViewAdapter mAdapter;
-    private RecyclerView mRecyclerView;
+    private RecyclerViewWithEmptyView mRecyclerView;
 
     private ProgressDialog mProgressDialog;
 
@@ -100,7 +101,7 @@ public class FavouriteMoviesFragment extends Fragment
         super.onAttach(context);
 
         SharedPreferences prefs = getActivity().getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
-        isGuest = prefs.getBoolean(PreferenceConst.Auth.GUEST_MODE_PREF_KEY, true);
+        isGuest = prefs.getBoolean(PreferenceConst.Authenticate.GUEST_MODE_PREF_KEY, true);
 
         mContext = context;
         mNetworkRequest = NetworkRequest.getInstance(mContext);
@@ -159,15 +160,16 @@ public class FavouriteMoviesFragment extends Fragment
         //enable fragment to append menu items to toolbar
         setHasOptionsMenu(true);
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.favourite_movie_list);
+        mRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.favourite_movie_list);
         //layout manager
         int numRows = getNumRowsForMovieList();
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, numRows);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setLayoutManager(layoutManager);
-//        //setup recyclerview adapter here
-//        mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this);
-//        mRecyclerView.setAdapter(mAdapter);
+
+        //placeholder view when the list is empty
+        TextView placeholderView = (TextView) view.findViewById(R.id.placeholder_view);
+        mRecyclerView.setPlaceholderView(placeholderView);
 
         initMovieList();
 
@@ -339,7 +341,7 @@ public class FavouriteMoviesFragment extends Fragment
         @Override
         protected void onPostExecute(Movie movie) {
             if(movie != null) {
-                Toast.makeText(mContext, "Successfully removed from favourites!", Toast.LENGTH_LONG).show();
+                Toast.makeText(mContext, "Successfully removed from favourites!", Toast.LENGTH_SHORT).show();
                 //update movie list and adapter
                 mMoviesList.remove(movie);
                 mAdapter.notifyDataSetChanged();
@@ -364,10 +366,7 @@ public class FavouriteMoviesFragment extends Fragment
 
         @Override
         protected void onPostExecute(List<Movie> movieList) {
-            //test
-            for(Movie m : movieList) {
-                Log.d(TAG, "onPostExecute: Movie: " + m.toString());
-            }
+            
             mMoviesList = movieList;
             //setup recyclerview adapter here
             mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, FavouriteMoviesFragment.this, R.menu.favourite_movie_list_item_popup_menu);

@@ -55,7 +55,7 @@ public class ProfileFragment extends Fragment {
         super.onCreate(savedInstanceState);
         //retain this fragment state during activity re-creation progress
         setRetainInstance(true);
-        //initialize Firebase Auth
+        //initialize Firebase Authenticate
         mAuth = FirebaseAuth.getInstance();
     }
 

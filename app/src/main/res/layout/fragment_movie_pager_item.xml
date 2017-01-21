@@ -1,13 +1,25 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.nguyen.paul.thanh.walletmovie.fragments.MovieListFragment">
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:gravity="center"
+              tools:context="com.nguyen.paul.thanh.walletmovie.fragments.MovieListFragment">
 
 
-    <android.support.v7.widget.RecyclerView
+    <com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView
         android:id="@+id/movie_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbars="vertical" />
+        android:scrollbars="vertical"/>
+
+    <TextView
+        android:id="@+id/placeholder_view"
+        android:text="@string/no_content_available"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimaryText"
+        android:textSize="18sp"
+        android:textStyle="normal|italic"/>
 </LinearLayout>

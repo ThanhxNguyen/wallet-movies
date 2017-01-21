@@ -93,6 +93,9 @@ public class MovieDetailsFragment extends Fragment
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState == null) {
+            mProgressDialog.show();
+        }
         //retain this fragment state during activity re-creation progress
         setRetainInstance(true);
     }
@@ -161,7 +164,7 @@ public class MovieDetailsFragment extends Fragment
 
     private void populateCastList(int movieId) {
         mCastList.clear();
-        final int castLimit = 6;
+        final int castLimit = 10;
         String movieCastListUrl = MovieQueryBuilder.getInstance()
                                                     .movies()
                                                     .getCasts(movieId)
@@ -225,7 +228,7 @@ public class MovieDetailsFragment extends Fragment
 
     private void displayMovieTrailerOrPoster(final Movie movie) {
         //show progress dialog since loading youtube video might take sometimes
-        mProgressDialog.show();
+//        mProgressDialog.show();
 
         //get movie trailers url
         String movieTrailerUrl = MovieQueryBuilder.getInstance()
@@ -298,9 +301,11 @@ public class MovieDetailsFragment extends Fragment
     public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean wasRestored) {
         //successfully load youtube video
         if(!wasRestored) {
-//            youTubePlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.CHROMELESS);
-            //hard video id here, will replace soon
+//            youTubePlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.MINIMAL);
+
+            //load the video with thumbnail but not play it yet
             youTubePlayer.cueVideo(trailerVideoKey);
+//            youTubePlayer.loadVideo(trailerVideoKey);
         }
     }
 
@@ -308,6 +313,7 @@ public class MovieDetailsFragment extends Fragment
     public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
         if (youTubeInitializationResult.isUserRecoverableError()) {
             //do something
+            mProgressDialog.dismiss();
         } else {
             mProgressDialog.dismiss();
             Toast.makeText(mContext, youTubeInitializationResult.toString(), Toast.LENGTH_LONG).show();

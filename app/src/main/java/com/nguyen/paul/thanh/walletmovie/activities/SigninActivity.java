@@ -10,32 +10,45 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
 import com.nguyen.paul.thanh.walletmovie.utilities.FormInputValidator;
 
-public class SigninActivity extends AppCompatActivity {
+public class SigninActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = "SigninActivity";
+    private static final int RC_SIGN_IN = 100;
 
     private TextView mEmailTv;
     private TextView mPasswordTv;
     private Button mSigninBtn;
     private Button mSignupBtn;
+    private SignInButton mGoogleSigninButton;
     private TextInputLayout mEmailWrapper;
     private TextInputLayout mPasswordWrapper;
     private TextView mAuthErrorMessage;
-
     private FormInputValidator mFormValidator;
+    private ProgressDialog mProgressDialog;
+    private GoogleApiClient mGoogleApiClient;
 
     //Firebase auth
     private FirebaseAuth mAuth;
@@ -49,12 +62,21 @@ public class SigninActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mFormValidator = FormInputValidator.getInstance();
 
+        //initiate ProgressDialog
+        mProgressDialog = new ProgressDialog(this, ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setMessage("Authenticating...");
+
         mAuthErrorMessage = (TextView) findViewById(R.id.auth_error_message);
 
         mEmailTv = (TextView) findViewById(R.id.email);
         mPasswordTv = (TextView) findViewById(R.id.password);
         mSigninBtn = (Button) findViewById(R.id.signin_btn);
         mSignupBtn = (Button) findViewById(R.id.signup_btn);
+        mGoogleSigninButton = (SignInButton) findViewById(R.id.google_signin_btn);
+        //change default text for google signin button
+        TextView googleSigninBtnTv = (TextView) mGoogleSigninButton.getChildAt(0);
+        googleSigninBtnTv.setText(getString(R.string.signin_with_google));
+//        mGoogleSigninButton.setSize(SignInButton.SIZE_WIDE);
 
         mEmailWrapper = (TextInputLayout) findViewById(R.id.email_wrapper);
         mPasswordWrapper = (TextInputLayout) findViewById(R.id.password_wrapper);
@@ -67,7 +89,84 @@ public class SigninActivity extends AppCompatActivity {
         setClickListenerForSigninBtn();
         setClicklistenerforSignupBtn();
 
+        setUpSigninWithGoogle();
     }
+
+    private void setUpSigninWithGoogle() {
+        //configure google sign in options
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this /* SigninActivity */, this /* OnConnectionFailedListener */)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+
+        mGoogleSigninButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //show progress dialog
+                mProgressDialog.show();
+
+                //sign in with google
+                signinWithGoogle();
+            }
+        });
+
+    }
+
+    private void signinWithGoogle() {
+        Intent googleSignInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+        startActivityForResult(googleSignInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            if (result.isSuccess()) {
+                Log.d(TAG, "onActivityResult: sign in with google successfully");
+                Toast.makeText(this, "sign in with google successfully", Toast.LENGTH_LONG).show();
+                // Google Sign In was successful, authenticate with Firebase
+                GoogleSignInAccount account = result.getSignInAccount();
+                firebaseAuthWithGoogle(account);
+            } else {
+                //hide progress dialog
+                mProgressDialog.dismiss();
+                // Google Sign In failed
+                Toast.makeText(this, "sign in with google Failed", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if(task.isSuccessful()) {
+                            mProgressDialog.dismiss();
+                            Log.d(TAG, "onComplete: successfully sigin with Firebase using google credentials");
+                            Toast.makeText(SigninActivity.this, "sign in with Firebase successfully", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(SigninActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            mProgressDialog.dismiss();
+                            Toast.makeText(SigninActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                });
+    }
+
 
     private void setTextChangeListenerForEmailInput() {
         mEmailTv.addTextChangedListener(new TextWatcher() {
@@ -131,15 +230,15 @@ public class SigninActivity extends AppCompatActivity {
                                         SharedPreferences prefs = getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
                                         SharedPreferences.Editor editor = prefs.edit();
 
-                                        boolean isFirstTimeUser = prefs.getBoolean(PreferenceConst.Auth.FIRST_TIME_USER_PREF_KEY, true);
-                                        boolean isGuest = prefs.getBoolean(PreferenceConst.Auth.GUEST_MODE_PREF_KEY, true);
+                                        boolean isFirstTimeUser = prefs.getBoolean(PreferenceConst.Authenticate.FIRST_TIME_USER_PREF_KEY, true);
+                                        boolean isGuest = prefs.getBoolean(PreferenceConst.Authenticate.GUEST_MODE_PREF_KEY, true);
 
                                         if(isFirstTimeUser) {
-                                            editor.putBoolean(PreferenceConst.Auth.FIRST_TIME_USER_PREF_KEY, false);
+                                            editor.putBoolean(PreferenceConst.Authenticate.FIRST_TIME_USER_PREF_KEY, false);
                                             editor.apply();
                                         }
                                         if(isGuest) {
-                                            editor.putBoolean(PreferenceConst.Auth.GUEST_MODE_PREF_KEY, false);
+                                            editor.putBoolean(PreferenceConst.Authenticate.GUEST_MODE_PREF_KEY, false);
                                             editor.apply();
                                         }
 
@@ -219,5 +318,10 @@ public class SigninActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        //called when google sign in fails
     }
 }
