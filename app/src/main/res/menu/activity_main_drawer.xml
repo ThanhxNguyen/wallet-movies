@@ -27,11 +27,14 @@
 
             <group
                 android:id="@+id/nav_authenticated_group"
+                android:checkableBehavior="single"
                 android:visible="false">
-                <item
-                    android:id="@+id/nav_profile"
-                    android:icon="@drawable/ic_nav_profile_white_24dp"
-                    android:title="@string/nav_profile" />
+
+                <!--will be implemented soon-->
+                <!--<item-->
+                    <!--android:id="@+id/nav_profile"-->
+                    <!--android:icon="@drawable/ic_nav_profile_white_24dp"-->
+                    <!--android:title="@string/nav_profile"/>-->
 
                 <item
                     android:id="@+id/nav_signout"

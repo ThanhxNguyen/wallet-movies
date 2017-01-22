@@ -56,7 +56,7 @@ public class HomeFragment extends Fragment {
 
         //get viewpager ref and set adapter for it
         mPager = (ViewPager) view.findViewById(R.id.view_pager);
-        mPagerAdapter = new MoviePagerAdapter(getChildFragmentManager(), mContext);
+        mPagerAdapter = new MoviePagerAdapter(getChildFragmentManager());
         mPager.setAdapter(mPagerAdapter);
 
         //get tab layout ref and incorporate viewpager with it

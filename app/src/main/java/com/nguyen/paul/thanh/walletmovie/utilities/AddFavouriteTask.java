@@ -7,7 +7,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
+import android.view.ViewGroup;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -44,6 +44,7 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
     private FirebaseDatabase mFirebaseDB;
     private DatabaseReference mUsersRef;
     private List<Genre> mGenreListFromApi;
+    private ViewGroup mViewGroup;
 
     private Activity mActivity;
 
@@ -78,7 +79,7 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        makeToast("Successfully added to your favourites!");
+                        makeSnackBar("Successfully added to your favourites!");
                     }
                 });
 
@@ -87,14 +88,14 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        makeToast("The movie has already been in your favourites!");
+                        makeSnackBar("The movie has already been in your favourites!");
                     }
                 });
             } else {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        makeToast("Error! Failed to add the movie to your favourites!");
+                        makeSnackBar("Error! Failed to add the movie to your favourites!");
                     }
                 });
             }
@@ -135,7 +136,7 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if(dataSnapshot.exists()) {
                                 //there is already a movie with same value
-                                makeToast("The movie has already been in your favourites!");
+                                makeSnackBar("The movie has already been in your favourites!");
 
                             } else {
                                 //no existing movie, safe to add
@@ -148,10 +149,10 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
                                                 if(databaseError != null) {
                                                     //errors occur while writing data
                                                     Log.d(TAG, "onComplete: Errors occur while writing data to Firebase - " + databaseError);
-                                                    makeToast("Error! Failed to add the movie to your favourites!");
+                                                    makeSnackBar("Error! Failed to add the movie to your favourites!");
                                                 } else {
                                                     //successfully added new data to Firebase
-                                                    makeToast("Successfully added to your favourites!");
+                                                    makeSnackBar("Successfully added to your favourites!");
                                                 }
                                             }
                                         });
@@ -166,8 +167,12 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
 
     }
 
+    public void setParentContainerForSnackBar(ViewGroup viewGroup) {
+        mViewGroup = viewGroup;
+    }
+
     //helper method to create a toast message
-    private void makeToast(String text) {
-        Toast.makeText(mContext, text, Toast.LENGTH_SHORT).show();
+    private void makeSnackBar(String text) {
+        Utils.createSnackBar(mActivity.getResources(), mViewGroup, text).show();
     }
 }

@@ -9,7 +9,7 @@
         android:id="@+id/movie_item_card"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:elevation="@dimen/cardview_elevation"
+        app:cardElevation="@dimen/cardview_elevation"
         android:foreground="?android:attr/selectableItemBackground"
         app:cardBackgroundColor="@color/colorCardDark"
         android:layout_margin="10dp">

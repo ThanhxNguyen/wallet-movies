@@ -3,6 +3,7 @@ package com.nguyen.paul.thanh.walletmovie.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -10,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.PopupMenu;
@@ -21,7 +23,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -41,6 +42,7 @@ import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
 import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
+import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +54,8 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class FavouriteMoviesFragment extends Fragment
-                                implements MovieRecyclerViewAdapter.OnRecyclerViewClickListener {
+                                implements MovieRecyclerViewAdapter.OnRecyclerViewClickListener,
+                                            DatabaseReference.CompletionListener{
 
     private static final String TAG = "FavouriteMoviesFragment";
 
@@ -64,6 +67,7 @@ public class FavouriteMoviesFragment extends Fragment
     private List<Genre> mGenreListFromApi;
     private MovieRecyclerViewAdapter mAdapter;
     private RecyclerViewWithEmptyView mRecyclerView;
+    private ViewGroup mViewContainer;
 
     private ProgressDialog mProgressDialog;
 
@@ -141,6 +145,8 @@ public class FavouriteMoviesFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //enable fragment to append menu items to toolbar
+        setHasOptionsMenu(true);
         //retain this fragment state during activity re-creation progress
         setRetainInstance(true);
     }
@@ -154,11 +160,9 @@ public class FavouriteMoviesFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        mViewContainer = container;
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_favourite_movies, container, false);
-
-        //enable fragment to append menu items to toolbar
-        setHasOptionsMenu(true);
 
         mRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.favourite_movie_list);
         //layout manager
@@ -302,11 +306,33 @@ public class FavouriteMoviesFragment extends Fragment
         switch (action) {
             case MovieRecyclerViewAdapter.OnRecyclerViewClickListener.REMOVE_MOVIE_TRIGGERED:
                 //remove the movie from favourites list
-                removeMovieFromFavouritesList(movie);
+                showConfirmPopupBeforeDelete(movie);
                 break;
             default:
                 break;
         }
+    }
+
+    private void showConfirmPopupBeforeDelete(final Movie movie) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setTitle("Confirmation");
+        builder.setMessage("Are you sure you want to remove this movie from your favourites?");
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //do something
+                dialogInterface.dismiss();
+            }
+        });
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                removeMovieFromFavouritesList(movie);
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 
     private void removeMovieFromFavouritesList(Movie movie) {
@@ -319,10 +345,22 @@ public class FavouriteMoviesFragment extends Fragment
                 mUserRef.child(currentUser.getUid())
                         .child("favourite_movies")
                         .child(String.valueOf(movie.getId()))
-                        .removeValue();
+                        .removeValue(this);
             } else {
-                Toast.makeText(mContext, "Please sign in", Toast.LENGTH_LONG).show();
+                Utils.createSnackBar(getResources(), mViewContainer, "Please sign in to proceed").show();
             }
+        }
+    }
+
+    @Override
+    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+        //get called when complete Firebase write operation. If success DatabaseError object is empty, fail otherwise
+        if(databaseError != null) {
+            //errors occur
+            Utils.createSnackBar(getResources(), mViewContainer, "Error! Sorry failed to remove this movie").show();
+        } else {
+            //success
+            Utils.createSnackBar(getResources(), mViewContainer, "Successfully removed from favourite").show();
         }
     }
 
@@ -333,18 +371,26 @@ public class FavouriteMoviesFragment extends Fragment
         protected Movie doInBackground(Movie... movies) {
             Movie movie = movies[0];
             DatabaseOperator databaseOperator = MoviesTableOperator.getInstance(mContext);
-            databaseOperator.delete(movie.getId());
+            int result = databaseOperator.delete(movie.getId());
 
-            return movie;
+            if(result > 0) {
+                //successfully deleted
+                return movie;
+            }
+            return null;
         }
 
         @Override
         protected void onPostExecute(Movie movie) {
             if(movie != null) {
-                Toast.makeText(mContext, "Successfully removed from favourites!", Toast.LENGTH_SHORT).show();
+                //successfully removed movie
+                Utils.createSnackBar(getResources(), mViewContainer, "Successfully removed from favourite").show();
                 //update movie list and adapter
                 mMoviesList.remove(movie);
                 mAdapter.notifyDataSetChanged();
+            } else {
+                //failed to remove movie from favourites
+                Utils.createSnackBar(getResources(), mViewContainer, "Error! Sorry failed to remove this movie").show();
             }
         }
     }

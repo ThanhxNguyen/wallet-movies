@@ -15,7 +15,6 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -26,6 +25,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
 import com.nguyen.paul.thanh.walletmovie.utilities.FormInputValidator;
+import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -338,7 +338,7 @@ public class SignupActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<Void> task) {
                             if(task.isSuccessful()) {
                                 mProgressDialog.dismiss();
-                                Toast.makeText(SignupActivity.this, "Sign up Successfully", Toast.LENGTH_LONG).show();
+                                Utils.createSnackBar(getResources(), findViewById(R.id.signup_form_activity), "Sign up Successfully").show();
                                 Intent intent = new Intent(SignupActivity.this, MainActivity.class);
                                 startActivity(intent);
                             }    

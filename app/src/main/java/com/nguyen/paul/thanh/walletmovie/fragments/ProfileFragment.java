@@ -16,9 +16,7 @@ import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.activities.MainActivity;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link ProfileFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * This feature will be implemented soon
  */
 public class ProfileFragment extends Fragment {
 

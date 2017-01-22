@@ -80,6 +80,8 @@ public class MovieListFragment extends Fragment
     private RecyclerViewWithEmptyView mRecyclerView;
     private ScreenMeasurer mScreenMeasurer;
 
+    private ViewGroup mParentContainer;
+
     private ProgressDialog mProgressDialog;
 
     public MovieListFragment() {
@@ -222,6 +224,7 @@ public class MovieListFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        mParentContainer = container;
         // Inflate the layout for this fragment
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_movie_pager_item, container, false);
 
@@ -457,6 +460,7 @@ public class MovieListFragment extends Fragment
 
     private void addMovieToFavourites(Movie movie, List<Genre> genreList) {
         AddFavouriteTask task = new AddFavouriteTask(mContext, genreList, getActivity());
+        task.setParentContainerForSnackBar(mParentContainer);
         task.execute(movie);
     }
 

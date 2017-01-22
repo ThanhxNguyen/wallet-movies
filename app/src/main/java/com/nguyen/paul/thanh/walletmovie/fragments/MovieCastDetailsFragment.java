@@ -159,6 +159,7 @@ public class MovieCastDetailsFragment extends Fragment {
                                                                 .getImageBaseUrl("w500") + cast.getProfilePath();
                                 Glide.with(mContext).load(castProfileImageUrl)
                                         .crossFade()
+                                        .centerCrop()
                                         .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                                         .error(R.drawable.ic_account_circle_white_24dp)
                                         .into(mCastProfile);

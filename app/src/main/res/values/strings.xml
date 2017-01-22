@@ -86,5 +86,7 @@
     <string name="facebook_app_id">1003693956428537</string>
     <string name="overview_text">Overview</string>
     <string name="sign_up_btn">Sign up</string>
+    <string name="account_text">Account Information</string>
+    <string name="cast_biography">Biography</string>
 
 </resources>

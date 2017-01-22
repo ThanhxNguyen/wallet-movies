@@ -10,11 +10,9 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -32,6 +30,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
 import com.nguyen.paul.thanh.walletmovie.utilities.FormInputValidator;
+import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 public class SigninActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
@@ -130,8 +129,6 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             if (result.isSuccess()) {
-                Log.d(TAG, "onActivityResult: sign in with google successfully");
-                Toast.makeText(this, "sign in with google successfully", Toast.LENGTH_LONG).show();
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = result.getSignInAccount();
                 firebaseAuthWithGoogle(account);
@@ -139,7 +136,7 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
                 //hide progress dialog
                 mProgressDialog.dismiss();
                 // Google Sign In failed
-                Toast.makeText(this, "sign in with google Failed", Toast.LENGTH_LONG).show();
+                showSnackBar("Failed to sign in with google");
             }
         }
     }
@@ -152,19 +149,20 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()) {
                             mProgressDialog.dismiss();
-                            Log.d(TAG, "onComplete: successfully sigin with Firebase using google credentials");
-                            Toast.makeText(SigninActivity.this, "sign in with Firebase successfully", Toast.LENGTH_LONG).show();
                             Intent intent = new Intent(SigninActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();
                         } else {
                             mProgressDialog.dismiss();
-                            Toast.makeText(SigninActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
+                            showSnackBar("Authentication failed.");
                         }
 
                     }
                 });
+    }
+
+    private void showSnackBar(String message) {
+        Utils.createSnackBar(getResources(), findViewById(R.id.signin_form_activity), message).show();
     }
 
 
@@ -245,7 +243,7 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
                                         //dimiss the progress dialog
                                         progressDialog.dismiss();
                                         //successfully signed in, redirect to MainActivity for now
-                                        Toast.makeText(SigninActivity.this, "Sign in successfully!", Toast.LENGTH_SHORT).show();
+                                        showSnackBar("Sign in successfully!");
 //                                        Intent intent = new Intent(SigninActivity.this, MainActivity.class);
 //                                        startActivity(intent);
                                         finish();

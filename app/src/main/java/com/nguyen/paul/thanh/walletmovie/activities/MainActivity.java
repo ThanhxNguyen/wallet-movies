@@ -26,19 +26,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.WalletMovieApp;
+import com.nguyen.paul.thanh.walletmovie.database.MovieSearchSuggestionProvider;
 import com.nguyen.paul.thanh.walletmovie.fragments.FavouriteMoviesFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.HomeFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.MovieListFragment;
-import com.nguyen.paul.thanh.walletmovie.fragments.ProfileFragment;
 import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
-import com.nguyen.paul.thanh.walletmovie.database.MovieSearchSuggestionProvider;
 import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
+import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -79,7 +78,7 @@ public class MainActivity extends AppCompatActivity
         //initialize Firebase auth
         mAuth = FirebaseAuth.getInstance();
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.root_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         mDrawerLayout.addDrawerListener(toggle);
@@ -100,8 +99,6 @@ public class MainActivity extends AppCompatActivity
         mAuth.addAuthStateListener(mAuthListener);
 
         ScreenMeasurer sm = new ScreenMeasurer(this);
-
-        Log.d(TAG, "onStart: " + String.format("Width: %s and Height: %s", sm.getDpWidth(), sm.getDpHeight()));
     }
 
     @Override
@@ -212,7 +209,7 @@ public class MainActivity extends AppCompatActivity
         FragmentManager fm = getSupportFragmentManager();
 
         //toggle navigation drawer open/close
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.root_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         }
@@ -369,16 +366,17 @@ public class MainActivity extends AppCompatActivity
                 clearSearchHistory();
                 break;
 
-            case R.id.nav_profile:
-                fragmentTag = ProfileFragment.FRAGMENT_TAG;
-                fragment = fm.findFragmentByTag(fragmentTag);
-                if(fragment == null) {
-                    fragment = ProfileFragment.newInstance();
-                    fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
-                } else {
-                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
-                }
-                break;
+//            will be implemented soon
+//            case R.id.nav_profile:
+//                fragmentTag = ProfileFragment.FRAGMENT_TAG;
+//                fragment = fm.findFragmentByTag(fragmentTag);
+//                if(fragment == null) {
+//                    fragment = ProfileFragment.newInstance();
+//                    fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
+//                } else {
+//                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
+//                }
+//                break;
 
             case R.id.nav_signin:
                 //navigate to signin activity
@@ -387,8 +385,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.nav_signout:
                 //sign out user
-                mAuth.signOut();
-                Toast.makeText(this, "You have successfully signed out!", Toast.LENGTH_LONG).show();
+                signoutUser();
                 break;
 
             default:
@@ -406,6 +403,28 @@ public class MainActivity extends AppCompatActivity
 
         mDrawerLayout.closeDrawer(GravityCompat.START);
         return true;
+
+    }
+
+    private void signoutUser() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Clear History");
+        builder.setMessage("Are you sure you want to clear your browsing history?");
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mAuth.signOut();
+                Utils.createSnackBar(getResources(), findViewById(R.id.root_layout), "You have successfully signed out!").show();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+
+        builder.create().show();
 
     }
 

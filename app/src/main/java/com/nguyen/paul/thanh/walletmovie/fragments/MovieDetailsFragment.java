@@ -3,20 +3,24 @@ package com.nguyen.paul.thanh.walletmovie.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -28,12 +32,16 @@ import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.WalletMovieApp;
 import com.nguyen.paul.thanh.walletmovie.adapters.CastRecyclerViewAdapter;
 import com.nguyen.paul.thanh.walletmovie.model.Cast;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
+import com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView;
+import com.nguyen.paul.thanh.walletmovie.utilities.AddFavouriteTask;
 import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
+import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,14 +76,18 @@ public class MovieDetailsFragment extends Fragment
     private TextView mVoteValue;
     private TextView mGenres;
     private TextView mDescription;
-    private RecyclerView mCastRecyclerView;
+    private RecyclerViewWithEmptyView mCastRecyclerView;
     private CastRecyclerViewAdapter mCastRecyclerViewAdapter;
     private List<Cast> mCastList;
+    private Movie mMovie;
 
-    //display movie poster image if there is no trailers available
+    private ViewGroup mParentContainer;
+
+    //display mMovie poster image if there is no trailers available
     private ImageView mMoviePoster;
 
     private ProgressDialog mProgressDialog;
+    private List<Genre> mGenreListFromApi;
 
     public MovieDetailsFragment() {
         // Required empty public constructor
@@ -96,14 +108,66 @@ public class MovieDetailsFragment extends Fragment
         if(savedInstanceState == null) {
             mProgressDialog.show();
         }
+
+        //enable fragment to append menu items to toolbar
+        setHasOptionsMenu(true);
+
         //retain this fragment state during activity re-creation progress
         setRetainInstance(true);
     }
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_add).setVisible(true);
+        super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if(id == R.id.action_add) {
+            addMovieToFavourites();
+            return true;
+        }
+
+        return false;
+    }
+
+    private void addMovieToFavourites() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setTitle("Confirmation");
+        builder.setMessage("Add this movie to your favourites?");
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //do something
+                dialogInterface.dismiss();
+            }
+        });
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                AddFavouriteTask task = new AddFavouriteTask(mContext, mGenreListFromApi, getActivity());
+                task.setParentContainerForSnackBar(mParentContainer);
+                task.execute(mMovie);
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+
+        if(mMovie != null && mGenreListFromApi != null) {
+            //show confirmation popup
+            alertDialog.show();
+        } else {
+            showSnackBar("Error! Sorry could not add movie to your favourites!");
+        }
+    }
+
+    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
+//        getActivity().invalidateOptionsMenu();
         getActivity().setTitle(R.string.title_movie_details);
     }
 
@@ -116,6 +180,57 @@ public class MovieDetailsFragment extends Fragment
 
         mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setMessage("Loading data...");
+
+        mGenreListFromApi = ((WalletMovieApp) getActivity().getApplication()).getGenreListFromApi();
+
+        if(mGenreListFromApi.size() == 0) {
+            String genreListUrl = MovieQueryBuilder.getInstance().getGenreListUrl();
+            sendRequestToGetGenreList(genreListUrl);
+        }
+    }
+
+    private void sendRequestToGetGenreList(String url) {
+        Log.d(TAG, "sendRequestToGetGenreList: url: " + url);
+        JsonObjectRequest genreJsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        //successfully get data
+                        try {
+                            JSONArray genres = response.getJSONArray("genres");
+                            parseGenreList(genres);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(TAG, "onErrorResponse: Error getting genre list " + error.toString());
+                    }
+                });
+
+        mNetworkRequest.addToRequestQueue(genreJsonRequest, NETWORK_REQUEST_TAG);
+    }
+
+    private void parseGenreList(JSONArray genres) {
+        for(int i=0; i<genres.length(); i++) {
+            try {
+                JSONObject genreJsonObj = genres.getJSONObject(i);
+                int genreId = genreJsonObj.getInt("id");
+                String genreName = genreJsonObj.getString("name");
+
+                Genre genre = new Genre(genreId, genreName);
+                mGenreListFromApi.add(genre);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        //cache genres list value to app
+        ( (WalletMovieApp) getActivity().getApplication()).setGenreListFromApi(mGenreListFromApi);
     }
 
     @Override
@@ -127,15 +242,18 @@ public class MovieDetailsFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        mParentContainer = container;
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_movie_details, container, false);
 
-        //setup recycler view list for movie casts
-        mCastRecyclerView = (RecyclerView) view.findViewById(R.id.movie_cast_list);
+        //setup recycler view list for mMovie casts
+        mCastRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.movie_cast_list);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayout.HORIZONTAL, false);
         mCastRecyclerView.setItemAnimator(new DefaultItemAnimator());
-
         mCastRecyclerView.setLayoutManager(layoutManager);
+        //set placeholder view when the list is empty
+        TextView placeholderView = (TextView) view.findViewById(R.id.placeholder_view);
+        mCastRecyclerView.setPlaceholderView(placeholderView);
         mCastRecyclerViewAdapter = new CastRecyclerViewAdapter(mContext, mCastList, this);
         //set adapter for recycler view
         mCastRecyclerView.setAdapter(mCastRecyclerViewAdapter);
@@ -149,13 +267,13 @@ public class MovieDetailsFragment extends Fragment
 
         Bundle args = getArguments();
         if(args != null) {
-            Movie movie = args.getParcelable(MOVIE_PARCELABLE_KEY);
+            mMovie = args.getParcelable(MOVIE_PARCELABLE_KEY);
 
-            displayMovieTrailerOrPoster(movie);
+            displayMovieTrailerOrPoster(mMovie);
 
-            displayMovieDetails(movie);
+            displayMovieDetails(mMovie);
 
-            populateCastList(movie.getId());
+            populateCastList(mMovie.getId());
 
         }
 
@@ -222,15 +340,17 @@ public class MovieDetailsFragment extends Fragment
             genreValues.append(prefix);
 
         }
+
+        String noDescription = "There is currently no description available for this movie yet. The description will be updated soon in the future. Sorry for any inconveniences.";
         mGenres.setText( (genreValues.toString().length()>0) ? genreValues.delete(genreValues.length()-2, genreValues.length()-1) : "Unknown");
-        mDescription.setText(TextUtils.isEmpty(movie.getOverview()) ? unknown : movie.getOverview());
+        mDescription.setText(TextUtils.isEmpty(movie.getOverview()) ? noDescription : movie.getOverview());
     }
 
     private void displayMovieTrailerOrPoster(final Movie movie) {
         //show progress dialog since loading youtube video might take sometimes
 //        mProgressDialog.show();
 
-        //get movie trailers url
+        //get mMovie trailers url
         String movieTrailerUrl = MovieQueryBuilder.getInstance()
                                                     .movies()
                                                     .getVideos(movie.getId())
@@ -243,16 +363,16 @@ public class MovieDetailsFragment extends Fragment
                         try {
                             JSONArray trailerList = response.getJSONArray("results");
                             if(trailerList.length() > 0) {
-                                //get the first trailer videos for this movie (normally the official one)
+                                //get the first trailer videos for this mMovie (normally the official one)
                                 JSONObject trailerObj = trailerList.getJSONObject(0);
                                 String trailerKey = trailerObj.getString("key");
                                 trailerVideoKey = trailerKey;
                                 loadVideo(trailerVideoKey);
 
                             } else {
-                                //no trailer available, display movie poster instead
+                                //no trailer available, display mMovie poster instead
                                 mMoviePoster.setVisibility(View.VISIBLE);
-                                //load movie thumb from internet
+                                //load mMovie thumb from internet
                                 String imgUrl = MovieQueryBuilder.getInstance().getImageBaseUrl("w500") + movie.getPosterPath();
 
                                 Glide.with(mContext).load(imgUrl)
@@ -271,7 +391,7 @@ public class MovieDetailsFragment extends Fragment
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(mContext, "Failed to load trailer video!", Toast.LENGTH_SHORT).show();
+                        showSnackBar("Failed to load trailer video!");
                         mProgressDialog.dismiss();
                     }
                 });
@@ -293,7 +413,7 @@ public class MovieDetailsFragment extends Fragment
                 .replace(R.id.youtube_video_frame, youTubePlayerSupportFragment)
                 .commit();
 
-        //hide progress dialog since movie details and movie trailer have been loaded
+        //hide progress dialog since mMovie details and mMovie trailer have been loaded
         mProgressDialog.dismiss();
     }
 
@@ -301,11 +421,10 @@ public class MovieDetailsFragment extends Fragment
     public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean wasRestored) {
         //successfully load youtube video
         if(!wasRestored) {
+            //set style for youtube player
 //            youTubePlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.MINIMAL);
-
-            //load the video with thumbnail but not play it yet
             youTubePlayer.cueVideo(trailerVideoKey);
-//            youTubePlayer.loadVideo(trailerVideoKey);
+
         }
     }
 
@@ -316,7 +435,7 @@ public class MovieDetailsFragment extends Fragment
             mProgressDialog.dismiss();
         } else {
             mProgressDialog.dismiss();
-            Toast.makeText(mContext, youTubeInitializationResult.toString(), Toast.LENGTH_LONG).show();
+            showSnackBar(youTubeInitializationResult.toString());
         }
     }
 
@@ -328,5 +447,9 @@ public class MovieDetailsFragment extends Fragment
                         .replace(R.id.content_frame, MovieCastDetailsFragment.newInstance(cast))
                         .addToBackStack(null)
                         .commit();
+    }
+
+    private void showSnackBar(String message) {
+        Utils.createSnackBar(getResources(), mParentContainer, message).show();
     }
 }
