@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -13,7 +12,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -168,21 +166,29 @@ public class MovieListFragment extends Fragment
                 item = menu.findItem(R.id.action_sort_by_date);
                 item.setChecked(true);
                 onOptionsItemSelected(item);
+//                Collections.sort(mMoviesList, Movie.MovieReleaseDateSort);
+//                mAdapter.notifyDataSetChanged();
                 break;
             case PreferenceConst.MOVIE_NAME_SORT:
                 item = menu.findItem(R.id.action_sort_by_name);
                 item.setChecked(true);
                 onOptionsItemSelected(item);
+//                Collections.sort(mMoviesList, Movie.MovieNameSort);
+//                mAdapter.notifyDataSetChanged();
                 break;
             case PreferenceConst.MOVIE_VOTE_SORT:
                 item = menu.findItem(R.id.action_sort_by_vote);
                 item.setChecked(true);
                 onOptionsItemSelected(item);
+//                Collections.sort(mMoviesList, Movie.MovieVoteSort);
+//                mAdapter.notifyDataSetChanged();
                 break;
             default:
                 item = menu.findItem(R.id.action_sort_by_vote);
                 item.setChecked(true);
                 onOptionsItemSelected(item);
+//                Collections.sort(mMoviesList, Movie.MovieVoteSort);
+//                mAdapter.notifyDataSetChanged();
                 break;
         }
     }
@@ -336,14 +342,6 @@ public class MovieListFragment extends Fragment
         mNetworkRequest.getRequestQueue().cancelAll(NETWORK_REQUEST_TAG);
     }
 
-    /**
-     * Converting dp to pixel
-     */
-    private int dpToPx(int dp) {
-        Resources r = getResources();
-        return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
-    }
-
     private void sendRequestToGetMovieList(String url) {
         //empty movie list if there is any
         mMoviesList.clear();
@@ -363,8 +361,6 @@ public class MovieListFragment extends Fragment
                                     mMoviesList.add(movie);
                                 }
                             }
-                            //sort the list by votes in descending order by default
-//                            Collections.sort(mMoviesList, Movie.MovieVoteSort);
                             //hide progress dialog when complete loading movies
                             mProgressDialog.dismiss();
                             //notify adapter about changes

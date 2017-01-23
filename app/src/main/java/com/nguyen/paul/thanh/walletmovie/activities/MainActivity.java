@@ -26,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -46,6 +47,9 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
     private Menu mNavMenu;
+    private View mNavHeader;
+    private TextView mHeaderDisplayName;
+    private TextView mHeaderDisplayEmail;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
@@ -84,6 +88,10 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
 
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        //get navigation drawer header
+        mNavHeader = mNavigationView.getHeaderView(0);
+        mHeaderDisplayName = (TextView) mNavHeader.findViewById(R.id.display_name);
+        mHeaderDisplayEmail = (TextView) mNavHeader.findViewById(R.id.display_email);
         //get navigation menu refs for show/hide menu items when authenticating users
         mNavMenu = mNavigationView.getMenu();
         mNavigationView.setNavigationItemSelectedListener(this);
@@ -154,7 +162,10 @@ public class MainActivity extends AppCompatActivity
                 FirebaseUser currentUser = firebaseAuth.getCurrentUser();
 
                 if(currentUser != null) {
-                    Log.d(TAG, "onAuthStateChanged: user signed in");
+                    //set display name and email in navigation drawer header
+                    mHeaderDisplayName.setText(currentUser.getDisplayName());
+                    mHeaderDisplayEmail.setText(currentUser.getEmail());
+
                     mNavigationView.getMenu().getItem(0).setChecked(true);
                     onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
                     //since user is signed in, disable guest mode if it's enabled
@@ -172,8 +183,11 @@ public class MainActivity extends AppCompatActivity
                     mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(false);
 
                 } else {
+                    //set display name and email to guest mode since the user is signed out
+                    mHeaderDisplayName.setText("Guest");
+                    mHeaderDisplayEmail.setText("");
+
                     //user is signed out
-                    Log.d(TAG, "onAuthStateChanged: user signed out");
                     onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
                     mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, false);
                     mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(true);
@@ -364,6 +378,7 @@ public class MainActivity extends AppCompatActivity
                 break;
 
             case R.id.nav_about:
+                Log.d(TAG, "onNavigationItemSelected: nav about");
                 fragmentTag = AboutUsFragment.FRAGMENT_TAG;
                 fragment = fm.findFragmentByTag(fragmentTag);
                 if(fragment == null) {
@@ -417,7 +432,7 @@ public class MainActivity extends AppCompatActivity
     private void signoutUser() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Clear History");
-        builder.setMessage("Are you sure you want to clear your browsing history?");
+        builder.setMessage("Are you sure you want to sign out?");
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {

@@ -17,7 +17,7 @@ public class FormInputValidator {
     private final int PASSWORD_MIN_LENGTH = 6;
     private final int PASSWORD_MAX_LENGTH = 100;
 
-    private String peopleNamePattern = "^[a-zA-Z-'\\.]{3,}$";
+    private String peopleNamePattern = "^[a-zA-Z-'\\. ]{3,}$";
     private Pattern PEOPLE_NAME = Pattern.compile(peopleNamePattern);
 
     private static FormInputValidator mInstance;

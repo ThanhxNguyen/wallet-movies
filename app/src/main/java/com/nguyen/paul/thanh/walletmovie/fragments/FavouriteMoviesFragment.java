@@ -74,6 +74,9 @@ public class FavouriteMoviesFragment extends Fragment
     //listener to listen for data changes
     private ValueEventListener mValueEventListener;
 
+    private SharedPreferences mPrefs;
+    private SharedPreferences.Editor mEditor;
+
     //flag to indicate if the user is in guest mode or register mode
     private boolean isGuest;
     private ScreenMeasurer mScreenMeasurer;
@@ -112,6 +115,10 @@ public class FavouriteMoviesFragment extends Fragment
         //initiate ProgressDialog
         mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setMessage("Loading favourite movies");
+
+        //initialize shared preference
+        mPrefs = mContext.getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
+        mEditor = mPrefs.edit();
 
         //initialize Firebase stuffs
         mAuth = FirebaseAuth.getInstance();
@@ -175,6 +182,9 @@ public class FavouriteMoviesFragment extends Fragment
         TextView placeholderView = (TextView) view.findViewById(R.id.placeholder_view);
         mRecyclerView.setPlaceholderView(placeholderView);
 
+        //setup recyclerview adapter here
+        mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, FavouriteMoviesFragment.this, R.menu.favourite_movie_list_item_popup_menu);
+
         initMovieList();
 
         return view;
@@ -183,26 +193,56 @@ public class FavouriteMoviesFragment extends Fragment
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_action_movie, menu);
+
+        MenuItem item;
+        int sortOption = mPrefs.getInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, PreferenceConst.MOVIE_VOTE_SORT);
+        //get user preference regarding sorting options for movie list and set sorting option appropriately
+        switch (sortOption) {
+            case PreferenceConst.MOVIE_DATE_SORT:
+                item = menu.findItem(R.id.action_sort_by_date);
+                item.setChecked(true);
+                onOptionsItemSelected(item);
+                break;
+            case PreferenceConst.MOVIE_NAME_SORT:
+                item = menu.findItem(R.id.action_sort_by_name);
+                item.setChecked(true);
+                onOptionsItemSelected(item);
+                break;
+            case PreferenceConst.MOVIE_VOTE_SORT:
+                item = menu.findItem(R.id.action_sort_by_vote);
+                item.setChecked(true);
+                onOptionsItemSelected(item);
+                break;
+            default:
+                item = menu.findItem(R.id.action_sort_by_vote);
+                item.setChecked(true);
+                onOptionsItemSelected(item);
+                break;
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        item.setChecked(true);
 
         switch (id) {
             case R.id.action_sort_by_name:
                 Collections.sort(mMoviesList, Movie.MovieNameSort);
                 mAdapter.notifyDataSetChanged();
+                mEditor.putInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, PreferenceConst.MOVIE_NAME_SORT).apply();
                 break;
 
             case R.id.action_sort_by_date:
                 Collections.sort(mMoviesList, Movie.MovieReleaseDateSort);
                 mAdapter.notifyDataSetChanged();
+                mEditor.putInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, PreferenceConst.MOVIE_DATE_SORT).apply();
                 break;
 
             case R.id.action_sort_by_vote:
                 Collections.sort(mMoviesList, Movie.MovieVoteSort);
                 mAdapter.notifyDataSetChanged();
+                mEditor.putInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, PreferenceConst.MOVIE_VOTE_SORT).apply();
                 break;
         }
 
@@ -420,8 +460,9 @@ public class FavouriteMoviesFragment extends Fragment
         protected void onPostExecute(List<Movie> movieList) {
             
             mMoviesList = movieList;
-            //setup recyclerview adapter here
+            //update adapter to refresh the list
             mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, FavouriteMoviesFragment.this, R.menu.favourite_movie_list_item_popup_menu);
+            mAdapter.notifyDataSetChanged();
 
             //hide ProgressDialog
             mProgressDialog.dismiss();
