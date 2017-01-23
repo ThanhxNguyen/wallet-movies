@@ -1,7 +1,6 @@
 package com.nguyen.paul.thanh.walletmovie.fragments;
 
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -51,7 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A simple {@link Fragment} subclass.
+ * Fragment to display movie details
  */
 public class MovieDetailsFragment extends Fragment
                                 implements YouTubePlayer.OnInitializedListener,
@@ -86,7 +85,7 @@ public class MovieDetailsFragment extends Fragment
     //display mMovie poster image if there is no trailers available
     private ImageView mMoviePoster;
 
-    private ProgressDialog mProgressDialog;
+//    private ProgressDialog mProgressDialog;
     private List<Genre> mGenreListFromApi;
 
     public MovieDetailsFragment() {
@@ -106,7 +105,7 @@ public class MovieDetailsFragment extends Fragment
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(savedInstanceState == null) {
-            mProgressDialog.show();
+//            //mProgressDialog.show();
         }
 
         //enable fragment to append menu items to toolbar
@@ -117,7 +116,14 @@ public class MovieDetailsFragment extends Fragment
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        //mProgressDialog.dismiss();
+    }
+
+    @Override
     public void onPrepareOptionsMenu(Menu menu) {
+        //show the "+" icon on toolbar
         menu.findItem(R.id.action_add).setVisible(true);
         super.onPrepareOptionsMenu(menu);
     }
@@ -125,7 +131,7 @@ public class MovieDetailsFragment extends Fragment
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
+        //add movie to favourites
         if(id == R.id.action_add) {
             addMovieToFavourites();
             return true;
@@ -167,7 +173,7 @@ public class MovieDetailsFragment extends Fragment
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-//        getActivity().invalidateOptionsMenu();
+        //set title for toolbar
         getActivity().setTitle(R.string.title_movie_details);
     }
 
@@ -178,19 +184,20 @@ public class MovieDetailsFragment extends Fragment
         mNetworkRequest = NetworkRequest.getInstance(mContext);
         mCastList = new ArrayList<>();
 
-        mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setMessage("Loading data...");
+        //mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
+        //mProgressDialog.setMessage("Loading data...");
 
+        //get genre values from cache
         mGenreListFromApi = ((WalletMovieApp) getActivity().getApplication()).getGenreListFromApi();
 
         if(mGenreListFromApi.size() == 0) {
+            //if there is no genre values from cache, send a http request to get them
             String genreListUrl = MovieQueryBuilder.getInstance().getGenreListUrl();
             sendRequestToGetGenreList(genreListUrl);
         }
     }
 
     private void sendRequestToGetGenreList(String url) {
-        Log.d(TAG, "sendRequestToGetGenreList: url: " + url);
         JsonObjectRequest genreJsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -254,6 +261,8 @@ public class MovieDetailsFragment extends Fragment
         //set placeholder view when the list is empty
         TextView placeholderView = (TextView) view.findViewById(R.id.placeholder_view);
         mCastRecyclerView.setPlaceholderView(placeholderView);
+        //make scrolling smooth when recyclerview inside another scrolling layout
+        mCastRecyclerView.setNestedScrollingEnabled(false);
         mCastRecyclerViewAdapter = new CastRecyclerViewAdapter(mContext, mCastList, this);
         //set adapter for recycler view
         mCastRecyclerView.setAdapter(mCastRecyclerViewAdapter);
@@ -282,7 +291,7 @@ public class MovieDetailsFragment extends Fragment
 
     private void populateCastList(int movieId) {
         mCastList.clear();
-        final int castLimit = 10;
+        final int castLimit = 6;
         String movieCastListUrl = MovieQueryBuilder.getInstance()
                                                     .movies()
                                                     .getCasts(movieId)
@@ -348,7 +357,7 @@ public class MovieDetailsFragment extends Fragment
 
     private void displayMovieTrailerOrPoster(final Movie movie) {
         //show progress dialog since loading youtube video might take sometimes
-//        mProgressDialog.show();
+//        //mProgressDialog.show();
 
         //get mMovie trailers url
         String movieTrailerUrl = MovieQueryBuilder.getInstance()
@@ -381,7 +390,7 @@ public class MovieDetailsFragment extends Fragment
                                     .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                                     .error(R.drawable.ic_image_placeholder_white_24dp)
                                     .into(mMoviePoster);
-                                mProgressDialog.dismiss();
+                                //mProgressDialog.dismiss();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -392,7 +401,7 @@ public class MovieDetailsFragment extends Fragment
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         showSnackBar("Failed to load trailer video!");
-                        mProgressDialog.dismiss();
+                        //mProgressDialog.dismiss();
                     }
                 });
 
@@ -414,7 +423,7 @@ public class MovieDetailsFragment extends Fragment
                 .commit();
 
         //hide progress dialog since mMovie details and mMovie trailer have been loaded
-        mProgressDialog.dismiss();
+        //mProgressDialog.dismiss();
     }
 
     @Override
@@ -430,11 +439,21 @@ public class MovieDetailsFragment extends Fragment
 
     @Override
     public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
+        //error loading trailer video, display mMovie poster instead
+        mMoviePoster.setVisibility(View.VISIBLE);
+        //load mMovie thumb from internet
+        String imgUrl = MovieQueryBuilder.getInstance().getImageBaseUrl("w500") + mMovie.getPosterPath();
+
+        Glide.with(mContext).load(imgUrl)
+                .crossFade()
+                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                .error(R.drawable.ic_image_placeholder_white_24dp)
+                .into(mMoviePoster);
         if (youTubeInitializationResult.isUserRecoverableError()) {
             //do something
-            mProgressDialog.dismiss();
+            //mProgressDialog.dismiss();
         } else {
-            mProgressDialog.dismiss();
+            //mProgressDialog.dismiss();
             showSnackBar(youTubeInitializationResult.toString());
         }
     }

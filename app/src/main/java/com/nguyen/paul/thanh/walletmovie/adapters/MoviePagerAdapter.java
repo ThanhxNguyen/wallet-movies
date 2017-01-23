@@ -33,6 +33,7 @@ public class MoviePagerAdapter extends FragmentStatePagerAdapter {
      */
     @Override
     public CharSequence getPageTitle(int position) {
+        //display tab title appropriately
         String tabTitles[] = new String[] {"Popular", "New Release", "Upcoming"};
         return tabTitles[position];
     }

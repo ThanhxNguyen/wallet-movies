@@ -61,7 +61,6 @@ public class CastRecyclerViewAdapter extends RecyclerView.Adapter<CastRecyclerVi
     }
 
     public static class CastViewHolder extends RecyclerView.ViewHolder {
-        private static final String TAG = "CastViewHolder";
 
         private OnMovieCastItemClick mListener;
         private Context mContext;

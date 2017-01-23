@@ -49,15 +49,11 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link FavouriteMoviesFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Fragment for favourites movies
  */
 public class FavouriteMoviesFragment extends Fragment
                                 implements MovieRecyclerViewAdapter.OnRecyclerViewClickListener,
                                             DatabaseReference.CompletionListener{
-
-    private static final String TAG = "FavouriteMoviesFragment";
 
     public static final String FRAGMENT_TAG = FavouriteMoviesFragment.class.getSimpleName();
 
@@ -104,7 +100,9 @@ public class FavouriteMoviesFragment extends Fragment
     public void onAttach(Context context) {
         super.onAttach(context);
 
+        //get shared preference
         SharedPreferences prefs = getActivity().getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
+        //determine if the user is in guest mode or registered mode
         isGuest = prefs.getBoolean(PreferenceConst.Authenticate.GUEST_MODE_PREF_KEY, true);
 
         mContext = context;
@@ -115,6 +113,7 @@ public class FavouriteMoviesFragment extends Fragment
         mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setMessage("Loading favourite movies");
 
+        //initialize Firebase stuffs
         mAuth = FirebaseAuth.getInstance();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mUserRef = mFirebaseDatabase.getReference("users");
@@ -136,7 +135,8 @@ public class FavouriteMoviesFragment extends Fragment
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                //do something
+                //errors occur
+                Utils.createSnackBar(getResources(), mViewContainer, databaseError.toString()).show();
             }
         };
 
@@ -228,13 +228,19 @@ public class FavouriteMoviesFragment extends Fragment
         int screenWidth = mScreenMeasurer.getDpWidth();
         if(screenWidth < 480) {//phone portrait
             numRows = 1;
-        } else if(screenWidth > 480 && screenWidth < 600) {//phone landscape or small tablet portrait
+        } else if(screenWidth > 480 && screenWidth < 840) {//phone landscape or small tablet portrait
             numRows = 2;
-        } else if(screenWidth > 600) {
+        } else if(screenWidth > 840) {
             numRows = 3;
         }
 
         return numRows;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mProgressDialog.dismiss();
     }
 
     @Override

@@ -34,7 +34,6 @@ import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 public class SigninActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
-    private static final String TAG = "SigninActivity";
     private static final int RC_SIGN_IN = 100;
 
     private TextView mEmailTv;
@@ -75,7 +74,6 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
         //change default text for google signin button
         TextView googleSigninBtnTv = (TextView) mGoogleSigninButton.getChildAt(0);
         googleSigninBtnTv.setText(getString(R.string.signin_with_google));
-//        mGoogleSigninButton.setSize(SignInButton.SIZE_WIDE);
 
         mEmailWrapper = (TextInputLayout) findViewById(R.id.email_wrapper);
         mPasswordWrapper = (TextInputLayout) findViewById(R.id.password_wrapper);
@@ -143,16 +141,19 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+        //Firebase sign in with Google email and password
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        //successfully signed in with Google account
                         if(task.isSuccessful()) {
                             mProgressDialog.dismiss();
                             Intent intent = new Intent(SigninActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();
                         } else {
+                            //failed to signed in with Google account
                             mProgressDialog.dismiss();
                             showSnackBar("Authentication failed.");
                         }
@@ -161,6 +162,9 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
                 });
     }
 
+    /*
+     * Helper method to display a snackbar
+     */
     private void showSnackBar(String message) {
         Utils.createSnackBar(getResources(), findViewById(R.id.signin_form_activity), message).show();
     }
@@ -173,6 +177,7 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                //validating when user typing new input values
                 mAuthErrorMessage.setVisibility(View.GONE);
                 validateEmailInput(charSequence.toString());
             }
@@ -189,6 +194,7 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                //validating when user typing new input values
                 mAuthErrorMessage.setVisibility(View.GONE);
                 validatePasswordInput(charSequence.toString());
             }
@@ -244,8 +250,6 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
                                         progressDialog.dismiss();
                                         //successfully signed in, redirect to MainActivity for now
                                         showSnackBar("Sign in successfully!");
-//                                        Intent intent = new Intent(SigninActivity.this, MainActivity.class);
-//                                        startActivity(intent);
                                         finish();
 
                                     } else {
@@ -270,10 +274,12 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
             return false;
 
         } else if(!mFormValidator.isValidEmail(emailInput)) {
+            //email invalid
             mEmailWrapper.setError(getString(R.string.error_email_invalid));
             return false;
 
         } else {
+            //goog to go
             mEmailWrapper.setError(null);
             return true;
         }

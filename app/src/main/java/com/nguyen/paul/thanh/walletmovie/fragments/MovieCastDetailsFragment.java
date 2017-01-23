@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -40,12 +41,13 @@ public class MovieCastDetailsFragment extends Fragment {
 
     private Context mContext;
     private NetworkRequest mNetworkRequest;
-    private ImageView mCastProfile;
+//    private ImageView mCastProfile;
     private TextView mCastName;
     private TextView mCastBirthdayValue;
     private TextView mCastBirthPlaceValue;
     private TextView mCastBiography;
     private Button mMoviesForThisCastBtn;
+    private ImageView mParallaxImage;
 
     private ProgressDialog mProgressDialog;
 
@@ -78,6 +80,14 @@ public class MovieCastDetailsFragment extends Fragment {
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mProgressDialog.dismiss();
+        mParallaxImage.setImageDrawable(null);
+        mParallaxImage.setVisibility(View.GONE);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(savedInstanceState == null) {
@@ -97,10 +107,16 @@ public class MovieCastDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        //get reference of the parallax image from parent AppbarLayout
+        mParallaxImage = (ImageView) getActivity().getWindow().getDecorView().findViewById(R.id.parallax_image);
+        mParallaxImage.setVisibility(View.VISIBLE);
+        //get CollapsingToolbarLayout reference and set title appropriately
+        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) getActivity().getWindow().getDecorView().findViewById(R.id.collapsing_toolbar);
+        collapsingToolbarLayout.setTitle(getString(R.string.title_cast_details));
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_movie_cast_details, container, false);
 
-        mCastProfile = (ImageView) view.findViewById(R.id.movie_cast_profile);
+//        mCastProfile = (ImageView) view.findViewById(R.id.movie_cast_profile);
         mCastName = (TextView) view.findViewById(R.id.movie_cast_name);
         mCastBirthdayValue = (TextView) view.findViewById(R.id.movie_cast_birthday_value);
         mCastBirthPlaceValue = (TextView) view.findViewById(R.id.movie_cast_birth_place_value);
@@ -159,10 +175,13 @@ public class MovieCastDetailsFragment extends Fragment {
                                                                 .getImageBaseUrl("w500") + cast.getProfilePath();
                                 Glide.with(mContext).load(castProfileImageUrl)
                                         .crossFade()
-                                        .centerCrop()
                                         .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                                         .error(R.drawable.ic_account_circle_white_24dp)
-                                        .into(mCastProfile);
+//                                        .into(mCastProfile);
+                                        .into(mParallaxImage);
+                                //display cast profile photo in parallax image to make some nice animation effect when scrolling
+                                //however keep this for reference, might change it back in the future
+//                                mCastProfile.setVisibility(View.GONE);
 
                             } catch (JSONException e) {
                                 mProgressDialog.dismiss();

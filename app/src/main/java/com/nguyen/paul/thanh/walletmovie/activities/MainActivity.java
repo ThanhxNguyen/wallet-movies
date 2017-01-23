@@ -32,18 +32,17 @@ import com.google.firebase.auth.FirebaseUser;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.WalletMovieApp;
 import com.nguyen.paul.thanh.walletmovie.database.MovieSearchSuggestionProvider;
+import com.nguyen.paul.thanh.walletmovie.fragments.AboutUsFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.FavouriteMoviesFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.HomeFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.MovieListFragment;
 import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
-import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MainActivity";
-    private static final String FRAGMENT_TAG_KEY = "fragment_tag_key";
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
     private Menu mNavMenu;
@@ -97,8 +96,6 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
-
-        ScreenMeasurer sm = new ScreenMeasurer(this);
     }
 
     @Override
@@ -364,6 +361,17 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.nav_clear_search_history:
                 clearSearchHistory();
+                break;
+
+            case R.id.nav_about:
+                fragmentTag = AboutUsFragment.FRAGMENT_TAG;
+                fragment = fm.findFragmentByTag(fragmentTag);
+                if(fragment == null) {
+                    fragment = AboutUsFragment.newInstance();
+                    fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
+                } else {
+                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                }
                 break;
 
 //            will be implemented soon

@@ -32,4 +32,5 @@ public class WalletMovieApp extends Application {
     public void setSearchQuery(String searchQuery) {
         this.searchQuery = searchQuery;
     }
+
 }

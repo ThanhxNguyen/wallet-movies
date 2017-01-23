@@ -22,7 +22,7 @@ import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
 import java.util.List;
 
 /**
- * Created by THANH on 6/01/2017.
+ * Adapter for movies list
  */
 
 public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecyclerViewAdapter.MovieViewHolder> {
@@ -51,9 +51,7 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
         View view = LayoutInflater.from(parent.getContext())
                                     .inflate(R.layout.movie_list_item, parent, false);
 
-        MovieViewHolder holder = new MovieViewHolder(mContext, view, mListener, mLayoutForPopupMenu);
-
-        return holder;
+        return new MovieViewHolder(mContext, view, mListener, mLayoutForPopupMenu);
     }
 
     @Override
@@ -168,6 +166,7 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
 //                        .thumbnail(0.1f)
                         .crossFade()
 //                        .fitCenter()
+                        //Glide has some issues with loading vector drawable at the moment
                         .placeholder(R.drawable.ic_image_placeholder_white_24dp)
                         .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                         .error(R.drawable.ic_image_placeholder_white_24dp)

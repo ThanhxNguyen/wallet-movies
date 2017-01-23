@@ -13,6 +13,9 @@ import android.view.ViewGroup;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.adapters.MoviePagerAdapter;
 
+/**
+ * Fragment for home page
+ */
 public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
@@ -69,7 +72,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
+        //set toolbar title
         getActivity().setTitle(R.string.title_home);
     }
 }

@@ -3,6 +3,7 @@ package com.nguyen.paul.thanh.walletmovie.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.WalletMovieApp;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
+import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView;
@@ -45,9 +47,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link MovieListFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Fragment to display movies list
  */
 public class MovieListFragment extends Fragment
         implements MovieRecyclerViewAdapter.OnRecyclerViewClickListener {
@@ -55,8 +55,6 @@ public class MovieListFragment extends Fragment
     private static final String TAG = "MovieListFragment";
 
     public static final String FRAGMENT_TAG = MovieListFragment.class.getSimpleName();
-
-    private static final String SAVE_INSTANCE_RECYCLER_KEY = "save_instance_recycler_key";
 
     private static final String TAB_POSITION_KEY = "tab_position_key";
     private static final String SEARCH_QUERY_KEY = "search_query_key";
@@ -79,6 +77,9 @@ public class MovieListFragment extends Fragment
     private RecyclerView.LayoutManager mGridLayoutManager;
     private RecyclerViewWithEmptyView mRecyclerView;
     private ScreenMeasurer mScreenMeasurer;
+
+    private SharedPreferences mPrefs;
+    private SharedPreferences.Editor mEditor;
 
     private ViewGroup mParentContainer;
 
@@ -127,6 +128,10 @@ public class MovieListFragment extends Fragment
         mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setMessage("Loading movies...");
 
+        //initialize shared preference
+        mPrefs = mContext.getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
+        mEditor = mPrefs.edit();
+
         mGenreListFromApi = ((WalletMovieApp) getActivity().getApplication()).getGenreListFromApi();
 
         if(mGenreListFromApi.size() == 0) {
@@ -146,28 +151,64 @@ public class MovieListFragment extends Fragment
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mProgressDialog.dismiss();
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_action_movie, menu);
+
+        MenuItem item;
+        int sortOption = mPrefs.getInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, PreferenceConst.MOVIE_VOTE_SORT);
+        //get user preference regarding sorting options for movie list and set sorting option appropriately
+        switch (sortOption) {
+            case PreferenceConst.MOVIE_DATE_SORT:
+                item = menu.findItem(R.id.action_sort_by_date);
+                item.setChecked(true);
+                onOptionsItemSelected(item);
+                break;
+            case PreferenceConst.MOVIE_NAME_SORT:
+                item = menu.findItem(R.id.action_sort_by_name);
+                item.setChecked(true);
+                onOptionsItemSelected(item);
+                break;
+            case PreferenceConst.MOVIE_VOTE_SORT:
+                item = menu.findItem(R.id.action_sort_by_vote);
+                item.setChecked(true);
+                onOptionsItemSelected(item);
+                break;
+            default:
+                item = menu.findItem(R.id.action_sort_by_vote);
+                item.setChecked(true);
+                onOptionsItemSelected(item);
+                break;
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        item.setChecked(true);
 
         switch (id) {
             case R.id.action_sort_by_name:
                 Collections.sort(mMoviesList, Movie.MovieNameSort);
                 mAdapter.notifyDataSetChanged();
+                mEditor.putInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, PreferenceConst.MOVIE_NAME_SORT).apply();
                 break;
 
             case R.id.action_sort_by_date:
                 Collections.sort(mMoviesList, Movie.MovieReleaseDateSort);
                 mAdapter.notifyDataSetChanged();
+                mEditor.putInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, PreferenceConst.MOVIE_DATE_SORT).apply();
                 break;
 
             case R.id.action_sort_by_vote:
                 Collections.sort(mMoviesList, Movie.MovieVoteSort);
                 mAdapter.notifyDataSetChanged();
+                mEditor.putInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, PreferenceConst.MOVIE_VOTE_SORT).apply();
                 break;
         }
 
@@ -304,9 +345,7 @@ public class MovieListFragment extends Fragment
     }
 
     private void sendRequestToGetMovieList(String url) {
-        Log.d(TAG, "sendRequestToGetMovieList: url: " + url);
-//        mProgressDialog.show();
-
+        //empty movie list if there is any
         mMoviesList.clear();
         //create JsonObjectRequest and pass it to Volley
         JsonObjectRequest moviesListJsonObject = new JsonObjectRequest(Request.Method.GET, url, null,
@@ -325,7 +364,7 @@ public class MovieListFragment extends Fragment
                                 }
                             }
                             //sort the list by votes in descending order by default
-                            Collections.sort(mMoviesList, Movie.MovieVoteSort);
+//                            Collections.sort(mMoviesList, Movie.MovieVoteSort);
                             //hide progress dialog when complete loading movies
                             mProgressDialog.dismiss();
                             //notify adapter about changes
@@ -394,7 +433,6 @@ public class MovieListFragment extends Fragment
     }
 
     private void sendRequestToGetGenreList(String url) {
-        Log.d(TAG, "sendRequestToGetGenreList: url: " + url);
         JsonObjectRequest genreJsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
                     @Override

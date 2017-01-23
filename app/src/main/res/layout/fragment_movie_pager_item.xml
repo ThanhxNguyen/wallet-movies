@@ -16,7 +16,7 @@
 
     <TextView
         android:id="@+id/placeholder_view"
-        android:text="@string/no_content_available"
+        android:text="@string/no_movies_found"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAlignment="center"

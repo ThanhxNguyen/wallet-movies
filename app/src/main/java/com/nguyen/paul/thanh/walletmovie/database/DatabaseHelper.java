@@ -9,12 +9,12 @@ import com.nguyen.paul.thanh.walletmovie.database.interfaces.GenresMoviesPivotTa
 import com.nguyen.paul.thanh.walletmovie.database.interfaces.GenresTableConst;
 
 /**
- *
+ * This class will be used to create/upgrade sqlite database
  */
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    public static final int DB_VERSION = 1;
-    public static final String DB_NAME = "favourite_movies.db";
+    private static final int DB_VERSION = 1;
+    private static final String DB_NAME = "favourite_movies.db";
 
     private Context mContext;
 

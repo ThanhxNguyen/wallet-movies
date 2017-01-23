@@ -15,14 +15,14 @@
             android:icon="@drawable/ic_nav_clear_white_24dp"
             android:title="@string/nav_clear_search_history" />
         <item
-            android:id="@+id/nav_setting"
-            android:icon="@drawable/ic_nav_settting_white_24dp"
-            android:title="@string/nav_setting" />
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_nav_about_white_24dp"
+            android:title="@string/about_us" />
     </group>
 
     <item
         android:id="@+id/auth"
-        android:title="Authentication">
+        android:title="Profile">
         <menu>
 
             <group

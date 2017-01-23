@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class follows singlton pattern
+ * This class follows singlton pattern and provides some helper methods to interact with sqlite database
  */
 
 public class MoviesTableOperator extends SimpleSQLiteDatabaseOperator {
@@ -54,9 +54,7 @@ public class MoviesTableOperator extends SimpleSQLiteDatabaseOperator {
 
         insertGenreValues(db, genreListFromApi);
 
-        long lastInsertedMovieId = insertMovieValues(db, movie);
-
-        return lastInsertedMovieId;
+        return insertMovieValues(db, movie);
 
     }
 
@@ -109,6 +107,8 @@ public class MoviesTableOperator extends SimpleSQLiteDatabaseOperator {
             } while(cursor.moveToNext());
 
         }
+        //close database
+        closeDB();
 
         return movieList;
     }
@@ -120,9 +120,7 @@ public class MoviesTableOperator extends SimpleSQLiteDatabaseOperator {
         //to avoid left-over when the movie get deleted
         db.delete(GenresMoviesPivotTableConst.TABLE_NAME, GenresMoviesPivotTableConst.COLUMN_MOVIE_ID+"="+id, null);
         //remove the movie
-        int result = db.delete(MoviesTableConst.TABLE_NAME, MoviesTableConst.COLUMN_ID+"="+id, null);
-
-        return result;
+        return db.delete(MoviesTableConst.TABLE_NAME, MoviesTableConst.COLUMN_ID+"="+id, null);
     }
 
     private void insertGenreValues(SQLiteDatabase db, List<Genre> genreListFromApi) {

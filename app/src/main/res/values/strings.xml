@@ -23,7 +23,7 @@
     <string name="confirm_password_tv_hint">Re-type password</string>
     <string name="update_button_text">Update</string>
     <string name="popup_add_to_favourites">Add to favourites</string>
-    <string name="welcome_message_text">Welcome to Wallet Movie app. Here you can do bunch of things such as view a movie, search for a movie or add a movie to your favourites etc...</string>
+    <string name="welcome_message_text">Wallet Movie is a free app. Here you can do bunch of things such as view a movie, search for a movie or add a movie to your favourites etc...\n\nYou can store your favourite movies and access them from anywhere by create an account or sign in as a guest to store your favourites movies locally.</string>
     <string name="signin_as_guest_btn">Sign in as guest</string>
     <string name="remove_movie_from_favourites_text">Remove from favourites</string>
     <string name="action_search_hint">Search movies...</string>
@@ -88,5 +88,13 @@
     <string name="sign_up_btn">Sign up</string>
     <string name="account_text">Account Information</string>
     <string name="cast_biography">Biography</string>
+    <string name="no_movies_found">No movies found!</string>
+
+    <string name="about_us">About us</string>
+    <string name="about_us_text">About Us</string>
+    <string name="about_us_des">This app is completely free to use and is a must-have for any movie lovers. The app offers a range of different features including viewing popular movies, hot new release movies, upcoming movies etc...Users can also search for a movie as well as bookmark movies as their favourites. The app is frequently updated to improve the app and provide the best user experience.</string>
+    <string name="attribute_title">Credits</string>
+    <string name="attribute_des">This product uses the TMDb (themoviedb.org) API but is not endorsed or certified by TMDb.</string>
+    <string name="welcome_title">Welcome!</string>
 
 </resources>
