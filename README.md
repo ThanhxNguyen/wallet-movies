@@ -4,7 +4,7 @@ This app is targeting movie lovers. Users can view a range of different movie re
 
 ### Features:
 
-* Users can view movies by navigating between three different main categories including popuplar, showing and upcoming (will add more in future updates)
+* Users can view movies by navigating between three different main categories including popular, showing and upcoming (will add more in future updates)
 * Users can search for movies
 * Users can bookmark their favourite movies either locally (guest users) or remotely (registered users) on cloud database (Firebase)
 * Users can view casts for a movie or check out movies related to a specific cast
