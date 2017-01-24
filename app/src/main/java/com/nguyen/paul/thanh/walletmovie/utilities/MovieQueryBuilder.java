@@ -1,8 +1,13 @@
 package com.nguyen.paul.thanh.walletmovie.utilities;
 
 /**
- * Helper class to build query url for TMDB api.
- * This class won't work well with concurrency
+ * /**
+ * TheMovieDb.org api offers 3 different ways to search for movies including
+ * - Discover: most powerful search and very flexible
+ * - Search: text based search is the most common way
+ * - Find: the last but still very useful way to find data is with existing external IDs
+ * Reference: https://www.themoviedb.org/documentation/api
+ *
  */
 
 public class MovieQueryBuilder {
@@ -37,15 +42,13 @@ public class MovieQueryBuilder {
 
     //static method to get poster image for a movie with different sizes
     public String getImageBaseUrl(String sizeConfig) {
-        String baseImageUrl = "http://image.tmdb.org/t/p/" + sizeConfig;
 
-        return baseImageUrl;
+        return "http://image.tmdb.org/t/p/" + sizeConfig;
     }
 
     public String getGenreListUrl() {
-        String genreListUrl = "https://api.themoviedb.org/3/genre/movie/list?api_key=" + apiKey;
 
-        return genreListUrl;
+        return "https://api.themoviedb.org/3/genre/movie/list?api_key=" + apiKey;
     }
 
 }

@@ -181,7 +181,7 @@ public class Movie implements Parcelable {
         this.status = in.readString();
         this.voteAverage = in.readDouble();
         this.posterPath = in.readString();
-        this.genres = new ArrayList<Genre>();
+        this.genres = new ArrayList<>();
         in.readList(this.genres, Genre.class.getClassLoader());
     }
 

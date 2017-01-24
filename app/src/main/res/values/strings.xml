@@ -23,10 +23,10 @@
     <string name="confirm_password_tv_hint">Re-type password</string>
     <string name="update_button_text">Update</string>
     <string name="popup_add_to_favourites">Add to favourites</string>
-    <string name="welcome_message_text">Wallet Movie is a free app. Here you can do a lot of cool things such as view movie details, search for movies or add movies to your favourites etc...\n\nYou can store your favourite movies and access them from anywhere by create an account or sign in as a guest to store your favourites movies locally.</string>
+    <string name="welcome_message_text">Wallet Movie is a free app. Here you can do a lot of cool things such as view movie details, search for movies or add movies to your favourites etc…\n\nYou can store your favourite movies and access them from anywhere by create an account or sign in as a guest to store your favourites movies locally.</string>
     <string name="signin_as_guest_btn">Sign in as guest</string>
     <string name="remove_movie_from_favourites_text">Remove from favourites</string>
-    <string name="action_search_hint">Search movies...</string>
+    <string name="action_search_hint">Search movies…</string>
     <string name="action_search"/>
     <string name="movie_vote_text">Vote:</string>
     <string name="movie_release_date_text">Released on:</string>
@@ -52,7 +52,7 @@
     <string name="error_name_invalid">The name input is invalid!</string>
     <string name="error_password_not_match">The passwords are not matched!</string>
     <string name="signup_form_text">Signup Form</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="dialog_title_registration_fail">Registration Failed</string>
     <string name="dialog_message_registration_fail">Opps! Something went wrong!\nFailed to register new user.</string>
     <string name="nav_clear_search_history">Clear Browsing History</string>
@@ -77,7 +77,7 @@
     <string name="title_favourite_movies">Favourites</string>
 
     <!--Misc-->
-    <string name="loading_text">Loading...</string>
+    <string name="loading_text">Loading…</string>
     <string name="no_content_available">No Content Available</string>
 
     <!--social auth-->
@@ -92,9 +92,10 @@
 
     <string name="about_us">About us</string>
     <string name="about_us_text">About Us</string>
-    <string name="about_us_des">This app is completely free to use and is a must-have for any movie lovers. The app offers a range of different features including viewing movie details, trailers, casts etc...Users can also search for movies as well as bookmark movies as their favourites. The app is frequently updated to improve the performance and provide best user experience.</string>
+    <string name="about_us_des">This app is completely free to use and is a must-have for any movie lovers. The app offers a range of different features including viewing movie details, trailers, casts etc…Users can also search for movies as well as bookmark movies as their favourites. The app is frequently updated to improve the performance and provide best user experience.</string>
     <string name="attribute_title">Credits</string>
     <string name="attribute_des">This product uses the TMDb (themoviedb.org) API but is not endorsed or certified by TMDb.</string>
     <string name="welcome_title">Welcome!</string>
+    <string name="guest">Guest</string>
 
 </resources>

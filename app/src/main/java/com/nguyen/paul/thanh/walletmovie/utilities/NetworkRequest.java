@@ -33,13 +33,12 @@ public class NetworkRequest {
     }
 
     public RequestQueue getRequestQueue() {
-        if(mRequestQueue == null) {
-            /**
-             * application context is needed for creating new volley request queue. This
-             * ensures hat the RequestQueue will last for the lifetime of your app, instead
-             * of being recreated every time the activity is recreated (for example, when the user rotates the device).
-             */
-        }
+
+        /**
+         * application context is needed for creating new volley request queue. This
+         * ensures hat the RequestQueue will last for the lifetime of your app, instead
+         * of being recreated every time the activity is recreated (for example, when the user rotates the device).
+         */
         mRequestQueue = Volley.newRequestQueue(mContext.getApplicationContext());
 
         return mRequestQueue;
@@ -52,6 +51,9 @@ public class NetworkRequest {
         getRequestQueue().add(request);
     }
 
+    /*
+     * Deprecated! need to fix
+     */
     public void cancelPendingRequests(String tag) {
         if(TextUtils.isEmpty(tag)) {
             throw new AssertionError("Tag cannot be empty!");

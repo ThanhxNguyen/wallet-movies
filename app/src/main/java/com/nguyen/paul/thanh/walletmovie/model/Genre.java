@@ -4,7 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * Created by THANH on 5/01/2017.
+ * POJO for genre
  */
 
 public class Genre implements Parcelable {

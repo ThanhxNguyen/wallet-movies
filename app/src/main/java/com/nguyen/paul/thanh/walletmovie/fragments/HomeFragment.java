@@ -18,14 +18,7 @@ import com.nguyen.paul.thanh.walletmovie.adapters.MoviePagerAdapter;
  */
 public class HomeFragment extends Fragment {
 
-    private static final String TAG = "HomeFragment";
-
     public static final String FRAGMENT_TAG = HomeFragment.class.getSimpleName();
-
-    private ViewPager mPager;
-    private TabLayout mTabLayout;
-    private Context mContext;
-    private MoviePagerAdapter mPagerAdapter;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -33,14 +26,12 @@ public class HomeFragment extends Fragment {
 
 
     public static HomeFragment newInstance() {
-        HomeFragment fragment = new HomeFragment();
-        return fragment;
+        return new HomeFragment();
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mContext = context;
     }
 
     @Override
@@ -58,13 +49,13 @@ public class HomeFragment extends Fragment {
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_home, container, false);
 
         //get viewpager ref and set adapter for it
-        mPager = (ViewPager) view.findViewById(R.id.view_pager);
-        mPagerAdapter = new MoviePagerAdapter(getChildFragmentManager());
-        mPager.setAdapter(mPagerAdapter);
+        ViewPager pager = (ViewPager) view.findViewById(R.id.view_pager);
+        MoviePagerAdapter pagerAdapter = new MoviePagerAdapter(getChildFragmentManager());
+        pager.setAdapter(pagerAdapter);
 
         //get tab layout ref and incorporate viewpager with it
-        mTabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
-        mTabLayout.setupWithViewPager(mPager);
+        TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
+        tabLayout.setupWithViewPager(pager);
 
         return view;
     }

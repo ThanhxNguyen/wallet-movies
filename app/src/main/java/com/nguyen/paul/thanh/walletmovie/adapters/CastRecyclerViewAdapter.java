@@ -60,6 +60,7 @@ public class CastRecyclerViewAdapter extends RecyclerView.Adapter<CastRecyclerVi
         return mCastList.size();
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static class CastViewHolder extends RecyclerView.ViewHolder {
 
         private OnMovieCastItemClick mListener;

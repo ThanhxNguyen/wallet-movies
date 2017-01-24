@@ -5,9 +5,7 @@ import android.net.Uri;
 import com.nguyen.paul.thanh.walletmovie.interfaces.CustomBuilder;
 
 /**
- * This class provides helper methods to make a http request call to TMDB (themoviedb.org) api.
- * TMDB api provides a range of helper api end points such as get most popular movies,
- * get currently showing movies in cinemas etc...
+ * This class provides helper methods get url api for movie related information search from themoviedb.org
  */
 
 public class TMDBMoviesQueryBuilder implements CustomBuilder {

@@ -75,7 +75,6 @@ public class MovieDetailsFragment extends Fragment
     private TextView mVoteValue;
     private TextView mGenres;
     private TextView mDescription;
-    private RecyclerViewWithEmptyView mCastRecyclerView;
     private CastRecyclerViewAdapter mCastRecyclerViewAdapter;
     private List<Cast> mCastList;
     private Movie mMovie;
@@ -104,9 +103,6 @@ public class MovieDetailsFragment extends Fragment
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState == null) {
-//            //mProgressDialog.show();
-        }
 
         //enable fragment to append menu items to toolbar
         setHasOptionsMenu(true);
@@ -254,18 +250,18 @@ public class MovieDetailsFragment extends Fragment
         View view = inflater.inflate(R.layout.fragment_movie_details, container, false);
 
         //setup recycler view list for mMovie casts
-        mCastRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.movie_cast_list);
+        RecyclerViewWithEmptyView castRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.movie_cast_list);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayout.HORIZONTAL, false);
-        mCastRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mCastRecyclerView.setLayoutManager(layoutManager);
+        castRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        castRecyclerView.setLayoutManager(layoutManager);
         //set placeholder view when the list is empty
         TextView placeholderView = (TextView) view.findViewById(R.id.placeholder_view);
-        mCastRecyclerView.setPlaceholderView(placeholderView);
+        castRecyclerView.setPlaceholderView(placeholderView);
         //make scrolling smooth when recyclerview inside another scrolling layout
-        mCastRecyclerView.setNestedScrollingEnabled(false);
+        castRecyclerView.setNestedScrollingEnabled(false);
         mCastRecyclerViewAdapter = new CastRecyclerViewAdapter(mContext, mCastList, this);
         //set adapter for recycler view
-        mCastRecyclerView.setAdapter(mCastRecyclerViewAdapter);
+        castRecyclerView.setAdapter(mCastRecyclerViewAdapter);
 
         mTitle = (TextView) view.findViewById(R.id.movie_title);
         mReleaseDateValue = (TextView) view.findViewById(R.id.movie_release_date_value);
@@ -374,8 +370,7 @@ public class MovieDetailsFragment extends Fragment
                             if(trailerList.length() > 0) {
                                 //get the first trailer videos for this mMovie (normally the official one)
                                 JSONObject trailerObj = trailerList.getJSONObject(0);
-                                String trailerKey = trailerObj.getString("key");
-                                trailerVideoKey = trailerKey;
+                                trailerVideoKey = trailerObj.getString("key");
                                 loadVideo(trailerVideoKey);
 
                             } else {

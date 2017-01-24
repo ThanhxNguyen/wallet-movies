@@ -19,8 +19,7 @@ public class Utils {
         int snackBarMessageColor = ResourcesCompat.getColor(resources, R.color.colorPrimaryText, null);
         int snackBarActionBtnColor = ResourcesCompat.getColor(resources, R.color.colorAccent, null);
 
-        Snackbar snackbar = createSnackBar(resources, view, message, snackBarMessageColor, snackBarActionBtnColor);
-        return snackbar;
+        return createSnackBar(resources, view, message, snackBarMessageColor, snackBarActionBtnColor);
     }
 
     public static Snackbar createSnackBar(Resources resources, View view, String message, int messageColor, int actionBtnColor) {

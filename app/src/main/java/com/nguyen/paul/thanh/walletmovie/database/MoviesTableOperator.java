@@ -23,11 +23,9 @@ public class MoviesTableOperator extends SimpleSQLiteDatabaseOperator {
 
     private static MoviesTableOperator mInstance;
     private SQLiteOpenHelper mDatabase;
-    private Context mContext;
 
     private MoviesTableOperator(Context context) {
-        mContext = context;
-        mDatabase = new DatabaseHelper(mContext);
+        mDatabase = new DatabaseHelper(context);
     }
 
     public static synchronized MoviesTableOperator getInstance(Context context) {
@@ -99,6 +97,8 @@ public class MoviesTableOperator extends SimpleSQLiteDatabaseOperator {
 
                     //add to this movie
                     movie.setGenres(genres);
+                    //close cursor
+                    pivotCursor.close();
                 }
 
                 //add to movie list
@@ -107,6 +107,7 @@ public class MoviesTableOperator extends SimpleSQLiteDatabaseOperator {
             } while(cursor.moveToNext());
 
         }
+        cursor.close();
         //close database
         closeDB();
 
@@ -144,11 +145,14 @@ public class MoviesTableOperator extends SimpleSQLiteDatabaseOperator {
                 }
             }
         }
+        cursor.close();
     }
 
     private long insertMovieValues(SQLiteDatabase db, Movie movie) {
         Cursor cursor = db.rawQuery("SELECT * FROM " + MoviesTableConst.TABLE_NAME + " WHERE " + MoviesTableConst.COLUMN_ID + "=" + movie.getId(), null);
         if(cursor.getCount() > 0) {
+            //close cursor
+            cursor.close();
             //movie is already existed
             return Long.valueOf(0);
         } else {
@@ -176,7 +180,11 @@ public class MoviesTableOperator extends SimpleSQLiteDatabaseOperator {
                 db.insert(GenresMoviesPivotTableConst.TABLE_NAME, null, genreMovieValues);
             }
 
+            //close cursor
+            cursor.close();
+
             return lastInsertedMovieId;
         }
+
     }
 }

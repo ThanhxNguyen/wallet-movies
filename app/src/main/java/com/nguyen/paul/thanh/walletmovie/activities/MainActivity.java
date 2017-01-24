@@ -21,7 +21,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -47,7 +46,6 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
     private Menu mNavMenu;
-    private View mNavHeader;
     private TextView mHeaderDisplayName;
     private TextView mHeaderDisplayEmail;
     private FirebaseAuth mAuth;
@@ -89,9 +87,9 @@ public class MainActivity extends AppCompatActivity
 
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         //get navigation drawer header
-        mNavHeader = mNavigationView.getHeaderView(0);
-        mHeaderDisplayName = (TextView) mNavHeader.findViewById(R.id.display_name);
-        mHeaderDisplayEmail = (TextView) mNavHeader.findViewById(R.id.display_email);
+        View navHeader = mNavigationView.getHeaderView(0);
+        mHeaderDisplayName = (TextView) navHeader.findViewById(R.id.display_name);
+        mHeaderDisplayEmail = (TextView) navHeader.findViewById(R.id.display_email);
         //get navigation menu refs for show/hide menu items when authenticating users
         mNavMenu = mNavigationView.getMenu();
         mNavigationView.setNavigationItemSelectedListener(this);
@@ -184,7 +182,7 @@ public class MainActivity extends AppCompatActivity
 
                 } else {
                     //set display name and email to guest mode since the user is signed out
-                    mHeaderDisplayName.setText("Guest");
+                    mHeaderDisplayName.setText(R.string.guest);
                     mHeaderDisplayEmail.setText("");
 
                     //user is signed out
@@ -347,9 +345,10 @@ public class MainActivity extends AppCompatActivity
         String fragmentTag;
         Fragment fragment;
 
+        mDrawerLayout.closeDrawer(GravityCompat.START);
+
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
         switch (id) {
             case R.id.nav_home:
                 fragmentTag = HomeFragment.FRAGMENT_TAG;
@@ -360,7 +359,7 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
-                break;
+                return true;
 
             case R.id.nav_favourites:
                 fragmentTag = FavouriteMoviesFragment.FRAGMENT_TAG;
@@ -371,14 +370,13 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
-                break;
+                return true;
 
             case R.id.nav_clear_search_history:
                 clearSearchHistory();
-                break;
+                return true;
 
             case R.id.nav_about:
-                Log.d(TAG, "onNavigationItemSelected: nav about");
                 fragmentTag = AboutUsFragment.FRAGMENT_TAG;
                 fragment = fm.findFragmentByTag(fragmentTag);
                 if(fragment == null) {
@@ -387,7 +385,7 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
-                break;
+                return true;
 
 //            will be implemented soon
 //            case R.id.nav_profile:
@@ -406,10 +404,11 @@ public class MainActivity extends AppCompatActivity
                 Intent intent = new Intent(MainActivity.this, SigninActivity.class);
                 startActivity(intent);
                 return true;
+
             case R.id.nav_signout:
                 //sign out user
                 signoutUser();
-                break;
+                return true;
 
             default:
                 fragmentTag = HomeFragment.FRAGMENT_TAG;
@@ -420,12 +419,9 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
-                break;
+                return true;
 
         }
-
-        mDrawerLayout.closeDrawer(GravityCompat.START);
-        return true;
 
     }
 

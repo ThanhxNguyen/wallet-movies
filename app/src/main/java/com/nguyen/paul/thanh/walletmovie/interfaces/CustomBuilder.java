@@ -5,5 +5,5 @@ package com.nguyen.paul.thanh.walletmovie.interfaces;
  */
 
 public interface CustomBuilder {
-    public String build();
+    String build();
 }

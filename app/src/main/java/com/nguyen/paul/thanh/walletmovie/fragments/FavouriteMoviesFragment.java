@@ -37,10 +37,8 @@ import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
 import com.nguyen.paul.thanh.walletmovie.database.MoviesTableOperator;
 import com.nguyen.paul.thanh.walletmovie.database.interfaces.DatabaseOperator;
 import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
-import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView;
-import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
 import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
@@ -58,9 +56,7 @@ public class FavouriteMoviesFragment extends Fragment
     public static final String FRAGMENT_TAG = FavouriteMoviesFragment.class.getSimpleName();
 
     private Context mContext;
-    private NetworkRequest mNetworkRequest;
     private List<Movie> mMoviesList;
-    private List<Genre> mGenreListFromApi;
     private MovieRecyclerViewAdapter mAdapter;
     private RecyclerViewWithEmptyView mRecyclerView;
     private ViewGroup mViewContainer;
@@ -69,7 +65,6 @@ public class FavouriteMoviesFragment extends Fragment
 
     //Firebase
     private FirebaseAuth mAuth;
-    private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mUserRef;
     //listener to listen for data changes
     private ValueEventListener mValueEventListener;
@@ -79,7 +74,6 @@ public class FavouriteMoviesFragment extends Fragment
 
     //flag to indicate if the user is in guest mode or register mode
     private boolean isGuest;
-    private ScreenMeasurer mScreenMeasurer;
 
     public FavouriteMoviesFragment() {
         // Required empty public constructor
@@ -109,7 +103,6 @@ public class FavouriteMoviesFragment extends Fragment
         isGuest = prefs.getBoolean(PreferenceConst.Authenticate.GUEST_MODE_PREF_KEY, true);
 
         mContext = context;
-        mNetworkRequest = NetworkRequest.getInstance(mContext);
         mMoviesList = new ArrayList<>();
 
         //initiate ProgressDialog
@@ -122,8 +115,8 @@ public class FavouriteMoviesFragment extends Fragment
 
         //initialize Firebase stuffs
         mAuth = FirebaseAuth.getInstance();
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mUserRef = mFirebaseDatabase.getReference("users");
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        mUserRef = firebaseDatabase.getReference("users");
 
         //initialize ValueEventListener
         mValueEventListener = new ValueEventListener() {
@@ -195,7 +188,7 @@ public class FavouriteMoviesFragment extends Fragment
         inflater.inflate(R.menu.menu_action_movie, menu);
 
         MenuItem item;
-        int sortOption = mPrefs.getInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, PreferenceConst.MOVIE_VOTE_SORT);
+        int sortOption = mPrefs.getInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, 0);
         //get user preference regarding sorting options for movie list and set sorting option appropriately
         switch (sortOption) {
             case PreferenceConst.MOVIE_DATE_SORT:
@@ -214,9 +207,6 @@ public class FavouriteMoviesFragment extends Fragment
                 onOptionsItemSelected(item);
                 break;
             default:
-                item = menu.findItem(R.id.action_sort_by_vote);
-                item.setChecked(true);
-                onOptionsItemSelected(item);
                 break;
         }
     }
@@ -262,10 +252,10 @@ public class FavouriteMoviesFragment extends Fragment
     }
 
     private int getNumRowsForMovieList() {
-        mScreenMeasurer = new ScreenMeasurer(getActivity());
+        ScreenMeasurer screenMeasurer = new ScreenMeasurer(getActivity());
         //get screen size and display movie list appropriately
         int numRows = 1;
-        int screenWidth = mScreenMeasurer.getDpWidth();
+        int screenWidth = screenMeasurer.getDpWidth();
         if(screenWidth < 480) {//phone portrait
             numRows = 1;
         } else if(screenWidth > 480 && screenWidth < 840) {//phone landscape or small tablet portrait
@@ -444,11 +434,9 @@ public class FavouriteMoviesFragment extends Fragment
     //handle database operation in background thread
     private class GetFavouriteMoviesTask extends AsyncTask<Void, Void, List<Movie>> {
 
-        private static final String TAG = "GetFavouriteMoviesTask";
-
         @Override
         protected List<Movie> doInBackground(Void... voids) {
-            List<Movie> movieList = new ArrayList<>();
+            List<Movie> movieList;
             //get movie from local database and return to onPostExecute (UI thread) to handle data
             DatabaseOperator databaseOperator = MoviesTableOperator.getInstance(mContext);
             movieList = databaseOperator.findAll();

@@ -15,7 +15,7 @@ import com.nguyen.paul.thanh.walletmovie.R;
 
 public class AboutUsFragment extends Fragment {
 
-    public static final String FRAGMENT_TAG = FavouriteMoviesFragment.class.getSimpleName();
+    public static final String FRAGMENT_TAG = AboutUsFragment.class.getSimpleName();
 
     public AboutUsFragment() {
         // Required empty public constructor

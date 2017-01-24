@@ -12,15 +12,13 @@ import com.nguyen.paul.thanh.walletmovie.database.interfaces.GenresTableConst;
  * This class will be used to create/upgrade sqlite database
  */
 
+@SuppressWarnings("WeakerAccess")
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int DB_VERSION = 1;
     private static final String DB_NAME = "favourite_movies.db";
 
-    private Context mContext;
-
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
-        mContext = context;
     }
 
     @Override

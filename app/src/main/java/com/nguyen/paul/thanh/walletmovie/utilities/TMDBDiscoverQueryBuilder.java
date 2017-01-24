@@ -10,13 +10,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * TheMovieDb.org api offers 3 different ways to search for movies including
- * - Discover: most powerful search and very flexible
- * - Search: text based search is the most common way
- * - Find: the last but still very useful way to find data is with existing external IDs
- * Reference: https://www.themoviedb.org/documentation/api
- *
- * This builder class will build a query search for "discover" search function.
+ * This class provides helper methods to get url api for discover feature from themoviedb.org
  */
 
 public class TMDBDiscoverQueryBuilder implements CustomBuilder {
@@ -32,7 +26,7 @@ public class TMDBDiscoverQueryBuilder implements CustomBuilder {
     private String apiKey;
     private Uri.Builder mUrlBuilder;
 
-    TMDBDiscoverQueryBuilder(String apiKey) {
+    private TMDBDiscoverQueryBuilder(String apiKey) {
         this.apiKey = apiKey;
         mUrlBuilder = Uri.parse(BASE_URL).buildUpon();
     }
@@ -71,16 +65,6 @@ public class TMDBDiscoverQueryBuilder implements CustomBuilder {
         return this;
     }
 
-    private String getCurrentDate() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        Calendar calendar = Calendar.getInstance();
-        Date currentTime = new Date(calendar.getTimeInMillis());
-
-        String currentDate = dateFormat.format(calendar.getTime());
-
-        return currentDate;
-    }
-
     private String addOrMinusDaysToCurrentDate(String startDate, int numDays) {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
@@ -100,9 +84,8 @@ public class TMDBDiscoverQueryBuilder implements CustomBuilder {
         calendar.setTime(currentTime);
         calendar.add(Calendar.DAY_OF_MONTH, numDays);
 
-        String newDate = dateFormat.format(calendar.getTime());
-
-        return newDate;
+        //return new date
+        return dateFormat.format(calendar.getTime());
     }
 
     public TMDBDiscoverQueryBuilder moviesRelatedTo(int castId) {

@@ -13,11 +13,11 @@ import java.util.List;
  */
 
 public interface DatabaseOperator {
-    public void find(int id);
-    public List<Movie> findAll();
-    public long insert(Movie movie, List<Genre> genreList);
-    public long update(int id);
-    public int delete(int id);
-    public SQLiteDatabase openDB();
-    public void closeDB();
+    void find(int id);
+    List<Movie> findAll();
+    long insert(Movie movie, List<Genre> genreList);
+    long update(int id);
+    int delete(int id);
+    SQLiteDatabase openDB();
+    void closeDB();
 }

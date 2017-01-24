@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.util.Log;
 import android.view.ViewGroup;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,22 +25,16 @@ import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import java.util.List;
 
 /**
- * Created by THANH on 10/01/2017.
+ * This class extends AsyncTask class and will handle long operation in background thread
+ * add movies to favourites in this case
  */
 
 public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
 
     private static final String TAG = "AddFavouriteTask";
 
-    private static final int ALREADY_EXIST = 1;
-    private static final int SUCCESS_ADDED = 2;
-    private static final int ERROR_ADDED = 3;
-
-    private int result;
-
     private Context mContext;
     private FirebaseAuth mAuth;
-    private FirebaseDatabase mFirebaseDB;
     private DatabaseReference mUsersRef;
     private List<Genre> mGenreListFromApi;
     private ViewGroup mViewGroup;
@@ -53,8 +46,8 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
         mGenreListFromApi = genreList;
         mActivity = activity;
         mAuth = FirebaseAuth.getInstance();
-        mFirebaseDB = FirebaseDatabase.getInstance();
-        mUsersRef = mFirebaseDB.getReference("users");
+        FirebaseDatabase firebaseDB = FirebaseDatabase.getInstance();
+        mUsersRef = firebaseDB.getReference("users");
     }
 
     @Override
@@ -125,7 +118,6 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
 
     /**
      * This method will handle data writing operation to Firebase (cloud db)
-     * @param movie
      */
     private void writeDataToFirebase(final Movie movie, final String uid) {
         mUsersRef.child(uid)
@@ -148,7 +140,6 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
                                             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                                                 if(databaseError != null) {
                                                     //errors occur while writing data
-                                                    Log.d(TAG, "onComplete: Errors occur while writing data to Firebase - " + databaseError);
                                                     makeSnackBar("Error! Failed to add the movie to your favourites!");
                                                 } else {
                                                     //successfully added new data to Firebase

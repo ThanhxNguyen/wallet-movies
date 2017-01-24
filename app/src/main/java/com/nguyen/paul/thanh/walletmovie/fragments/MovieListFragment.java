@@ -72,9 +72,7 @@ public class MovieListFragment extends Fragment
     private ArrayList<Movie> mMoviesList;
     private List<Genre> mGenreListFromApi;
     private MovieRecyclerViewAdapter mAdapter;
-    private RecyclerView.LayoutManager mGridLayoutManager;
     private RecyclerViewWithEmptyView mRecyclerView;
-    private ScreenMeasurer mScreenMeasurer;
 
     private SharedPreferences mPrefs;
     private SharedPreferences.Editor mEditor;
@@ -159,7 +157,7 @@ public class MovieListFragment extends Fragment
         inflater.inflate(R.menu.menu_action_movie, menu);
 
         MenuItem item;
-        int sortOption = mPrefs.getInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, PreferenceConst.MOVIE_VOTE_SORT);
+        int sortOption = mPrefs.getInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, 0);
         //get user preference regarding sorting options for movie list and set sorting option appropriately
         switch (sortOption) {
             case PreferenceConst.MOVIE_DATE_SORT:
@@ -184,11 +182,6 @@ public class MovieListFragment extends Fragment
 //                mAdapter.notifyDataSetChanged();
                 break;
             default:
-                item = menu.findItem(R.id.action_sort_by_vote);
-                item.setChecked(true);
-                onOptionsItemSelected(item);
-//                Collections.sort(mMoviesList, Movie.MovieVoteSort);
-//                mAdapter.notifyDataSetChanged();
                 break;
         }
     }
@@ -281,9 +274,9 @@ public class MovieListFragment extends Fragment
         mRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.movie_list);
         //layout manager
         int numRows = getNumRowsForMovieList();
-        mGridLayoutManager = new GridLayoutManager(mContext, numRows);
+        RecyclerView.LayoutManager gridLayoutManager = new GridLayoutManager(mContext, numRows);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mRecyclerView.setLayoutManager(mGridLayoutManager);
+        mRecyclerView.setLayoutManager(gridLayoutManager);
 
         //get placeholder view and set it to display when the list is empty
         TextView placeholderView = (TextView) view.findViewById(R.id.placeholder_view);
@@ -319,10 +312,10 @@ public class MovieListFragment extends Fragment
     }
 
     private int getNumRowsForMovieList() {
-        mScreenMeasurer = new ScreenMeasurer(getActivity());
+        ScreenMeasurer screenMeasurer = new ScreenMeasurer(getActivity());
         //get screen size and display movie list appropriately
         int numRows = 1;
-        int screenWidth = mScreenMeasurer.getDpWidth();
+        int screenWidth = screenMeasurer.getDpWidth();
         if(screenWidth < 480) {//phone portrait
             numRows = 1;
         } else if(screenWidth > 480 && screenWidth < 840) {//phone landscape or small tablet portrait

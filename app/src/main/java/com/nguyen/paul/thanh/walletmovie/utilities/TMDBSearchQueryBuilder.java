@@ -5,7 +5,7 @@ import android.net.Uri;
 import com.nguyen.paul.thanh.walletmovie.interfaces.CustomBuilder;
 
 /**
- * Created by THANH on 14/01/2017.
+ * This class provides helper methods to get url api for search feature from themoviedb.org
  */
 
 public class TMDBSearchQueryBuilder implements CustomBuilder {

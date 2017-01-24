@@ -14,6 +14,7 @@ import java.util.List;
  * methods when only need some certain methods.
  */
 
+@SuppressWarnings("WeakerAccess")
 public class SimpleSQLiteDatabaseOperator implements DatabaseOperator {
     @Override
     public void find(int id) {

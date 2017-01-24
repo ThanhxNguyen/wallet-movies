@@ -14,9 +14,6 @@ public class FormInputValidator {
     public static final int MIN_LENGTH_ERROR = 1;
     public static final int MAX_LENGTH_ERROR = 2;
 
-    private final int PASSWORD_MIN_LENGTH = 6;
-    private final int PASSWORD_MAX_LENGTH = 100;
-
     private String peopleNamePattern = "^[a-zA-Z-'\\. ]{3,}$";
     private Pattern PEOPLE_NAME = Pattern.compile(peopleNamePattern);
 
@@ -35,12 +32,8 @@ public class FormInputValidator {
     }
 
     public boolean isValidEmail(String input) {
-        if(!Patterns.EMAIL_ADDRESS.matcher(input).matches()) {
-            //not a valid email address
-            return false;
-        }
+        return Patterns.EMAIL_ADDRESS.matcher(input).matches();
 
-        return true;
     }
 
     public boolean isEmpty(String input) {
@@ -48,6 +41,8 @@ public class FormInputValidator {
     }
 
     public int isValidPassword(String input) {
+        int PASSWORD_MIN_LENGTH = 6;
+        int PASSWORD_MAX_LENGTH = 100;
         if(input.length() < PASSWORD_MIN_LENGTH) {
             return MIN_LENGTH_ERROR;
         } else if(input.length() > PASSWORD_MAX_LENGTH) {
@@ -58,10 +53,7 @@ public class FormInputValidator {
     }
 
     public boolean isValidName(String input) {
-        if(!PEOPLE_NAME.matcher(input).matches()) {
-            return false;
-        }
+        return PEOPLE_NAME.matcher(input).matches();
 
-        return true;
     }
 }

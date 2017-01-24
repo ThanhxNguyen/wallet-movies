@@ -33,10 +33,10 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
     private int mLayoutForPopupMenu;
 
     public interface OnRecyclerViewClickListener {
-        public static final int ADD_TO_FAVOURITE_TRIGGERED = 1000;
-        public static final int REMOVE_MOVIE_TRIGGERED = 1001;
-        public void onRecyclerViewClick(Movie movie);
-        public void onPopupMenuClick(PopupMenu popupMenu, Movie movie, int action);
+        int ADD_TO_FAVOURITE_TRIGGERED = 1000;
+        int REMOVE_MOVIE_TRIGGERED = 1001;
+        void onRecyclerViewClick(Movie movie);
+        void onPopupMenuClick(PopupMenu popupMenu, Movie movie, int action);
     }
 
     public MovieRecyclerViewAdapter(Context context, List<Movie> moviesList, OnRecyclerViewClickListener listener, int layoutForPopupMenu) {
@@ -67,6 +67,7 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
         return mMoviesList.size();
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static class MovieViewHolder extends RecyclerView.ViewHolder implements PopupMenu.OnMenuItemClickListener {
 
         private Context mContext;

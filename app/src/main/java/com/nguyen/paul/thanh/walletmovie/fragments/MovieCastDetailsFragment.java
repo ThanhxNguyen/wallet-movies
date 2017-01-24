@@ -30,9 +30,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link MovieCastDetailsFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Fragment for movie cast details
  */
 public class MovieCastDetailsFragment extends Fragment {
 
@@ -46,7 +44,6 @@ public class MovieCastDetailsFragment extends Fragment {
     private TextView mCastBirthdayValue;
     private TextView mCastBirthPlaceValue;
     private TextView mCastBiography;
-    private Button mMoviesForThisCastBtn;
     private ImageView mParallaxImage;
 
     private ProgressDialog mProgressDialog;
@@ -121,14 +118,15 @@ public class MovieCastDetailsFragment extends Fragment {
         mCastBirthdayValue = (TextView) view.findViewById(R.id.movie_cast_birthday_value);
         mCastBirthPlaceValue = (TextView) view.findViewById(R.id.movie_cast_birth_place_value);
         mCastBiography = (TextView) view.findViewById(R.id.movie_cast_biography);
-        mMoviesForThisCastBtn = (Button) view.findViewById(R.id.movies_for_this_cast_btn);
+        Button moviesForThisCastBtn = (Button) view.findViewById(R.id.movies_for_this_cast_btn);
 
         Bundle args = getArguments();
         if(args != null) {
             final Cast cast = args.getParcelable(CAST_PARCELABLE_KEY);
+            assert cast != null;
             final int castId = cast.getId();
             //set click listener
-            mMoviesForThisCastBtn.setOnClickListener(new View.OnClickListener() {
+            moviesForThisCastBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     getActivity().getSupportFragmentManager()
