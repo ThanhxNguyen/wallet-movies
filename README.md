@@ -2,6 +2,8 @@
 
 This app is targeting movie lovers. Users can view a range of different movie related information such as trailers, posters, details, casts etc...
 
+Link to [Google Play](https://goo.gl/grTMe7). The app is currently under open beta testing.
+
 ### Features:
 
 * Users can view movies by navigating between three different main categories including popular, showing and upcoming (will add more in future updates)
