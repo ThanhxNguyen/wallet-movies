@@ -2,6 +2,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item
+        android:id="@+id/action_grid_list_display_type"
+        android:title="@string/display_in_grid"
+        android:orderInCategory="98"
+        android:icon="@drawable/ic_grid_list_white_24dp"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_list_display_type"
+        android:title="@string/display_in_list"
+        android:orderInCategory="97"
+        android:icon="@drawable/ic_view_list_white_24dp"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/action_sort_by_name"

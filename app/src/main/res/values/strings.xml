@@ -26,7 +26,7 @@
     <string name="welcome_message_text">Wallet Movie is a free app. Here you can do a lot of cool things such as view movie details, search for movies or add movies to your favourites etc…\n\nYou can store your favourite movies and access them from anywhere by create an account or sign in as a guest to store your favourites movies locally.</string>
     <string name="signin_as_guest_btn">Sign in as guest</string>
     <string name="remove_movie_from_favourites_text">Remove from favourites</string>
-    <string name="action_search_hint">Search movies…</string>
+    <string name="action_search_hint">Search movies by name, cast…</string>
     <string name="action_search"/>
     <string name="movie_vote_text">Vote:</string>
     <string name="movie_release_date_text">Released on:</string>
@@ -97,5 +97,7 @@
     <string name="attribute_des">This product uses the TMDb (themoviedb.org) API but is not endorsed or certified by TMDb.</string>
     <string name="welcome_title">Welcome!</string>
     <string name="guest">Guest</string>
+    <string name="display_in_list">Display in list</string>
+    <string name="display_in_grid">Display in grid</string>
 
 </resources>

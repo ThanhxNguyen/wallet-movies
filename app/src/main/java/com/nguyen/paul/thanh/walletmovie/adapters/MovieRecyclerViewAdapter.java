@@ -31,6 +31,10 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
     private List<Movie> mMoviesList;
     private OnRecyclerViewClickListener mListener;
     private int mLayoutForPopupMenu;
+    private int gridListViewLayout;
+    private int listViewLayout;
+    //flag to indicate list view display type
+    private boolean displayListInGrid;
 
     public interface OnRecyclerViewClickListener {
         int ADD_TO_FAVOURITE_TRIGGERED = 1000;
@@ -44,12 +48,25 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
         mMoviesList = moviesList;
         mListener = listener;
         mLayoutForPopupMenu = layoutForPopupMenu;
+        //initialize list view layouts
+        gridListViewLayout = R.layout.grid_movie_list_item;
+        listViewLayout = R.layout.movie_list_item;
+        //set list vies display in grid by default
+        displayListInGrid = true;
     }
 
     @Override
     public MovieRecyclerViewAdapter.MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                                    .inflate(R.layout.movie_list_item, parent, false);
+        View view;
+        if(displayListInGrid) {
+            //display list view in grid
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(gridListViewLayout, parent, false);
+        } else {
+            //display list view in normal list
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(listViewLayout, parent, false);
+        }
 
         return new MovieViewHolder(mContext, view, mListener, mLayoutForPopupMenu);
     }
@@ -67,8 +84,16 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
         return mMoviesList.size();
     }
 
+    public void setGridListViewLayout() {
+        displayListInGrid = true;
+    }
+
+    public void setListViewLayout() {
+        displayListInGrid = false;
+    }
+
     @SuppressWarnings("WeakerAccess")
-    public static class MovieViewHolder extends RecyclerView.ViewHolder implements PopupMenu.OnMenuItemClickListener {
+    public class MovieViewHolder extends RecyclerView.ViewHolder implements PopupMenu.OnMenuItemClickListener {
 
         private Context mContext;
         private View mView;
@@ -142,7 +167,9 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
 
             }
             mGenres.setText( (genreValues.toString().length()>0) ? genreValues.delete(genreValues.length()-2, genreValues.length()-1) : "Unknown");
-            mDescription.setText( (mMovie.getOverview().length() > 100) ? mMovie.getOverview().substring(0, 101) + "..." : mMovie.getOverview() );
+            if(displayListInGrid) {
+                mDescription.setText( (mMovie.getOverview().length() > 100) ? mMovie.getOverview().substring(0, 101) + "..." : mMovie.getOverview() );
+            }
 
             //set click listener for image thumbnail, when it's clicked, navigate to movie details
             mView.setOnClickListener(mItemClickListener);
@@ -160,8 +187,10 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
                         .crossFade()
                         .into(mThumbnail);
             } else {
+                //if display image in grid, get the image size w342 otherwise w92 (w=width)
+                String sizeConfig = (displayListInGrid) ? "w342" : "w92";
                 //load movie thumb from internet
-                String imgUrl = MovieQueryBuilder.getInstance().getImageBaseUrl("w500") + mMovie.getPosterPath();
+                String imgUrl = MovieQueryBuilder.getInstance().getImageBaseUrl(sizeConfig) + mMovie.getPosterPath();
 
                 Glide.with(mContext).load(imgUrl)
 //                        .thumbnail(0.1f)

@@ -22,6 +22,7 @@ public class App extends Application {
 
     public static final String GUEST_MODE_PREF_KEY = "guest_mode_preference_key";
     public static final String FIRST_TIME_USER_PREF_KEY = "first_time_user_preference_key";
+    public static final String DISPLAY_LIST_IN_GRID_KEY = "display_list_in_grid_key";
 
     public static final String MOVIE_SORT_SETTINGS_KEY = "movie_sort_setttings_key";
 
