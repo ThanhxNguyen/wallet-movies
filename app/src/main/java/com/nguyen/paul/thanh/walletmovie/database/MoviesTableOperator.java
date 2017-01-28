@@ -6,9 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.nguyen.paul.thanh.walletmovie.database.interfaces.MoviesTableConst;
-import com.nguyen.paul.thanh.walletmovie.database.interfaces.GenresMoviesPivotTableConst;
-import com.nguyen.paul.thanh.walletmovie.database.interfaces.GenresTableConst;
+import com.nguyen.paul.thanh.walletmovie.database.constants.MoviesTableConst;
+import com.nguyen.paul.thanh.walletmovie.database.constants.GenresMoviesPivotTableConst;
+import com.nguyen.paul.thanh.walletmovie.database.constants.GenresTableConst;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 

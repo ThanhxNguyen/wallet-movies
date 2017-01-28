@@ -9,7 +9,10 @@ import android.view.View;
 import android.widget.Button;
 
 import com.nguyen.paul.thanh.walletmovie.R;
-import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
+
+import static com.nguyen.paul.thanh.walletmovie.App.FIRST_TIME_USER_PREF_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
 
 public class WelcomeActivity extends AppCompatActivity {
 
@@ -47,10 +50,10 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //enable guest mode for this user
-                SharedPreferences.Editor editor = getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE)
+                SharedPreferences.Editor editor = getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE)
                                                         .edit();
-                editor.putBoolean(PreferenceConst.Authenticate.FIRST_TIME_USER_PREF_KEY, false);
-                editor.putBoolean(PreferenceConst.Authenticate.GUEST_MODE_PREF_KEY, true);
+                editor.putBoolean(FIRST_TIME_USER_PREF_KEY, false);
+                editor.putBoolean(GUEST_MODE_PREF_KEY, true);
                 editor.apply();
 
                 Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);

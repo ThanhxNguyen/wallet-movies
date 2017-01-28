@@ -31,7 +31,7 @@ import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import com.nguyen.paul.thanh.walletmovie.R;
-import com.nguyen.paul.thanh.walletmovie.WalletMovieApp;
+import com.nguyen.paul.thanh.walletmovie.App;
 import com.nguyen.paul.thanh.walletmovie.adapters.CastRecyclerViewAdapter;
 import com.nguyen.paul.thanh.walletmovie.model.Cast;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
@@ -184,7 +184,7 @@ public class MovieDetailsFragment extends Fragment
         //mProgressDialog.setMessage("Loading data...");
 
         //get genre values from cache
-        mGenreListFromApi = ((WalletMovieApp) getActivity().getApplication()).getGenreListFromApi();
+        mGenreListFromApi = ((App) getActivity().getApplication()).getGenreListFromApi();
 
         if(mGenreListFromApi.size() == 0) {
             //if there is no genre values from cache, send a http request to get them
@@ -233,7 +233,7 @@ public class MovieDetailsFragment extends Fragment
             }
         }
         //cache genres list value to app
-        ( (WalletMovieApp) getActivity().getApplication()).setGenreListFromApi(mGenreListFromApi);
+        ( (App) getActivity().getApplication()).setGenreListFromApi(mGenreListFromApi);
     }
 
     @Override

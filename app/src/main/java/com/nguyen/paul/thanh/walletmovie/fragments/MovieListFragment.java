@@ -25,9 +25,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.nguyen.paul.thanh.walletmovie.R;
-import com.nguyen.paul.thanh.walletmovie.WalletMovieApp;
+import com.nguyen.paul.thanh.walletmovie.App;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
-import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView;
@@ -43,6 +42,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.MOVIE_DATE_SORT;
+import static com.nguyen.paul.thanh.walletmovie.App.MOVIE_NAME_SORT;
+import static com.nguyen.paul.thanh.walletmovie.App.MOVIE_SORT_SETTINGS_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.MOVIE_VOTE_SORT;
 
 /**
  * Fragment to display movies list
@@ -125,10 +130,10 @@ public class MovieListFragment extends Fragment
         mProgressDialog.setMessage("Loading movies...");
 
         //initialize shared preference
-        mPrefs = mContext.getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
+        mPrefs = mContext.getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
         mEditor = mPrefs.edit();
 
-        mGenreListFromApi = ((WalletMovieApp) getActivity().getApplication()).getGenreListFromApi();
+        mGenreListFromApi = ((App) getActivity().getApplication()).getGenreListFromApi();
 
         if(mGenreListFromApi.size() == 0) {
             String genreListUrl = MovieQueryBuilder.getInstance().getGenreListUrl();
@@ -157,24 +162,24 @@ public class MovieListFragment extends Fragment
         inflater.inflate(R.menu.menu_action_movie, menu);
 
         MenuItem item;
-        int sortOption = mPrefs.getInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, 0);
+        int sortOption = mPrefs.getInt(MOVIE_SORT_SETTINGS_KEY, 0);
         //get user preference regarding sorting options for movie list and set sorting option appropriately
         switch (sortOption) {
-            case PreferenceConst.MOVIE_DATE_SORT:
+            case MOVIE_DATE_SORT:
                 item = menu.findItem(R.id.action_sort_by_date);
                 item.setChecked(true);
                 onOptionsItemSelected(item);
 //                Collections.sort(mMoviesList, Movie.MovieReleaseDateSort);
 //                mAdapter.notifyDataSetChanged();
                 break;
-            case PreferenceConst.MOVIE_NAME_SORT:
+            case MOVIE_NAME_SORT:
                 item = menu.findItem(R.id.action_sort_by_name);
                 item.setChecked(true);
                 onOptionsItemSelected(item);
 //                Collections.sort(mMoviesList, Movie.MovieNameSort);
 //                mAdapter.notifyDataSetChanged();
                 break;
-            case PreferenceConst.MOVIE_VOTE_SORT:
+            case MOVIE_VOTE_SORT:
                 item = menu.findItem(R.id.action_sort_by_vote);
                 item.setChecked(true);
                 onOptionsItemSelected(item);
@@ -195,19 +200,19 @@ public class MovieListFragment extends Fragment
             case R.id.action_sort_by_name:
                 Collections.sort(mMoviesList, Movie.MovieNameSort);
                 mAdapter.notifyDataSetChanged();
-                mEditor.putInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, PreferenceConst.MOVIE_NAME_SORT).apply();
+                mEditor.putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_NAME_SORT).apply();
                 break;
 
             case R.id.action_sort_by_date:
                 Collections.sort(mMoviesList, Movie.MovieReleaseDateSort);
                 mAdapter.notifyDataSetChanged();
-                mEditor.putInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, PreferenceConst.MOVIE_DATE_SORT).apply();
+                mEditor.putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_DATE_SORT).apply();
                 break;
 
             case R.id.action_sort_by_vote:
                 Collections.sort(mMoviesList, Movie.MovieVoteSort);
                 mAdapter.notifyDataSetChanged();
-                mEditor.putInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, PreferenceConst.MOVIE_VOTE_SORT).apply();
+                mEditor.putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_VOTE_SORT).apply();
                 break;
         }
 
@@ -461,7 +466,7 @@ public class MovieListFragment extends Fragment
             }
         }
         //cache genres list value to app
-        ( (WalletMovieApp) getActivity().getApplication()).setGenreListFromApi(mGenreListFromApi);
+        ( (App) getActivity().getApplication()).setGenreListFromApi(mGenreListFromApi);
     }
 
     @Override

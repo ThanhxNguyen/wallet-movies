@@ -18,7 +18,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.nguyen.paul.thanh.walletmovie.activities.SigninActivity;
 import com.nguyen.paul.thanh.walletmovie.database.MoviesTableOperator;
 import com.nguyen.paul.thanh.walletmovie.database.interfaces.DatabaseOperator;
-import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 

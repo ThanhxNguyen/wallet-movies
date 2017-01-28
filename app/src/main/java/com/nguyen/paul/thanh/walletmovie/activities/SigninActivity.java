@@ -28,9 +28,12 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.nguyen.paul.thanh.walletmovie.R;
-import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
 import com.nguyen.paul.thanh.walletmovie.utilities.FormInputValidator;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
+
+import static com.nguyen.paul.thanh.walletmovie.App.FIRST_TIME_USER_PREF_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
 
 public class SigninActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
@@ -231,18 +234,18 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
                                     if(task.isSuccessful()) {
 
                                         //since user signed in, disable guest mode
-                                        SharedPreferences prefs = getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
+                                        SharedPreferences prefs = getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
                                         SharedPreferences.Editor editor = prefs.edit();
 
-                                        boolean isFirstTimeUser = prefs.getBoolean(PreferenceConst.Authenticate.FIRST_TIME_USER_PREF_KEY, true);
-                                        boolean isGuest = prefs.getBoolean(PreferenceConst.Authenticate.GUEST_MODE_PREF_KEY, true);
+                                        boolean isFirstTimeUser = prefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
+                                        boolean isGuest = prefs.getBoolean(GUEST_MODE_PREF_KEY, true);
 
                                         if(isFirstTimeUser) {
-                                            editor.putBoolean(PreferenceConst.Authenticate.FIRST_TIME_USER_PREF_KEY, false);
+                                            editor.putBoolean(FIRST_TIME_USER_PREF_KEY, false);
                                             editor.apply();
                                         }
                                         if(isGuest) {
-                                            editor.putBoolean(PreferenceConst.Authenticate.GUEST_MODE_PREF_KEY, false);
+                                            editor.putBoolean(GUEST_MODE_PREF_KEY, false);
                                             editor.apply();
                                         }
 

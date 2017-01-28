@@ -1,10 +1,10 @@
-package com.nguyen.paul.thanh.walletmovie.database.interfaces;
+package com.nguyen.paul.thanh.walletmovie.database.constants;
 
 /**
  * This interface holds constants related to favourites table
  */
 
-public interface MoviesTableConst {
+public class MoviesTableConst {
 
     public static final String TABLE_NAME = "movies";
     public static final String COLUMN_ID = "id";

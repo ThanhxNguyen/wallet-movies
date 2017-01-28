@@ -36,7 +36,6 @@ import com.nguyen.paul.thanh.walletmovie.activities.SigninActivity;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
 import com.nguyen.paul.thanh.walletmovie.database.MoviesTableOperator;
 import com.nguyen.paul.thanh.walletmovie.database.interfaces.DatabaseOperator;
-import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView;
 import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
@@ -45,6 +44,13 @@ import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.MOVIE_DATE_SORT;
+import static com.nguyen.paul.thanh.walletmovie.App.MOVIE_NAME_SORT;
+import static com.nguyen.paul.thanh.walletmovie.App.MOVIE_SORT_SETTINGS_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.MOVIE_VOTE_SORT;
 
 /**
  * Fragment for favourites movies
@@ -98,9 +104,9 @@ public class FavouriteMoviesFragment extends Fragment
         super.onAttach(context);
 
         //get shared preference
-        SharedPreferences prefs = getActivity().getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
+        SharedPreferences prefs = getActivity().getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
         //determine if the user is in guest mode or registered mode
-        isGuest = prefs.getBoolean(PreferenceConst.Authenticate.GUEST_MODE_PREF_KEY, true);
+        isGuest = prefs.getBoolean(GUEST_MODE_PREF_KEY, true);
 
         mContext = context;
         mMoviesList = new ArrayList<>();
@@ -110,7 +116,7 @@ public class FavouriteMoviesFragment extends Fragment
         mProgressDialog.setMessage("Loading favourite movies");
 
         //initialize shared preference
-        mPrefs = mContext.getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
+        mPrefs = mContext.getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
         mEditor = mPrefs.edit();
 
         //initialize Firebase stuffs
@@ -188,20 +194,20 @@ public class FavouriteMoviesFragment extends Fragment
         inflater.inflate(R.menu.menu_action_movie, menu);
 
         MenuItem item;
-        int sortOption = mPrefs.getInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, 0);
+        int sortOption = mPrefs.getInt(MOVIE_SORT_SETTINGS_KEY, 0);
         //get user preference regarding sorting options for movie list and set sorting option appropriately
         switch (sortOption) {
-            case PreferenceConst.MOVIE_DATE_SORT:
+            case MOVIE_DATE_SORT:
                 item = menu.findItem(R.id.action_sort_by_date);
                 item.setChecked(true);
                 onOptionsItemSelected(item);
                 break;
-            case PreferenceConst.MOVIE_NAME_SORT:
+            case MOVIE_NAME_SORT:
                 item = menu.findItem(R.id.action_sort_by_name);
                 item.setChecked(true);
                 onOptionsItemSelected(item);
                 break;
-            case PreferenceConst.MOVIE_VOTE_SORT:
+            case MOVIE_VOTE_SORT:
                 item = menu.findItem(R.id.action_sort_by_vote);
                 item.setChecked(true);
                 onOptionsItemSelected(item);
@@ -220,19 +226,19 @@ public class FavouriteMoviesFragment extends Fragment
             case R.id.action_sort_by_name:
                 Collections.sort(mMoviesList, Movie.MovieNameSort);
                 mAdapter.notifyDataSetChanged();
-                mEditor.putInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, PreferenceConst.MOVIE_NAME_SORT).apply();
+                mEditor.putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_NAME_SORT).apply();
                 break;
 
             case R.id.action_sort_by_date:
                 Collections.sort(mMoviesList, Movie.MovieReleaseDateSort);
                 mAdapter.notifyDataSetChanged();
-                mEditor.putInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, PreferenceConst.MOVIE_DATE_SORT).apply();
+                mEditor.putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_DATE_SORT).apply();
                 break;
 
             case R.id.action_sort_by_vote:
                 Collections.sort(mMoviesList, Movie.MovieVoteSort);
                 mAdapter.notifyDataSetChanged();
-                mEditor.putInt(PreferenceConst.Settings.MOVIE_SORT_SETTINGS_KEY, PreferenceConst.MOVIE_VOTE_SORT).apply();
+                mEditor.putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_VOTE_SORT).apply();
                 break;
         }
 

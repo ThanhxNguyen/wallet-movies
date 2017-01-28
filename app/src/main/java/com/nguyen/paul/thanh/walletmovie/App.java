@@ -11,7 +11,20 @@ import java.util.List;
  * The purpose of this class is to store the search query string from MainActivity
  */
 
-public class WalletMovieApp extends Application {
+public class App extends Application {
+
+    //global constants
+    public static final String GLOBAL_PREF_KEY = "global_preference_key";
+
+    public static final int MOVIE_NAME_SORT = 1;
+    public static final int MOVIE_DATE_SORT = 2;
+    public static final int MOVIE_VOTE_SORT = 3;
+
+    public static final String GUEST_MODE_PREF_KEY = "guest_mode_preference_key";
+    public static final String FIRST_TIME_USER_PREF_KEY = "first_time_user_preference_key";
+
+    public static final String MOVIE_SORT_SETTINGS_KEY = "movie_sort_setttings_key";
+
 
     private String searchQuery = "";
 

@@ -29,20 +29,22 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.nguyen.paul.thanh.walletmovie.App;
 import com.nguyen.paul.thanh.walletmovie.R;
-import com.nguyen.paul.thanh.walletmovie.WalletMovieApp;
 import com.nguyen.paul.thanh.walletmovie.database.MovieSearchSuggestionProvider;
 import com.nguyen.paul.thanh.walletmovie.fragments.AboutUsFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.FavouriteMoviesFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.HomeFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.MovieListFragment;
-import com.nguyen.paul.thanh.walletmovie.interfaces.PreferenceConst;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
+
+import static com.nguyen.paul.thanh.walletmovie.App.FIRST_TIME_USER_PREF_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static final String TAG = "MainActivity";
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
     private Menu mNavMenu;
@@ -66,8 +68,8 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         //determine if this is the first time user accesses the app
-        SharedPreferences prefs = getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
-        boolean isFirstTimeUser = prefs.getBoolean(PreferenceConst.Authenticate.FIRST_TIME_USER_PREF_KEY, true);
+        SharedPreferences prefs = getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
+        boolean isFirstTimeUser = prefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
         if(isFirstTimeUser) {
             //user accesses the app for the first time, show welcome page
             Intent intent = new Intent(MainActivity.this, WelcomeActivity.class);
@@ -107,7 +109,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        String query = ( (WalletMovieApp) getApplicationContext()).getSearchQuery();
+        String query = ( (App) getApplicationContext()).getSearchQuery();
 
         if(!TextUtils.isEmpty(query)) {
             //display search result
@@ -139,7 +141,7 @@ public class MainActivity extends AppCompatActivity
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
 
-            ( (WalletMovieApp) getApplicationContext()).setSearchQuery(query.trim());
+            ( (App) getApplicationContext()).setSearchQuery(query.trim());
 
             //save search history
             SearchRecentSuggestions suggestions =
@@ -167,12 +169,12 @@ public class MainActivity extends AppCompatActivity
                     mNavigationView.getMenu().getItem(0).setChecked(true);
                     onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
                     //since user is signed in, disable guest mode if it's enabled
-                    SharedPreferences prefs = getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, MODE_PRIVATE);
+                    SharedPreferences prefs = getSharedPreferences(GLOBAL_PREF_KEY, MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
-                    boolean isGuest = prefs.getBoolean(PreferenceConst.Authenticate.GUEST_MODE_PREF_KEY, true);
+                    boolean isGuest = prefs.getBoolean(GUEST_MODE_PREF_KEY, true);
 
                     if(isGuest) {
-                        editor.putBoolean(PreferenceConst.Authenticate.GUEST_MODE_PREF_KEY, false);
+                        editor.putBoolean(GUEST_MODE_PREF_KEY, false);
                         editor.apply();
                     }
                     
