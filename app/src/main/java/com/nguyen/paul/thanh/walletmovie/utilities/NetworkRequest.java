@@ -44,6 +44,9 @@ public class NetworkRequest {
         return mRequestQueue;
     }
 
+    /*
+     * need to fix
+     */
     public synchronized <T> void addToRequestQueue(Request<T> request, String tag) {
         if(TextUtils.isEmpty(tag)) throw new AssertionError("Tag cannot be empty!");
         //set tag for request object
@@ -52,7 +55,7 @@ public class NetworkRequest {
     }
 
     /*
-     * Deprecated! need to fix
+     * need to fix
      */
     public void cancelPendingRequests(String tag) {
         if(TextUtils.isEmpty(tag)) {

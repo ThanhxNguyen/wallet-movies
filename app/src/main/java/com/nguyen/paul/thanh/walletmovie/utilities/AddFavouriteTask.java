@@ -23,6 +23,9 @@ import com.nguyen.paul.thanh.walletmovie.model.Movie;
 
 import java.util.List;
 
+import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
+
 /**
  * This class extends AsyncTask class and will handle long operation in background thread
  * add movies to favourites in this case
@@ -55,8 +58,8 @@ public class AddFavouriteTask extends AsyncTask<Movie, Void, Void> {
         Movie movie = movies[0];
 
         //get shared preference and check if user is in guest mode
-        SharedPreferences prefs = mContext.getSharedPreferences(PreferenceConst.GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
-        boolean isGuest = prefs.getBoolean(PreferenceConst.Authenticate.GUEST_MODE_PREF_KEY, false);
+        SharedPreferences prefs = mContext.getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
+        boolean isGuest = prefs.getBoolean(GUEST_MODE_PREF_KEY, false);
 
         if(isGuest) {
             //user is in guest mode

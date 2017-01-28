@@ -9,7 +9,7 @@ import com.nguyen.paul.thanh.walletmovie.interfaces.CustomBuilder;
  */
 
 public class TMDBSearchQueryBuilder implements CustomBuilder {
-    private static final String BASE_URL = "https://api.themoviedb.org/3/search/movie";
+    private static final String BASE_URL = "https://api.themoviedb.org/3/search/multi";
     private static final int RESULT_LIMIT = 1;
     private String apiKey;
     private Uri.Builder mUrlBuilder;

@@ -20,24 +20,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.nguyen.paul.thanh.walletmovie.R;
-import com.nguyen.paul.thanh.walletmovie.App;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
+import com.nguyen.paul.thanh.walletmovie.chains.RequestChain;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView;
 import com.nguyen.paul.thanh.walletmovie.utilities.AddFavouriteTask;
 import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
+import com.nguyen.paul.thanh.walletmovie.utilities.MoviesMultiSearch;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
 import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,7 +46,8 @@ import static com.nguyen.paul.thanh.walletmovie.App.MOVIE_VOTE_SORT;
  * Fragment to display movies list
  */
 public class MovieListFragment extends Fragment
-        implements MovieRecyclerViewAdapter.OnRecyclerViewClickListener {
+        implements MovieRecyclerViewAdapter.OnRecyclerViewClickListener,
+        RequestChain.OnChainComplete {
     
     private static final String TAG = "MovieListFragment";
 
@@ -74,10 +68,11 @@ public class MovieListFragment extends Fragment
     private static final String NETWORK_REQUEST_TAG = "network_request_tag";
     private Context mContext;
     private NetworkRequest mNetworkRequest;
-    private ArrayList<Movie> mMoviesList;
+    private List<Movie> mMoviesList;
     private List<Genre> mGenreListFromApi;
     private MovieRecyclerViewAdapter mAdapter;
     private RecyclerViewWithEmptyView mRecyclerView;
+    private MoviesMultiSearch mMoviesMultiSearch;
 
     private SharedPreferences mPrefs;
     private SharedPreferences.Editor mEditor;
@@ -94,7 +89,12 @@ public class MovieListFragment extends Fragment
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @return A new instance of fragment MovieListFragment.
+     * @param displayType
+     *          page type to display movies such as viewpager in home page, movies list for a cast etc...
+     * @param param
+     *          view pager display type, param will be an integer for tab position
+     *          movie related to a cast, param will be cast ID
+     *
      */
     public static MovieListFragment newInstance(int displayType, int param) {
         MovieListFragment fragment = new MovieListFragment();
@@ -109,6 +109,10 @@ public class MovieListFragment extends Fragment
         return fragment;
     }
 
+    /**
+     * Overload newInstance(...)
+     * This will be used when displaying movies from search with search query
+     */
     public static MovieListFragment newInstance(int displayType, String searchQuery) {
         MovieListFragment fragment = new MovieListFragment();
         Bundle args = new Bundle();
@@ -129,16 +133,12 @@ public class MovieListFragment extends Fragment
         mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setMessage("Loading movies...");
 
+        //initialize movie search chain
+        mMoviesMultiSearch = new MoviesMultiSearch(getActivity(), this, mNetworkRequest, NETWORK_REQUEST_TAG);
+
         //initialize shared preference
         mPrefs = mContext.getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
         mEditor = mPrefs.edit();
-
-        mGenreListFromApi = ((App) getActivity().getApplication()).getGenreListFromApi();
-
-        if(mGenreListFromApi.size() == 0) {
-            String genreListUrl = MovieQueryBuilder.getInstance().getGenreListUrl();
-            sendRequestToGetGenreList(genreListUrl);
-        }
 
     }
 
@@ -343,131 +343,11 @@ public class MovieListFragment extends Fragment
     private void sendRequestToGetMovieList(String url) {
         //empty movie list if there is any
         mMoviesList.clear();
-        //create JsonObjectRequest and pass it to Volley
-        JsonObjectRequest moviesListJsonObject = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        //successfully
-                        try {
-                            JSONArray results = response.getJSONArray("results");
-                            for(int i=0; i<results.length(); i++) {
-                                JSONObject tempMovieJsonObj = results.getJSONObject(i);
-                                Movie movie = parseMovieJsonObject(tempMovieJsonObj);
-
-                                if(movie != null) {
-                                    mMoviesList.add(movie);
-                                }
-                            }
-                            //hide progress dialog when complete loading movies
-                            mProgressDialog.dismiss();
-                            //notify adapter about changes
-                            mAdapter.notifyDataSetChanged();
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        //hide progress dialog
-                        mProgressDialog.dismiss();
-                        //errors occur, handle here
-                        Log.d(TAG, "onErrorResponse: error: " + error.toString());
-                    }
-                });
-        //making network request to get json object from themoviedb.org
-        //having trouble when add to request queue using singleton class methods
-//        mNetworkRequest.addToRequestQueue(moviesListJsonObject, NETWORK_REQUEST_TAG);
-        moviesListJsonObject.setTag(NETWORK_REQUEST_TAG);
-        mNetworkRequest.getRequestQueue().add(moviesListJsonObject);
+        //start getting movies
+        mMoviesMultiSearch.search(url);
     }
 
-    private Movie parseMovieJsonObject(JSONObject obj) {
-        Movie movie = new Movie();
-        try {
 
-            movie.setId(obj.getInt("id"));
-            movie.setTitle(obj.getString("title"));
-            movie.setOverview(obj.getString("overview"));
-            movie.setReleaseDate(obj.getString("release_date"));
-            movie.setRuntime(0);//put ternary condition here maybe
-            movie.setCountry("Unknown");
-            movie.setStatus("Unknown");
-            movie.setVoteAverage(obj.getDouble("vote_average"));
-            movie.setPosterPath( (obj.isNull("poster_path"))
-                                    ? ""
-                                    : obj.getString("poster_path"));
-            //get genre id from movie json object and use it to get genre name from genre list
-            JSONArray genreIds = obj.getJSONArray("genre_ids");
-            if(mGenreListFromApi.size() > 0) {
-                List<Genre> movieGenreList = new ArrayList<>();
-                for(int i=0; i<genreIds.length(); i++) {
-                    for(Genre g : mGenreListFromApi) {
-                        if(genreIds.getInt(i) == g.getId()) {
-                            //found matching id
-                            movieGenreList.add(g);
-                            break;
-                        }
-                    }
-                }
-
-                movie.setGenres(movieGenreList);
-
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        return movie;
-    }
-
-    private void sendRequestToGetGenreList(String url) {
-        JsonObjectRequest genreJsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        //successfully get data
-                        try {
-                            JSONArray genres = response.getJSONArray("genres");
-                            parseGenreList(genres);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d(TAG, "onErrorResponse: Error getting genre list " + error.toString());
-                    }
-                });
-
-        mNetworkRequest.addToRequestQueue(genreJsonRequest, NETWORK_REQUEST_TAG);
-    }
-
-    private void parseGenreList(JSONArray genres) {
-        for(int i=0; i<genres.length(); i++) {
-            try {
-                JSONObject genreJsonObj = genres.getJSONObject(i);
-                int genreId = genreJsonObj.getInt("id");
-                String genreName = genreJsonObj.getString("name");
-
-                Genre genre = new Genre(genreId, genreName);
-                mGenreListFromApi.add(genre);
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        //cache genres list value to app
-        ( (App) getActivity().getApplication()).setGenreListFromApi(mGenreListFromApi);
-    }
 
     @Override
     public void onRecyclerViewClick(Movie movie) {
@@ -496,4 +376,15 @@ public class MovieListFragment extends Fragment
         task.execute(movie);
     }
 
+    @Override
+    public void onChainComplete(List<Movie> movieList) {
+        Log.d(TAG, "onChainComplete: invoked with movie list size: " + movieList.size());
+        mMoviesList = movieList;
+
+        //setup recycler view adapter here
+        mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this, R.menu.home_movie_list_item_popup_menu);
+        mRecyclerView.setAdapter(mAdapter);
+        
+        mProgressDialog.dismiss();
+    }
 }
