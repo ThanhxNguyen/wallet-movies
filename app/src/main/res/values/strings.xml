@@ -81,7 +81,7 @@
 
     <!--social auth-->
     <string name="signin_with_google">Sign in With Google</string>
-    <string name="facebook_app_id">1003693956428537</string>
+    <string name="facebook_app_id">140391126468632</string>
     <string name="overview_text">Overview</string>
     <string name="sign_up_btn">Sign up</string>
     <string name="account_text">Account Information</string>
