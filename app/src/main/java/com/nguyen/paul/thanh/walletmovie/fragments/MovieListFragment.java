@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.nguyen.paul.thanh.walletmovie.App;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
 import com.nguyen.paul.thanh.walletmovie.chains.RequestChain;
@@ -159,6 +160,8 @@ public class MovieListFragment extends Fragment
             mProgressDialog.show();
         }
         setRetainInstance(true);
+        //get genres value list from cache
+        mGenreListFromApi = ( (App) getActivity().getApplicationContext()).getGenreListFromApi();
     }
 
     @Override

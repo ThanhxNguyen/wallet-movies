@@ -10,10 +10,17 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -25,6 +32,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.nguyen.paul.thanh.walletmovie.R;
@@ -33,9 +41,10 @@ import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 import static com.nguyen.paul.thanh.walletmovie.App.FIRST_TIME_USER_PREF_KEY;
 import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
-import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
 
 public class SigninActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
+
+    private static final String TAG = "SigninActivity";
 
     private static final int RC_SIGN_IN = 100;
 
@@ -44,6 +53,8 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
     private Button mSigninBtn;
     private Button mSignupBtn;
     private SignInButton mGoogleSigninButton;
+    private LoginButton mFacebookSigninButton;
+    private CallbackManager mCallbackManager;
     private TextInputLayout mEmailWrapper;
     private TextInputLayout mPasswordWrapper;
     private TextView mAuthErrorMessage;
@@ -78,6 +89,10 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
         TextView googleSigninBtnTv = (TextView) mGoogleSigninButton.getChildAt(0);
         googleSigninBtnTv.setText(getString(R.string.signin_with_google));
 
+        //Facebook authentication
+        mCallbackManager = CallbackManager.Factory.create();
+        mFacebookSigninButton = (LoginButton) findViewById(R.id.facebook_signin_btn);
+
         mEmailWrapper = (TextInputLayout) findViewById(R.id.email_wrapper);
         mPasswordWrapper = (TextInputLayout) findViewById(R.id.password_wrapper);
 
@@ -90,6 +105,56 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
         setClicklistenerforSignupBtn();
 
         setUpSigninWithGoogle();
+        setUpSigninWithFacebook();
+    }
+
+    private void setUpSigninWithFacebook() {
+        mFacebookSigninButton.setReadPermissions("email", "public_profile");
+        //register callback, these callbacks will be invoke when facebook authentication start
+        mFacebookSigninButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Log.d(TAG, "facebook:onSuccess:" + loginResult);
+                signinFirebaseWithFacebookToken(loginResult.getAccessToken());
+            }
+
+            @Override
+            public void onCancel() {
+                Log.d(TAG, "facebook:onCancel");
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                Log.d(TAG, "facebook:onError", error);
+            }
+        });
+    }
+
+    private void signinFirebaseWithFacebookToken(AccessToken token) {
+        //show progress dialog
+        mProgressDialog.show();
+
+        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        // If sign in fails, display a snackbar with failure message to the user. If sign in succeeds
+                        // redirect the user back to MainActivity
+                        if(task.isSuccessful()) {
+                            //successfully signed in with Google account
+                            mProgressDialog.dismiss();
+                            Intent intent = new Intent(SigninActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            //failed to signed in with Google account
+                            mProgressDialog.dismiss();
+                            showSnackBar("Authentication failed.");
+                        }
+                    }
+                });
     }
 
     private void setUpSigninWithGoogle() {
@@ -139,6 +204,9 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
                 // Google Sign In failed
                 showSnackBar("Failed to sign in with google");
             }
+        } else {
+            // Pass the activity result back to the Facebook SDK
+            mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -238,14 +306,9 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
                                         SharedPreferences.Editor editor = prefs.edit();
 
                                         boolean isFirstTimeUser = prefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
-                                        boolean isGuest = prefs.getBoolean(GUEST_MODE_PREF_KEY, true);
 
                                         if(isFirstTimeUser) {
                                             editor.putBoolean(FIRST_TIME_USER_PREF_KEY, false);
-                                            editor.apply();
-                                        }
-                                        if(isGuest) {
-                                            editor.putBoolean(GUEST_MODE_PREF_KEY, false);
                                             editor.apply();
                                         }
 

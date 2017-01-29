@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <!--required for Facebook SDK-->
+        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
+
         <provider android:name=".database.MovieSearchSuggestionProvider"
                   android:authorities="com.nguyen.paul.thanh.walletmovie.MovieSearchSuggestionProvider" />
 

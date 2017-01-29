@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
 import android.support.annotation.NonNull;
@@ -34,14 +35,18 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.nguyen.paul.thanh.walletmovie.App;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.database.MovieSearchSuggestionProvider;
+import com.nguyen.paul.thanh.walletmovie.database.MoviesTableOperator;
 import com.nguyen.paul.thanh.walletmovie.fragments.AboutUsFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.FavouriteMoviesFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.HomeFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.MovieListFragment;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
+import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
@@ -203,6 +208,9 @@ public class MainActivity extends AppCompatActivity
                     if(isGuest) {
                         editor.putBoolean(GUEST_MODE_PREF_KEY, false);
                         editor.apply();
+                        //transfer movies from local db to cloud and empty local db
+                        TransferLocalMoviesToCloudTask task = new TransferLocalMoviesToCloudTask();
+                        task.execute();
                     }
                     
                     //show/hide navigation menu items appropriately
@@ -416,18 +424,6 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
 
-//            will be implemented soon
-//            case R.id.nav_profile:
-//                fragmentTag = ProfileFragment.FRAGMENT_TAG;
-//                fragment = fm.findFragmentByTag(fragmentTag);
-//                if(fragment == null) {
-//                    fragment = ProfileFragment.newInstance();
-//                    fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
-//                } else {
-//                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
-//                }
-//                break;
-
             case R.id.nav_signin:
                 //navigate to signin activity
                 Intent intent = new Intent(MainActivity.this, SigninActivity.class);
@@ -517,6 +513,39 @@ public class MainActivity extends AppCompatActivity
         }
         //cache genres list value to app
         ((App) getApplication()).setGenreListFromApi(mGenreListFromApi);
+    }
+
+    private class TransferLocalMoviesToCloudTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            List<Movie> movieList;
+
+            MoviesTableOperator dbOperator = MoviesTableOperator.getInstance(MainActivity.this);
+            //get all movies
+            movieList = dbOperator.findAll();
+            if(movieList.size() > 0) {
+                //successfully got all movies, empty tables
+                boolean isSuccess = dbOperator.emptyTables();
+                //get user id of current user
+                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                if(currentUser != null) {
+
+                    //transfer movies from local db to cloud
+                    DatabaseReference favouriteMoviesRef = FirebaseDatabase.getInstance().getReference("users")
+                            .child(currentUser.getUid())
+                            .child("favourite_movies");
+
+                    for(Movie m : movieList) {
+                        favouriteMoviesRef.child(String.valueOf(m.getId())).setValue(m);
+                    }
+
+                }
+            }
+
+
+            return null;
+
+        }
     }
 
 }

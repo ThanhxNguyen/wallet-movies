@@ -207,7 +207,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-condensed"
-                    android:text="@string/no_content_available"
+                    android:text="@string/no_movies_found"
                     android:textAlignment="center"
                     android:textColor="@color/colorPrimaryText"
                     android:textSize="14sp"

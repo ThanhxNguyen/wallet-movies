@@ -58,7 +58,7 @@
     <string name="nav_clear_search_history">Clear Browsing History</string>
     <string name="nav_favourites">Favourites</string>
     <string name="nav_setting">Settings</string>
-    <string name="nav_profile">Profile</string>
+    <string name="nav_account">Account</string>
     <string name="nav_logout">Logout</string>
     <string name="nav_login">Login</string>
     <string name="action_sort_by_name">Sort by name</string>
@@ -78,10 +78,8 @@
 
     <!--Misc-->
     <string name="loading_text">Loading…</string>
-    <string name="no_content_available">No Content Available</string>
 
     <!--social auth-->
-    <string name="google_client_id">942602126326-2lmm35r3hspbas4ej20bg3dag32cavnh.apps.googleusercontent.com</string>
     <string name="signin_with_google">Sign in With Google</string>
     <string name="facebook_app_id">1003693956428537</string>
     <string name="overview_text">Overview</string>

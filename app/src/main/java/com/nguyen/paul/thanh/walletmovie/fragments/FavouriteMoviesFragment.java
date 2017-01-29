@@ -277,23 +277,15 @@ public class FavouriteMoviesFragment extends Fragment
     public void onDestroyView() {
         super.onDestroyView();
         mProgressDialog.dismiss();
-    }
 
-    @Override
-    public void onDestroy() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null) {
             mUserRef.child(currentUser.getUid()).removeEventListener(mValueEventListener);
-        } else {
-            mUserRef.removeEventListener(mValueEventListener);
         }
-
-        super.onDestroy();
     }
 
     private void initMovieList() {
         mProgressDialog.show();
-
         if(isGuest) {
             //get favourite movies from local db (Sqlite)
             getFavouriteMoviesFromLocalDB();

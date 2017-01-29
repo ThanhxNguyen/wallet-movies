@@ -6,31 +6,34 @@ package com.nguyen.paul.thanh.walletmovie.database.constants;
 
 public class MoviesTableConst {
 
-    public static final String TABLE_NAME = "movies";
-    public static final String COLUMN_ID = "id";
-    public static final String COLUMN_TITLE = "title";
-    public static final String COLUMN_OVERVIEW = "overview";
-    public static final String COLUMN_RELEASE_DATE = "release_date";
-    public static final String COLUMN_RUNTIME = "runtime";
-    public static final String COLUMN_COUNTRY = "country";
-    public static final String COLUMN_STATUS = "status";
-    public static final String COLUMN_VOTE_AVERAGE = "vote_average";
-    public static final String COLUMN_POSTER_PATH = "poster_path";
-    public static final String COLUMN_CREATED_AT = "created_at";
+    //to avoid class instantiation
+    private MoviesTableConst() {}
+
+    public static final String MOVIES_TABLE_NAME = "movies";
+    public static final String MOVIES_COLUMN_ID = "id";
+    public static final String MOVIES_COLUMN_TITLE = "title";
+    public static final String MOVIES_COLUMN_OVERVIEW = "overview";
+    public static final String MOVIES_COLUMN_RELEASE_DATE = "release_date";
+    public static final String MOVIES_COLUMN_RUNTIME = "runtime";
+    public static final String MOVIES_COLUMN_COUNTRY = "country";
+    public static final String MOVIES_COLUMN_STATUS = "status";
+    public static final String MOVIES_COLUMN_VOTE_AVERAGE = "vote_average";
+    public static final String MOVIES_COLUMN_POSTER_PATH = "poster_path";
+    public static final String MOVIES_COLUMN_CREATED_AT = "created_at";
 
     public static final String SQL_CREATE_MOVIES =
-            "CREATE TABLE " + TABLE_NAME + " (" +
-                    COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY, " +
-                    COLUMN_TITLE + " TEXT, " +
-                    COLUMN_OVERVIEW + " TEXT, " +
-                    COLUMN_RELEASE_DATE + " TEXT, " +
-                    COLUMN_RUNTIME + " INTEGER, " +
-                    COLUMN_COUNTRY + " TEXT, " +
-                    COLUMN_STATUS + " TEXT, " +
-                    COLUMN_VOTE_AVERAGE + " REAL, " +
-                    COLUMN_POSTER_PATH + " TEXT, " +
-                    COLUMN_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP)";
+            "CREATE TABLE " + MOVIES_TABLE_NAME + " (" +
+                    MOVIES_COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY, " +
+                    MOVIES_COLUMN_TITLE + " TEXT, " +
+                    MOVIES_COLUMN_OVERVIEW + " TEXT, " +
+                    MOVIES_COLUMN_RELEASE_DATE + " TEXT, " +
+                    MOVIES_COLUMN_RUNTIME + " INTEGER, " +
+                    MOVIES_COLUMN_COUNTRY + " TEXT, " +
+                    MOVIES_COLUMN_STATUS + " TEXT, " +
+                    MOVIES_COLUMN_VOTE_AVERAGE + " REAL, " +
+                    MOVIES_COLUMN_POSTER_PATH + " TEXT, " +
+                    MOVIES_COLUMN_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP)";
 
     public static final String SQL_DELETE_MOVIES =
-            "DROP TABLE IF EXISTS " + TABLE_NAME;
+            "DROP TABLE IF EXISTS " + MOVIES_TABLE_NAME;
 }

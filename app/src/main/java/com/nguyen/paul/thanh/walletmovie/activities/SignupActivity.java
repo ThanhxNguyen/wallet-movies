@@ -28,7 +28,6 @@ import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 import static com.nguyen.paul.thanh.walletmovie.App.FIRST_TIME_USER_PREF_KEY;
 import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
-import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -185,14 +184,9 @@ public class SignupActivity extends AppCompatActivity {
                                         SharedPreferences.Editor editor = prefs.edit();
 
                                         boolean isFirstTimeUser = prefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
-                                        boolean isGuest = prefs.getBoolean(GUEST_MODE_PREF_KEY, true);
 
                                         if(isFirstTimeUser) {
                                             editor.putBoolean(FIRST_TIME_USER_PREF_KEY, false);
-                                            editor.apply();
-                                        }
-                                        if(isGuest) {
-                                            editor.putBoolean(GUEST_MODE_PREF_KEY, false);
                                             editor.apply();
                                         }
 
