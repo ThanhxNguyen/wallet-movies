@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -13,7 +12,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -52,8 +50,6 @@ import static com.nguyen.paul.thanh.walletmovie.App.MOVIE_VOTE_SORT;
 public class MovieListFragment extends Fragment
         implements MovieRecyclerViewAdapter.OnRecyclerViewClickListener,
         RequestChain.OnChainComplete {
-    
-    private static final String TAG = "MovieListFragment";
 
     public static final String FRAGMENT_TAG = MovieListFragment.class.getSimpleName();
 
@@ -79,7 +75,6 @@ public class MovieListFragment extends Fragment
     private MoviesMultiSearch mMoviesMultiSearch;
     //flag to indicate the display type of list view
     private boolean displayInGrid;
-    private Menu mMenu;
 
     private SharedPreferences mPrefs;
     private SharedPreferences.Editor mEditor;
@@ -149,7 +144,6 @@ public class MovieListFragment extends Fragment
 
         //set the list view display in grid by default
         displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
-        Log.e(TAG, "onAttach: display in grid: " + displayInGrid);
 
     }
 
@@ -173,7 +167,6 @@ public class MovieListFragment extends Fragment
     private void updateListDisplayTypeMenu(Menu menu) {
         displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
         //update list view display type icon based on user preference
-        Drawable drawableIcon;
         if(displayInGrid) {
             menu.findItem(R.id.action_grid_list_display_type).setVisible(true);
             menu.findItem(R.id.action_list_display_type).setVisible(false);
@@ -190,15 +183,13 @@ public class MovieListFragment extends Fragment
         updateListDisplayTypeMenu(menu);
 
         super.onPrepareOptionsMenu(menu);
-        Log.e(TAG, "onPrepareOptionsMenu: ");
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_action_movie, menu);
-        mMenu = menu;
 
-        updateListDisplayTypeMenu(mMenu);
+        updateListDisplayTypeMenu(menu);
 
         MenuItem item;
         int sortOption = mPrefs.getInt(MOVIE_SORT_SETTINGS_KEY, 0);
@@ -254,14 +245,12 @@ public class MovieListFragment extends Fragment
                 break;
 
             case R.id.action_grid_list_display_type:
-                Log.d(TAG, "onOptionsItemSelected: grid");
                 mEditor.putBoolean(DISPLAY_LIST_IN_GRID_KEY, false).apply();
                 getActivity().invalidateOptionsMenu();
 //                updateListDisplayTypeMenu(mMenu);
                 break;
 
             case R.id.action_list_display_type:
-                Log.d(TAG, "onOptionsItemSelected: list");
                 mEditor.putBoolean(DISPLAY_LIST_IN_GRID_KEY, true).apply();
                 getActivity().invalidateOptionsMenu();
 //                updateListDisplayTypeMenu(mMenu);
@@ -279,7 +268,7 @@ public class MovieListFragment extends Fragment
         super.onConfigurationChanged(newConfig);
         displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
 
-        GridLayoutManager layoutManager = null;
+        GridLayoutManager layoutManager;
         if(displayInGrid) {
             int numRows = getNumRowsForMovieList();
             //update grid layout based on new screen size
@@ -336,6 +325,7 @@ public class MovieListFragment extends Fragment
         setHasOptionsMenu(true);
 
         mRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.movie_list);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         //get placeholder view and set it to display when the list is empty
         TextView placeholderView = (TextView) view.findViewById(R.id.placeholder_view);
         mRecyclerView.setPlaceholderView(placeholderView);
@@ -368,8 +358,7 @@ public class MovieListFragment extends Fragment
 
     private void populateMovieList() {
         displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
-        Log.e(TAG, "populateMovieList: display list in populateMovieList " + displayInGrid);
-        RecyclerView.LayoutManager layoutManager = null;
+        RecyclerView.LayoutManager layoutManager;
         if(displayInGrid) {
             //layout manager
             int numRows = getNumRowsForMovieList();
@@ -377,7 +366,6 @@ public class MovieListFragment extends Fragment
         } else {
             layoutManager = new LinearLayoutManager(mContext);
         }
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setLayoutManager(layoutManager);
 
         //setup recycler view adapter here

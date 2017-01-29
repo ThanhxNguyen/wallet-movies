@@ -534,7 +534,7 @@ public class MainActivity extends AppCompatActivity
             movieList = dbOperator.findAll();
             if(movieList.size() > 0) {
                 //successfully got all movies, empty tables
-                boolean isSuccess = dbOperator.emptyTables();
+                dbOperator.emptyTables();
                 //get user id of current user
                 FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                 if(currentUser != null) {

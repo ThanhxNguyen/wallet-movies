@@ -24,8 +24,6 @@ import java.util.List;
 
 public class SearchMoviesByName implements RequestChain {
 
-    private static final String TAG = "SearchMoviesByName";
-
     private RequestChain mNextChain;
     private OnChainComplete mListener;
     private NetworkRequest mNetworkRequest;

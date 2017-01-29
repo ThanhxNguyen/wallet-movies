@@ -25,8 +25,6 @@ import java.util.List;
 
 public class SearchMoviesByCast implements RequestChain {
 
-    private static final String TAG = "SearchMoviesByCast";
-
     private RequestChain mNextChain;
     private OnChainComplete mListener;
     private NetworkRequest mNetworkRequest;
@@ -47,7 +45,6 @@ public class SearchMoviesByCast implements RequestChain {
 
     @Override
     public void search(final String url) {
-        final List<Movie> movieList = new ArrayList<>();
         //create JsonObjectRequest and pass it to Volley
         JsonObjectRequest moviesListJsonObject = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -127,7 +124,7 @@ public class SearchMoviesByCast implements RequestChain {
         return movie;
     }
 
-    public void getMoviesRelatedToCast(int castId) {
+    private void getMoviesRelatedToCast(int castId) {
         final String url = MovieQueryBuilder.getInstance().discover().moviesRelatedTo(castId).build();
         final List<Movie> movieList = new ArrayList<>();
         JsonObjectRequest moviesListJsonObject = new JsonObjectRequest(Request.Method.GET, url, null,

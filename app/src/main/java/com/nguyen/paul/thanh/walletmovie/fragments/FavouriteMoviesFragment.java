@@ -14,6 +14,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -45,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.nguyen.paul.thanh.walletmovie.App.DISPLAY_LIST_IN_GRID_KEY;
 import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
 import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
 import static com.nguyen.paul.thanh.walletmovie.App.MOVIE_DATE_SORT;
@@ -80,6 +82,7 @@ public class FavouriteMoviesFragment extends Fragment
 
     //flag to indicate if the user is in guest mode or register mode
     private boolean isGuest;
+    private boolean displayInGrid;
 
     public FavouriteMoviesFragment() {
         // Required empty public constructor
@@ -118,6 +121,9 @@ public class FavouriteMoviesFragment extends Fragment
         //initialize shared preference
         mPrefs = mContext.getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
         mEditor = mPrefs.edit();
+
+        //set the list view display in grid by default
+        displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
 
         //initialize Firebase stuffs
         mAuth = FirebaseAuth.getInstance();
@@ -171,27 +177,74 @@ public class FavouriteMoviesFragment extends Fragment
         View view = inflater.inflate(R.layout.fragment_favourite_movies, container, false);
 
         mRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.favourite_movie_list);
-        //layout manager
-        int numRows = getNumRowsForMovieList();
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, numRows);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mRecyclerView.setLayoutManager(layoutManager);
+        //layout manager
+//        int numRows = getNumRowsForMovieList();
+//        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, numRows);
+//        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+//        mRecyclerView.setLayoutManager(layoutManager);
 
         //placeholder view when the list is empty
         TextView placeholderView = (TextView) view.findViewById(R.id.placeholder_view);
         mRecyclerView.setPlaceholderView(placeholderView);
 
         //setup recyclerview adapter here
-        mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, FavouriteMoviesFragment.this, R.menu.favourite_movie_list_item_popup_menu);
+//        mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, FavouriteMoviesFragment.this, R.menu.favourite_movie_list_item_popup_menu);
 
         initMovieList();
 
         return view;
     }
 
+    private void populateMovieList() {
+        displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
+        RecyclerView.LayoutManager layoutManager;
+        if(displayInGrid) {
+            //layout manager
+            int numRows = getNumRowsForMovieList();
+            layoutManager = new GridLayoutManager(mContext, numRows);
+        } else {
+            layoutManager = new LinearLayoutManager(mContext);
+        }
+        mRecyclerView.setLayoutManager(layoutManager);
+
+        //setup recycler view adapter here
+        mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this, R.menu.home_movie_list_item_popup_menu);
+        //check if the display type of list view and set layout appropriately
+        if(displayInGrid) {
+            mAdapter.setGridListViewLayout();
+        } else {
+            mAdapter.setListViewLayout();
+        }
+        mRecyclerView.setAdapter(mAdapter);
+    }
+
+    private void updateListDisplayTypeMenu(Menu menu) {
+        displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
+        //update list view display type icon based on user preference
+        if(displayInGrid) {
+            menu.findItem(R.id.action_grid_list_display_type).setVisible(true);
+            menu.findItem(R.id.action_list_display_type).setVisible(false);
+        } else {
+            menu.findItem(R.id.action_grid_list_display_type).setVisible(false);
+            menu.findItem(R.id.action_list_display_type).setVisible(true);
+        }
+
+        populateMovieList();
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        updateListDisplayTypeMenu(menu);
+
+        super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_action_movie, menu);
+
+        updateListDisplayTypeMenu(menu);
 
         MenuItem item;
         int sortOption = mPrefs.getInt(MOVIE_SORT_SETTINGS_KEY, 0);
@@ -202,16 +255,19 @@ public class FavouriteMoviesFragment extends Fragment
                 item.setChecked(true);
                 onOptionsItemSelected(item);
                 break;
+
             case MOVIE_NAME_SORT:
                 item = menu.findItem(R.id.action_sort_by_name);
                 item.setChecked(true);
                 onOptionsItemSelected(item);
                 break;
+
             case MOVIE_VOTE_SORT:
                 item = menu.findItem(R.id.action_sort_by_vote);
                 item.setChecked(true);
                 onOptionsItemSelected(item);
                 break;
+
             default:
                 break;
         }
@@ -240,6 +296,21 @@ public class FavouriteMoviesFragment extends Fragment
                 mAdapter.notifyDataSetChanged();
                 mEditor.putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_VOTE_SORT).apply();
                 break;
+
+            case R.id.action_grid_list_display_type:
+                mEditor.putBoolean(DISPLAY_LIST_IN_GRID_KEY, false).apply();
+                //refresh toolbar
+                getActivity().invalidateOptionsMenu();
+                break;
+
+            case R.id.action_list_display_type:
+                mEditor.putBoolean(DISPLAY_LIST_IN_GRID_KEY, true).apply();
+                //refresh toolbar
+                getActivity().invalidateOptionsMenu();
+                break;
+
+            default:
+                break;
         }
 
         return false;
@@ -249,12 +320,24 @@ public class FavouriteMoviesFragment extends Fragment
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        int numRows = getNumRowsForMovieList();
+        displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
 
-        GridLayoutManager gridLayoutManager = (GridLayoutManager) mRecyclerView.getLayoutManager();
-        gridLayoutManager.setSpanCount(numRows);
-        mRecyclerView.setLayoutManager(gridLayoutManager);
+        GridLayoutManager layoutManager;
+        if(displayInGrid) {
+            int numRows = getNumRowsForMovieList();
+            //update grid layout based on new screen size
+            layoutManager = (GridLayoutManager) mRecyclerView.getLayoutManager();
+            layoutManager.setSpanCount(numRows);
+            mRecyclerView.setLayoutManager(layoutManager);
+        }
         mAdapter.notifyDataSetChanged();
+
+//        int numRows = getNumRowsForMovieList();
+//
+//        GridLayoutManager gridLayoutManager = (GridLayoutManager) mRecyclerView.getLayoutManager();
+//        gridLayoutManager.setSpanCount(numRows);
+//        mRecyclerView.setLayoutManager(gridLayoutManager);
+//        mAdapter.notifyDataSetChanged();
     }
 
     private int getNumRowsForMovieList() {

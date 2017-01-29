@@ -30,10 +30,11 @@
                 android:checkableBehavior="single"
                 android:visible="false">
 
-                <item
-                    android:id="@+id/nav_profile"
-                    android:icon="@drawable/ic_nav_profile_white_24dp"
-                    android:title="@string/nav_account"/>
+                <!--Will be implemented soon-->
+                <!--<item-->
+                    <!--android:id="@+id/nav_profile"-->
+                    <!--android:icon="@drawable/ic_nav_profile_white_24dp"-->
+                    <!--android:title="@string/nav_account"/>-->
 
                 <item
                     android:id="@+id/nav_signout"
