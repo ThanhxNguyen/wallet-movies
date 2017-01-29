@@ -33,6 +33,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -58,7 +59,9 @@ import org.json.JSONObject;
 
 import java.util.List;
 
-import static com.nguyen.paul.thanh.walletmovie.App.*;
+import static com.nguyen.paul.thanh.walletmovie.App.FIRST_TIME_USER_PREF_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -456,10 +459,14 @@ public class MainActivity extends AppCompatActivity
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                //check if the user is currently signed in with Facebook
+                AccessToken accessToken = AccessToken.getCurrentAccessToken();
+                if(accessToken != null && !accessToken.isExpired()) {
+                    //signout Facebook
+                    LoginManager.getInstance().logOut();
+                }
                 //signout Firebase
                 mAuth.signOut();
-                //signout Facebook
-                LoginManager.getInstance().logOut();
                 Utils.createSnackBar(getResources(), findViewById(R.id.root_layout), "You have successfully signed out!").show();
             }
         });
