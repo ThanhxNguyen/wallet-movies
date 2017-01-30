@@ -78,6 +78,8 @@ public class MainActivity extends AppCompatActivity
     private FirebaseAuth.AuthStateListener mAuthListener;
     private NetworkRequest mNetworkRequest;
     private List<Genre> mGenreListFromApi;
+    //a flag to indicate the current selected drawer item
+    private String currentDrawerItemSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -227,11 +229,17 @@ public class MainActivity extends AppCompatActivity
                     mHeaderDisplayName.setText(R.string.guest);
                     mHeaderDisplayEmail.setText("");
 
-                    //user is signed out
-//                    onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
+                    //user is signed out, show/hide menus appropriately
                     mNavMenu.findItem(R.id.nav_favourites).setVisible(false);
                     mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, false);
                     mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(true);
+                    Log.d(TAG, "onAuthStateChanged: current flag: " + currentDrawerItemSelected);
+                    //redirect to home page if the user is not currently on home page
+                    if(currentDrawerItemSelected.equals(FavouriteMoviesFragment.FRAGMENT_TAG)) {
+                        //if the current page is FavouriteMoviesFragment, pop backstack because favourite movies
+                        //page is visible to authenticated users only
+                        onBackPressed();
+                    }
                 }
             }
         };
@@ -385,6 +393,7 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        Log.d(TAG, "onNavigationItemSelected: pre-current flag: " + currentDrawerItemSelected);
 
         FragmentManager fm = getSupportFragmentManager();
         String fragmentTag;
@@ -396,19 +405,21 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         switch (id) {
             case R.id.nav_home:
+                //set flag
+                currentDrawerItemSelected = HomeFragment.FRAGMENT_TAG;
                 fragmentTag = HomeFragment.FRAGMENT_TAG;
                 fragment = fm.findFragmentByTag(fragmentTag);
                 if(fragment == null) {
                     fragment = HomeFragment.newInstance();
                     fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
                 } else {
-                    if(!fragment.isAdded()) {
-                        fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
-                    }
+                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
+                Log.d(TAG, "onNavigationItemSelected: post-home-current flag: " + currentDrawerItemSelected);
                 return true;
 
             case R.id.nav_favourites:
+                currentDrawerItemSelected = FavouriteMoviesFragment.FRAGMENT_TAG;
                 fragmentTag = FavouriteMoviesFragment.FRAGMENT_TAG;
                 fragment = fm.findFragmentByTag(fragmentTag);
                 if(fragment == null) {
@@ -417,6 +428,7 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
+                Log.d(TAG, "onNavigationItemSelected: post-fav-current flag: " + currentDrawerItemSelected);
                 return true;
 
             case R.id.nav_clear_search_history:
@@ -424,6 +436,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
 
             case R.id.nav_about:
+                currentDrawerItemSelected = AboutUsFragment.FRAGMENT_TAG;
                 fragmentTag = AboutUsFragment.FRAGMENT_TAG;
                 fragment = fm.findFragmentByTag(fragmentTag);
                 if(fragment == null) {
@@ -446,6 +459,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
 
             default:
+                currentDrawerItemSelected = HomeFragment.FRAGMENT_TAG;
                 fragmentTag = HomeFragment.FRAGMENT_TAG;
                 fragment = fm.findFragmentByTag(fragmentTag);
                 if(fragment == null) {
