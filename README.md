@@ -21,8 +21,7 @@ Link to [Google Play](https://goo.gl/grTMe7). The app is currently under open be
 
 ### To-Do list
 - [x] signin with Google
-- [ ] signin with Facebook
-- [ ] signin with Twitter
+- [x] signin with Facebook
 - [ ] users communicate with each other
 - [ ] users can write review for a movie
 - [ ] users can invite their friend to watch a movie
