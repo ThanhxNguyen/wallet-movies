@@ -145,8 +145,8 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
                         if(task.isSuccessful()) {
                             //successfully signed in with Google account
                             mProgressDialog.dismiss();
-                            Intent intent = new Intent(SigninActivity.this, MainActivity.class);
-                            startActivity(intent);
+//                            Intent intent = new Intent(SigninActivity.this, MainActivity.class);
+//                            startActivity(intent);
                             finish();
                         } else {
                             //failed to signed in with Google account
@@ -220,8 +220,8 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
                         //successfully signed in with Google account
                         if(task.isSuccessful()) {
                             mProgressDialog.dismiss();
-                            Intent intent = new Intent(SigninActivity.this, MainActivity.class);
-                            startActivity(intent);
+//                            Intent intent = new Intent(SigninActivity.this, MainActivity.class);
+//                            startActivity(intent);
                             finish();
                         } else {
                             //failed to signed in with Google account

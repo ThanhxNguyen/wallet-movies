@@ -155,6 +155,8 @@ public class MainActivity extends AppCompatActivity
                     .addToBackStack(null)
                     .commit();
         }
+
+        onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
     }
 
     /**
@@ -216,6 +218,7 @@ public class MainActivity extends AppCompatActivity
                     }
                     
                     //show/hide navigation menu items appropriately
+                    mNavMenu.findItem(R.id.nav_favourites).setVisible(true);
                     mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, true);
                     mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(false);
 
@@ -225,7 +228,8 @@ public class MainActivity extends AppCompatActivity
                     mHeaderDisplayEmail.setText("");
 
                     //user is signed out
-                    onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
+//                    onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
+                    mNavMenu.findItem(R.id.nav_favourites).setVisible(false);
                     mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, false);
                     mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(true);
                 }
@@ -287,7 +291,9 @@ public class MainActivity extends AppCompatActivity
                     FragmentManager.BackStackEntry firstInBackstack = fm.getBackStackEntryAt(0);
                     fm.popBackStack(firstInBackstack.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 }
-                finish();
+//                finish();
+                //test
+                super.onBackPressed();
             } else if(currentPagerPosition > 0) {
                 //set the active pager manually
                 moviePager.setCurrentItem(currentPagerPosition - 1);
@@ -396,7 +402,9 @@ public class MainActivity extends AppCompatActivity
                     fragment = HomeFragment.newInstance();
                     fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
                 } else {
-                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                    if(!fragment.isAdded()) {
+                        fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                    }
                 }
                 return true;
 
@@ -545,6 +553,8 @@ public class MainActivity extends AppCompatActivity
                             .child("favourite_movies");
 
                     for(Movie m : movieList) {
+                        //since movie id is used as unique key for each movie object on Firebase,
+                        //there's no need to check for existing movie, it will overwrite if same movie id found
                         favouriteMoviesRef.child(String.valueOf(m.getId())).setValue(m);
                     }
 

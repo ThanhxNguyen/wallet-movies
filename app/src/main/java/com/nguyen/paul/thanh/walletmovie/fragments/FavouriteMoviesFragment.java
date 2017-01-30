@@ -4,7 +4,6 @@ package com.nguyen.paul.thanh.walletmovie.fragments;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
@@ -33,7 +32,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.nguyen.paul.thanh.walletmovie.R;
-import com.nguyen.paul.thanh.walletmovie.activities.SigninActivity;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
 import com.nguyen.paul.thanh.walletmovie.database.MoviesTableOperator;
 import com.nguyen.paul.thanh.walletmovie.database.interfaces.DatabaseOperator;
@@ -386,10 +384,11 @@ public class FavouriteMoviesFragment extends Fragment
                     .child("favourite_movies")
                         .addValueEventListener(mValueEventListener);
 
-        } else {
-            Intent intent = new Intent(mContext, SigninActivity.class);
-            getActivity().startActivity(intent);
         }
+//        else {
+//            Intent intent = new Intent(getActivity(), SigninActivity.class);
+//            getActivity().startActivity(intent);
+//        }
     }
 
     private void getFavouriteMoviesFromLocalDB() {
