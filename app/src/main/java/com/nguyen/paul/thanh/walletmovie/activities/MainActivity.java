@@ -233,7 +233,6 @@ public class MainActivity extends AppCompatActivity
                     mNavMenu.findItem(R.id.nav_favourites).setVisible(false);
                     mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, false);
                     mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(true);
-                    Log.d(TAG, "onAuthStateChanged: current flag: " + currentDrawerItemSelected);
                     //redirect to home page if the user is not currently on home page
                     if(currentDrawerItemSelected.equals(FavouriteMoviesFragment.FRAGMENT_TAG)) {
                         //if the current page is FavouriteMoviesFragment, pop backstack because favourite movies
@@ -393,7 +392,6 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        Log.d(TAG, "onNavigationItemSelected: pre-current flag: " + currentDrawerItemSelected);
 
         FragmentManager fm = getSupportFragmentManager();
         String fragmentTag;
@@ -415,7 +413,6 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
-                Log.d(TAG, "onNavigationItemSelected: post-home-current flag: " + currentDrawerItemSelected);
                 return true;
 
             case R.id.nav_favourites:
@@ -428,7 +425,6 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
-                Log.d(TAG, "onNavigationItemSelected: post-fav-current flag: " + currentDrawerItemSelected);
                 return true;
 
             case R.id.nav_clear_search_history:
