@@ -45,6 +45,7 @@ public class AboutUsFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.findItem(R.id.action_search).setVisible(false);
         super.onCreateOptionsMenu(menu, inflater);
     }
 }

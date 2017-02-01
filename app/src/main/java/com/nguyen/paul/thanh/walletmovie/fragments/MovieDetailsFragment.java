@@ -106,7 +106,7 @@ public class MovieDetailsFragment extends Fragment
         setHasOptionsMenu(true);
 
         //retain this fragment state during activity re-creation progress
-        setRetainInstance(true);
+//        setRetainInstance(true);
     }
 
     @Override
@@ -414,6 +414,7 @@ public class MovieDetailsFragment extends Fragment
                 .beginTransaction()
                 .replace(R.id.youtube_video_frame, youTubePlayerSupportFragment)
                 .commit();
+        getChildFragmentManager().executePendingTransactions();
 
         //hide progress dialog since mMovie details and mMovie trailer have been loaded
         //mProgressDialog.dismiss();

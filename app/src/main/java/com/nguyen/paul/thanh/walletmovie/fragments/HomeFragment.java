@@ -38,7 +38,7 @@ public class HomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //retain this fragment state during activity re-creation progress
-        setRetainInstance(true);
+//        setRetainInstance(true);
     }
 
     @Override

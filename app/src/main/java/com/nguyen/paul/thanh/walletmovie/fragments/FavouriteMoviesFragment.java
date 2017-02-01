@@ -159,7 +159,7 @@ public class FavouriteMoviesFragment extends Fragment
         //enable fragment to append menu items to toolbar
         setHasOptionsMenu(true);
         //retain this fragment state during activity re-creation progress
-        setRetainInstance(true);
+//        setRetainInstance(true);
     }
 
     @Override

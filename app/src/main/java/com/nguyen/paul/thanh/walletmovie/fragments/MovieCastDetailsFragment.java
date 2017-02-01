@@ -92,7 +92,7 @@ public class MovieCastDetailsFragment extends Fragment {
             mProgressDialog.show();
         }
         //retain this fragment state during activity re-creation progress
-        setRetainInstance(true);
+//        setRetainInstance(true);
 
     }
 

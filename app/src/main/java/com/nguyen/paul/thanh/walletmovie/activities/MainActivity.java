@@ -136,6 +136,7 @@ public class MainActivity extends AppCompatActivity
         //get navigation menu refs for show/hide menu items when authenticating users
         mNavMenu = mNavigationView.getMenu();
         mNavigationView.setNavigationItemSelectedListener(this);
+        onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
 
         prepareFireBaseAuthListener();
 
@@ -163,7 +164,6 @@ public class MainActivity extends AppCompatActivity
                     .commit();
         }
 
-        onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
     }
 
     /**
@@ -235,8 +235,8 @@ public class MainActivity extends AppCompatActivity
                     mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, false);
                     mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(true);
                     //redirect to home page if the user is not currently on home page
-                    if(currentDrawerItemSelected.equals(FavouriteMoviesFragment.FRAGMENT_TAG)
-                            || currentDrawerItemSelected.equals(AccountFragment.FRAGMENT_TAG)) {
+                    if(currentDrawerItemSelected != null && (currentDrawerItemSelected.equals(FavouriteMoviesFragment.FRAGMENT_TAG)
+                            || currentDrawerItemSelected.equals(AccountFragment.FRAGMENT_TAG)) ) {
                         //if the current page is favourites or profile page, pop backstack because these
                         //pages are visible to authenticated users only
                         onBackPressed();
@@ -268,7 +268,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         FragmentManager fm = getSupportFragmentManager();
-//        fm.executePendingTransactions();
+        fm.executePendingTransactions();
         //toggle navigation drawer open/close
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.root_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {

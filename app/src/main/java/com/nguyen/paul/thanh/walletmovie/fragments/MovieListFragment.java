@@ -154,7 +154,7 @@ public class MovieListFragment extends Fragment
         if(savedInstanceState == null) {
             mProgressDialog.show();
         }
-        setRetainInstance(true);
+//        setRetainInstance(true);
         //get genres value list from cache
         mGenreListFromApi = ( (App) getActivity().getApplicationContext()).getGenreListFromApi();
     }
