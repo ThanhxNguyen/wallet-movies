@@ -2,11 +2,13 @@ package com.nguyen.paul.thanh.walletmovie.activities;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -36,17 +38,21 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.fragments.ResetPasswordDialogFragment;
 import com.nguyen.paul.thanh.walletmovie.utilities.FormInputValidator;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 import static com.nguyen.paul.thanh.walletmovie.App.FIRST_TIME_USER_PREF_KEY;
 import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
 
-public class SigninActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
+public class SigninActivity extends AppCompatActivity
+        implements GoogleApiClient.OnConnectionFailedListener,
+        ResetPasswordDialogFragment.ResetPasswordAcquireListener {
 
     private static final String TAG = "SigninActivity";
 
     private static final int RC_SIGN_IN = 100;
+    public static final String RESET_PASSWORD_DIALOG_TAG = "reset_password_dialog_tag";
 
     private TextView mEmailTv;
     private TextView mPasswordTv;
@@ -61,6 +67,7 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
     private FormInputValidator mFormValidator;
     private ProgressDialog mProgressDialog;
     private GoogleApiClient mGoogleApiClient;
+    private Button mResetPasswordBtn;
 
     //Firebase auth
     private FirebaseAuth mAuth;
@@ -76,7 +83,7 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
 
         //initiate ProgressDialog
         mProgressDialog = new ProgressDialog(this, ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setMessage("Authenticating...");
+        mProgressDialog.setMessage("Loading...");
         mProgressDialog.setCancelable(false);
 
         mAuthErrorMessage = (TextView) findViewById(R.id.auth_error_message);
@@ -85,6 +92,7 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
         mPasswordTv = (TextView) findViewById(R.id.password);
         mSigninBtn = (Button) findViewById(R.id.signin_btn);
         mSignupBtn = (Button) findViewById(R.id.signup_btn);
+        mResetPasswordBtn = (Button) findViewById(R.id.reset_password_btn);
         mGoogleSigninButton = (SignInButton) findViewById(R.id.google_signin_btn);
         //change default text for google signin button
         TextView googleSigninBtnTv = (TextView) mGoogleSigninButton.getChildAt(0);
@@ -104,9 +112,22 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
         //set click listener for signin and signup buttons
         setClickListenerForSigninBtn();
         setClicklistenerforSignupBtn();
+        setClickListenerResetPasswordBtn();
 
         setUpSigninWithGoogle();
         setUpSigninWithFacebook();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mProgressDialog.dismiss();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mProgressDialog.dismiss();
     }
 
     private void setUpSigninWithFacebook() {
@@ -391,8 +412,81 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
         });
     }
 
+    private void setClickListenerResetPasswordBtn() {
+        mResetPasswordBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openResetPasswordDialog();
+            }
+        });
+
+    }
+
+    private void openResetPasswordDialog() {
+        ResetPasswordDialogFragment dialog = new ResetPasswordDialogFragment();
+        dialog.setResetPasswordAcquireListener(this);
+        dialog.setCancelable(false);
+        dialog.show(getSupportFragmentManager(), RESET_PASSWORD_DIALOG_TAG);
+    }
+
+    private void sendEmailResetPassword(final String email) {
+        mProgressDialog.show();
+        mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        mProgressDialog.dismiss();
+                        if(task.isSuccessful()) {
+                            createAlertDialog("A reset password link has been sent to " + email).show();
+                        } else {
+                            createAlertDialog("Error! Could not send a reset password email. Please try again later!").show();
+                        }
+                    }
+                });
+
+    }
+
+    private AlertDialog createAlertDialog(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Alert");
+        builder.setMessage(message);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+
+        return builder.create();
+    }
+
+
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         //called when google sign in fails
+    }
+
+    @Override
+    public void onResetPasswordAcquire(final String email) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Reset Password");
+        builder.setMessage("Are you sure you want to reset your password?");
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+                mProgressDialog.dismiss();
+            }
+        });
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                sendEmailResetPassword(email);
+            }
+        });
+
+        //create alert dialog
+        final AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 }

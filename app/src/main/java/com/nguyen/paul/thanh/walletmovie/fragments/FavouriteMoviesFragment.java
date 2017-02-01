@@ -199,7 +199,8 @@ public class FavouriteMoviesFragment extends Fragment
     public void onResume() {
         super.onResume();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser == null) {
+        isGuest = mPrefs.getBoolean(GUEST_MODE_PREF_KEY, true);
+        if(!isGuest && currentUser == null) {
             //remove from back stack to avoid users navigate back to this when not signed in
             getFragmentManager().popBackStack();
         }

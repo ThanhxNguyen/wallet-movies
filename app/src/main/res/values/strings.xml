@@ -111,5 +111,6 @@
     <string name="change_email_dialog_title">Change email</string>
     <string name="old_email_label">Old email</string>
     <string name="new_email_tv_hint">New email</string>
+    <string name="forgot_password_reset">Forgot password? Reset now</string>
 
 </resources>

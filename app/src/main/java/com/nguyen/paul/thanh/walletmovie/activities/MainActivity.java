@@ -66,7 +66,6 @@ import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static final String TAG = "MainActivity";
     private static final String NETWORK_REQUEST_TAG = "network_request_tag";
 
     private DrawerLayout mDrawerLayout;
@@ -81,6 +80,9 @@ public class MainActivity extends AppCompatActivity
     //a flag to indicate the current selected drawer item
     private String currentDrawerItemSelected;
 
+    private SharedPreferences mPrefs;
+    private SharedPreferences.Editor mEditor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +96,9 @@ public class MainActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mPrefs = getSharedPreferences(GLOBAL_PREF_KEY, MODE_PRIVATE);
+        mEditor = mPrefs.edit();
 
         mNetworkRequest = NetworkRequest.getInstance(this);
         mGenreListFromApi = ((App) getApplication()).getGenreListFromApi();
@@ -205,20 +210,18 @@ public class MainActivity extends AppCompatActivity
                     mHeaderDisplayEmail.setText(currentUser.getEmail());
 
                     //since user is signed in, disable guest mode if it's enabled
-                    SharedPreferences prefs = getSharedPreferences(GLOBAL_PREF_KEY, MODE_PRIVATE);
-                    SharedPreferences.Editor editor = prefs.edit();
-                    boolean isGuest = prefs.getBoolean(GUEST_MODE_PREF_KEY, true);
+                    boolean isGuest = mPrefs.getBoolean(GUEST_MODE_PREF_KEY, true);
 
                     if(isGuest) {
-                        editor.putBoolean(GUEST_MODE_PREF_KEY, false);
-                        editor.apply();
+                        mEditor.putBoolean(GUEST_MODE_PREF_KEY, false);
+                        mEditor.apply();
                         //transfer movies from local db to cloud and empty local db
                         TransferLocalMoviesToCloudTask task = new TransferLocalMoviesToCloudTask();
                         task.execute();
                     }
                     
                     //show/hide navigation menu items appropriately
-                    mNavMenu.findItem(R.id.nav_favourites).setVisible(true);
+//                    mNavMenu.findItem(R.id.nav_favourites).setVisible(true);
                     mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, true);
                     mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(false);
 
@@ -228,7 +231,7 @@ public class MainActivity extends AppCompatActivity
                     mHeaderDisplayEmail.setText("");
 
                     //user is signed out, show/hide menus appropriately
-                    mNavMenu.findItem(R.id.nav_favourites).setVisible(false);
+//                    mNavMenu.findItem(R.id.nav_favourites).setVisible(false);
                     mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, false);
                     mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(true);
                     //redirect to home page if the user is not currently on home page
@@ -415,16 +418,26 @@ public class MainActivity extends AppCompatActivity
                 return true;
 
             case R.id.nav_favourites:
-                fragmentTag = FavouriteMoviesFragment.FRAGMENT_TAG;
-                fragment = fm.findFragmentByTag(fragmentTag);
-                if(fragment == null) {
-                    fragment = FavouriteMoviesFragment.newInstance();
-                    fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
+                boolean isGuest = mPrefs.getBoolean(GUEST_MODE_PREF_KEY, true);
+                FirebaseUser user = mAuth.getCurrentUser();
+                if(isGuest || user != null) {
+                    //if user is in guest mode, go to favourite page normally
+                    fragmentTag = FavouriteMoviesFragment.FRAGMENT_TAG;
+                    fragment = fm.findFragmentByTag(fragmentTag);
+                    if(fragment == null) {
+                        fragment = FavouriteMoviesFragment.newInstance();
+                        fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
+                    } else {
+                        fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                    }
+                    currentDrawerItemSelected = FavouriteMoviesFragment.FRAGMENT_TAG;
+                    fm.executePendingTransactions();
+
                 } else {
-                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                    //redirect to sign in page if user not signed in yet
+                    Intent intent = new Intent(MainActivity.this, SigninActivity.class);
+                    startActivity(intent);
                 }
-                currentDrawerItemSelected = FavouriteMoviesFragment.FRAGMENT_TAG;
-                fm.executePendingTransactions();
                 return true;
 
             case R.id.nav_clear_search_history:

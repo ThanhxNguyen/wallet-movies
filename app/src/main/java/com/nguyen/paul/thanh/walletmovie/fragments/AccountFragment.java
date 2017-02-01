@@ -280,7 +280,8 @@ public class AccountFragment extends Fragment
         dialog.setEmailAcquireListener(this);
         //prevent user cancel dialog when click outside of dialog
         dialog.setCancelable(false);
-        dialog.show(getActivity().getSupportFragmentManager(), CHANGE_EMAIL_DIALOG_TAG);
+//        dialog.show(getActivity().getSupportFragmentManager(), CHANGE_EMAIL_DIALOG_TAG);
+        dialog.show(getFragmentManager(), CHANGE_EMAIL_DIALOG_TAG);
     }
 
     private void openChangePasswordDialog() {
@@ -288,7 +289,8 @@ public class AccountFragment extends Fragment
         dialog.setPasswordsAcquireListener(this);
         //prevent user cancel dialog when click outside of dialog
         dialog.setCancelable(false);
-        dialog.show(getActivity().getSupportFragmentManager(), CHANGE_PASSWORD_DIALOG_TAG);
+//        dialog.show(getActivity().getSupportFragmentManager(), CHANGE_PASSWORD_DIALOG_TAG);
+        dialog.show(getFragmentManager(), CHANGE_PASSWORD_DIALOG_TAG);
     }
 
     private void init() {
@@ -317,8 +319,8 @@ public class AccountFragment extends Fragment
 
     private void setEditProfileClickListener() {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setTitle("Reset Password");
-        builder.setMessage("Are you sure you want to reset your password?");
+        builder.setTitle("Update Display Name");
+        builder.setMessage("Are you sure you want to update your display name?");
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
