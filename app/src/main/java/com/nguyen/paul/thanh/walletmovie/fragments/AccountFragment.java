@@ -8,12 +8,15 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.EditText;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -23,6 +26,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -46,7 +50,7 @@ public class AccountFragment extends Fragment
     public static final String GOOGLE_AUTH_PROVIDER_NAME = "google.com";
 
     private CircleImageView mProfilePhoto;
-    private TextView mDisplayName;
+    private EditText mDisplayName;
     private Button mEditProfileBtn;
     private Button mChangePasswordBtn;
     private Button mChangeEmailBtn;
@@ -55,6 +59,7 @@ public class AccountFragment extends Fragment
     private Context mContext;
     private FirebaseAuth mAuth;
     private ProgressDialog mProgressDialog;
+    private String currentName;
 
     //flag to indicate if the user is signed in using email and password
     private boolean signedInWithEmail;
@@ -96,6 +101,8 @@ public class AccountFragment extends Fragment
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null) {
+            //set current name
+            currentName = currentUser.getDisplayName();
             for(UserInfo profile : currentUser.getProviderData()) {
 
                 String provider = profile.getProviderId();
@@ -107,6 +114,9 @@ public class AccountFragment extends Fragment
                     signedInWithEmail = false;
                 }
             }
+        } else {
+            //remove from back stack to avoid users navigate back to this when not signed in
+            getFragmentManager().popBackStack();
         }
 
     }
@@ -117,14 +127,17 @@ public class AccountFragment extends Fragment
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_account, container, false);
 
-        mDisplayName = (TextView) view.findViewById(R.id.display_name);
+        mDisplayName = (EditText) view.findViewById(R.id.display_name);
         mProfilePhoto = (CircleImageView) view.findViewById(R.id.profile_photo);
         mEditProfileBtn = (Button) view.findViewById(R.id.edit_profile_btn);
+        mEditProfileBtn.setAlpha(.4f);
         mChangePasswordBtn = (Button) view.findViewById(R.id.change_password_btn);
         mChangeEmailBtn = (Button) view.findViewById(R.id.change_email_btn);
         mResetPasswordBtn = (Button) view.findViewById(R.id.reset_password_btn);
 
         init();
+
+        setDisplayNameTextChange();
 
         setEditProfileClickListener();
         setChangePasswordBtnClickListener();
@@ -132,6 +145,31 @@ public class AccountFragment extends Fragment
         setResetPasswordBtnClickListener();
 
         return view;
+    }
+
+    private void setDisplayNameTextChange() {
+        mDisplayName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                //check if text is the same and not empty
+                if(!currentName.equals(charSequence.toString()) && !TextUtils.isEmpty(charSequence.toString())) {
+                    //text does change and different from default, enable edit profile button
+                    mEditProfileBtn.setAlpha(1);
+                    mEditProfileBtn.setClickable(true);
+                } else {
+                    //text values are not different from default values, disable edit profile button
+                    backToCleanState();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
     }
 
     private AlertDialog createAlertDialog(String message) {
@@ -149,12 +187,32 @@ public class AccountFragment extends Fragment
     }
 
     private void setResetPasswordBtnClickListener() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setTitle("Reset Password");
+        builder.setMessage("Are you sure you want to reset your password?");
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+                mProgressDialog.dismiss();
+            }
+        });
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                sendEmailResetPassword();
+            }
+        });
+
+        //create alert dialog
+        final AlertDialog alertDialog = builder.create();
+
         mResetPasswordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mProgressDialog.show();
                 if(signedInWithEmail) {
-                    resetPassword();
+                    alertDialog.show();
                 } else {
                     mProgressDialog.dismiss();
                     //show dialog message for now, will implement this action for Facebook, Google provider in the future
@@ -163,6 +221,7 @@ public class AccountFragment extends Fragment
                 }
             }
         });
+
     }
 
     private void setChangeEmailBtnClickListener() {
@@ -198,7 +257,7 @@ public class AccountFragment extends Fragment
         });
     }
 
-    private void resetPassword() {
+    private void sendEmailResetPassword() {
         final FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null) {
             mAuth.sendPasswordResetEmail(currentUser.getEmail())
@@ -247,43 +306,90 @@ public class AccountFragment extends Fragment
                     .error(R.drawable.ic_account_circle_white_24dp)
                     .into(mProfilePhoto);
 
-        } else {
-            //user is not signed in, redirect back
-            getActivity().onBackPressed();
         }
     }
 
+    private void backToCleanState() {
+        mEditProfileBtn.setAlpha(.4f);
+        mEditProfileBtn.setClickable(false);
+        mDisplayName.clearFocus();
+    }
+
     private void setEditProfileClickListener() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setTitle("Reset Password");
+        builder.setMessage("Are you sure you want to reset your password?");
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //user canceled, set display back to default
+                mDisplayName.setText(currentName);
+                backToCleanState();
+
+                dialogInterface.dismiss();
+                mProgressDialog.dismiss();
+            }
+        });
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mProgressDialog.show();
+                updateDisplayName();
+            }
+        });
+
+        //create alert dialog
+        final AlertDialog alertDialog = builder.create();
+
         mEditProfileBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                FirebaseUser currentUser = mAuth.getCurrentUser();
-
-                String newDisplayName = "Paul Nguyen";
-
-                //make sure user is currently signed in
-                if(currentUser != null) {
-                    UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder()
-                            .setDisplayName(newDisplayName)
-                            .build();
-
-                    //start updating user profile
-                    currentUser.updateProfile(profile)
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()) {
-                                        Log.d(TAG, "onComplete: successfully update display name");
-                                    } else {
-                                        Log.d(TAG, "onComplete: error : " + task.getException().toString());
-                                    }
-                                }
-                            });
-                }
-
+                //show dialog
+                alertDialog.show();
             }
         });
+    }
+
+    private void updateDisplayName() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        final String newDisplayName = mDisplayName.getText().toString().trim();
+
+
+        //make sure user is currently signed in
+        if(currentUser != null) {
+            UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder()
+                    .setDisplayName(newDisplayName)
+                    .build();
+
+            if(currentName.equals(newDisplayName)) {
+                mProgressDialog.dismiss();
+                //display name was not changed
+                createAlertDialog("Display name was not changed! Please change the display name to update.").show();
+            } else {
+                //start updating user profile
+                currentUser.updateProfile(profile)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if(task.isSuccessful()) {
+                                    Log.d(TAG, "onComplete: successfully update display name");
+                                    mProgressDialog.dismiss();
+                                    //update current name
+                                    currentName = newDisplayName;
+                                    //clear display name EditText focus
+                                    backToCleanState();
+                                    createAlertDialog("Successfully update display name!").show();
+                                } else {
+                                    Log.d(TAG, "onComplete: error : " + task.getException().toString());
+                                    mProgressDialog.dismiss();
+                                    createAlertDialog("Error! Could not update display name.");
+                                }
+                            }
+                        });
+
+            }
+        }
     }
 
     private void updatePassword(final String oldPass, final String newPass) {
@@ -342,10 +448,66 @@ public class AccountFragment extends Fragment
         }
     }
 
-    private void updateEmail(String newEmail, String password) {
+    private void updateEmail(final String newEmail, final String password) {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null) {
-            
+            currentUser.updateEmail(newEmail)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if(task.isSuccessful()) {
+                                    Log.d(TAG, "onComplete: update email successfully");
+                                    mProgressDialog.dismiss();
+                                    createAlertDialog("Successfully changed email!").show();
+                                } else {
+                                    try {
+                                        throw task.getException();
+                                    } catch (FirebaseAuthRecentLoginRequiredException e) {
+                                        Log.d(TAG, "onComplete: Exception: " + e.toString());
+                                        //re-authenticate user
+                                        reAuthenticateUserToUpdateEmail(newEmail, password);
+
+                                    } catch (FirebaseAuthUserCollisionException e) {
+                                        mProgressDialog.dismiss();
+                                        createAlertDialog("The email has already existed!").show();
+                                    } catch (Exception e) {
+                                        Log.d(TAG, "onComplete: Exception: " + e.toString());
+                                        mProgressDialog.dismiss();
+                                        createAlertDialog("Error! Could not update email. Please try another time!").show();
+                                    }
+                                }
+                            }
+                        });
+        }
+    }
+
+    //should refactor this method to avoid duplication
+    //clue: maybe using a flag to indicate
+    private void reAuthenticateUserToUpdateEmail(final String newEmail, final String password) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser != null) {
+            AuthCredential credentials = EmailAuthProvider.getCredential(currentUser.getEmail(), password);
+
+            //re-authenticate
+            currentUser.reauthenticate(credentials)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful()) {
+                                Log.d(TAG, "onComplete: reauth success update again");
+                                //invoke update password again
+                                updateEmail(newEmail, password);
+                            } else {
+//                                if(task.getException() instanceof FirebaseAuthUserCollisionException) {
+//                                    mProgressDialog.dismiss();
+//                                    createAlertDialog("The email has already existed!").show();
+//                                } else {
+//                                }
+                                mProgressDialog.dismiss();
+                                createAlertDialog("Failed to update email! The password is not correct?").show();
+                            }
+                        }
+                    });
         }
     }
 
@@ -357,6 +519,7 @@ public class AccountFragment extends Fragment
 
     @Override
     public void onEmailAcquire(String newEmail, String password) {
+        mProgressDialog.show();
         updateEmail(newEmail, password);
     }
 }

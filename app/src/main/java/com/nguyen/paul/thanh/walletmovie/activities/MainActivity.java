@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         FragmentManager fm = getSupportFragmentManager();
-
+//        fm.executePendingTransactions();
         //toggle navigation drawer open/close
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.root_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -296,10 +296,9 @@ public class MainActivity extends AppCompatActivity
             if(currentPagerPosition == 0) {
                 if(fm.getBackStackEntryCount() > 0) {
                     FragmentManager.BackStackEntry firstInBackstack = fm.getBackStackEntryAt(0);
-                    fm.popBackStack(firstInBackstack.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    fm.popBackStackImmediate(firstInBackstack.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 }
-//                finish();
-                //test
+
                 super.onBackPressed();
             } else if(currentPagerPosition > 0) {
                 //set the active pager manually
@@ -415,6 +414,7 @@ public class MainActivity extends AppCompatActivity
                     fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
                 currentDrawerItemSelected = HomeFragment.FRAGMENT_TAG;
+                fm.executePendingTransactions();
                 return true;
 
             case R.id.nav_favourites:
@@ -427,6 +427,7 @@ public class MainActivity extends AppCompatActivity
                     fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
                 currentDrawerItemSelected = FavouriteMoviesFragment.FRAGMENT_TAG;
+                fm.executePendingTransactions();
                 return true;
 
             case R.id.nav_clear_search_history:
@@ -443,6 +444,7 @@ public class MainActivity extends AppCompatActivity
                     fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
                 currentDrawerItemSelected = AboutUsFragment.FRAGMENT_TAG;
+                fm.executePendingTransactions();
                 return true;
 
             case R.id.nav_account:
@@ -455,6 +457,7 @@ public class MainActivity extends AppCompatActivity
                     fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
                 currentDrawerItemSelected = AccountFragment.FRAGMENT_TAG;
+                fm.executePendingTransactions();
                 return true;
 
             case R.id.nav_signin:
@@ -464,6 +467,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
 
             case R.id.nav_signout:
+                fm.executePendingTransactions();
                 //sign out user
                 signoutUser();
                 return true;
@@ -486,7 +490,7 @@ public class MainActivity extends AppCompatActivity
 
     private void signoutUser() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Clear History");
+        builder.setTitle("Signout Confirmation");
         builder.setMessage("Are you sure you want to sign out?");
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
@@ -590,5 +594,6 @@ public class MainActivity extends AppCompatActivity
 
         }
     }
+
 
 }

@@ -195,6 +195,16 @@ public class FavouriteMoviesFragment extends Fragment
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser == null) {
+            //remove from back stack to avoid users navigate back to this when not signed in
+            getFragmentManager().popBackStack();
+        }
+    }
+
     private void populateMovieList() {
         displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
         RecyclerView.LayoutManager layoutManager;
