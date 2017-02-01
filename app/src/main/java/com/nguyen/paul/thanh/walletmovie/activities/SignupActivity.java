@@ -213,7 +213,7 @@ public class SignupActivity extends AppCompatActivity {
                                         }
 
                                         //update profile info
-                                        setUserDisplayNameAfterSignup(firstName, lastName);
+                                        setUserDisplayNameAfterSignup(firstName, lastName, email, password);
                                     } else {
                                         try {
                                             mProgressDialog.dismiss();
@@ -342,7 +342,7 @@ public class SignupActivity extends AppCompatActivity {
         }
     }
 
-    private void setUserDisplayNameAfterSignup(String firstName, String lastName) {
+    private void setUserDisplayNameAfterSignup(String firstName, String lastName, final String email, final String password) {
         FirebaseUser user = mAuth.getCurrentUser();
 
         //convert the first letter to uppercase
@@ -361,10 +361,41 @@ public class SignupActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if(task.isSuccessful()) {
-                                mProgressDialog.dismiss();
-                                Utils.createSnackBar(getResources(), findViewById(R.id.signup_form_activity), "Sign up Successfully").show();
-                                Intent intent = new Intent(SignupActivity.this, MainActivity.class);
-                                startActivity(intent);
+
+                                //Firebase currently has a bug that it doesn't show display name when the user signed up for
+                                //the first time. A workaround is sign in the user manually after registration.
+                                mAuth.signInWithEmailAndPassword(email, password)
+                                        .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                                if(task.isSuccessful()) {
+
+                                                    //since user signed in, disable guest mode
+                                                    SharedPreferences prefs = getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
+                                                    SharedPreferences.Editor editor = prefs.edit();
+
+                                                    boolean isFirstTimeUser = prefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
+
+                                                    if(isFirstTimeUser) {
+                                                        editor.putBoolean(FIRST_TIME_USER_PREF_KEY, false);
+                                                        editor.apply();
+                                                    }
+
+                                                    //dimiss the progress dialog
+                                                    mProgressDialog.dismiss();
+                                                    Utils.createSnackBar(getResources(), findViewById(R.id.signup_form_activity), "Sign up Successfully").show();
+                                                    //redirect
+                                                    Intent intent = new Intent(SignupActivity.this, MainActivity.class);
+                                                    startActivity(intent);
+
+                                                } else {
+                                                    //dismiss progress dialog and display errors
+                                                    mProgressDialog.dismiss();
+                                                    createAlertDialogForRegistrationFail("Error! Something went wrong.");
+                                                }
+                                            }
+                                        });
+
                             }    
                         }
                     });
