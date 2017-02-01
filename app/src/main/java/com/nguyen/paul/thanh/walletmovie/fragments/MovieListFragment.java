@@ -134,6 +134,7 @@ public class MovieListFragment extends Fragment
         //initiate ProgressDialog
         mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setMessage("Loading movies...");
+        mProgressDialog.setCancelable(false);
 
         //initialize movie search chain
         mMoviesMultiSearch = new MoviesMultiSearch(getActivity(), this, mNetworkRequest, NETWORK_REQUEST_TAG);

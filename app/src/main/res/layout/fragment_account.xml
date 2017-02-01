@@ -1,7 +1,9 @@
 <android.support.v4.widget.NestedScrollView
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="500dp"
+    android:background="@color/colorBackgroundDark"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <android.support.constraint.ConstraintLayout
@@ -11,14 +13,183 @@
                                                  android:layout_height="match_parent"
                                                  tools:context="com.nguyen.paul.thanh.walletmovie.fragments.AccountFragment">
 
-        <android.support.v7.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            tools:layout_editor_absoluteY="81dp"
-            tools:layout_editor_absoluteX="0dp">
 
+        <android.support.v7.widget.CardView
+            android:id="@+id/card_profile"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:cardBackgroundColor="@color/colorCardDark">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_weight="1">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/profile_photo"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:layout_gravity="center"
+                        app:civ_border_color="#FFFFFF"
+                        app:civ_border_width="2dp"
+                        android:layout_weight="2"
+                        android:scaleType="centerCrop"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="16dp"/>
+                    <TextView
+                        android:id="@+id/display_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Display Name"
+                        android:layout_marginBottom="16dp"
+                        android:textAllCaps="false"
+                        android:textStyle="normal|bold"
+                        android:textAlignment="center"
+                        android:fontFamily="sans-serif-condensed"
+                        android:textColor="@color/colorPrimaryText"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/edit_profile"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
+                        android:id="@+id/edit_profile_btn"
+                        android:textColor="@color/colorPrimaryText"
+                        android:textAlignment="center"
+                        android:bottomRightRadius="@dimen/btn_radius"
+                        android:bottomLeftRadius="@dimen/btn_radius"
+                        android:topLeftRadius="@dimen/btn_radius"
+                        android:topRightRadius="@dimen/btn_radius"
+                        android:elevation="@dimen/cardview_elevation"
+                        android:backgroundTint="@color/colorAccent"/>
+                </LinearLayout>
+
+            </LinearLayout>
 
         </android.support.v7.widget.CardView>
+
+        <!--Horizontal line-->
+        <ImageView
+            android:id="@+id/horizontal_line_1"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            app:layout_constraintTop_toBottomOf="@+id/card_profile"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginTop="24dp"
+            android:background="@color/colorPrimaryText"/>
+
+        <Button
+            android:id="@+id/change_password_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/change_password"
+            app:layout_constraintTop_toBottomOf="@+id/horizontal_line_1"
+            app:layout_constraintLeft_toLeftOf="@+id/card_profile"
+            app:layout_constraintRight_toRightOf="@+id/card_profile"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:textColor="@color/colorPrimaryText"
+            android:textStyle="normal|bold|italic"
+            android:textAllCaps="false"
+            android:textAlignment="textStart"
+            android:gravity="start"
+            android:fontFamily="sans-serif-condensed"
+            android:textSize="16sp"
+            android:layout_marginTop="8dp"/>
+
+        <!--Horizontal line-->
+        <ImageView
+            android:id="@+id/horizontal_line_2"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            app:layout_constraintTop_toBottomOf="@+id/change_password_btn"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginTop="8dp"
+            android:background="@color/colorPrimaryText"/>
+
+        <Button
+            android:id="@+id/change_email_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/change_email_address"
+            app:layout_constraintTop_toBottomOf="@+id/horizontal_line_2"
+            app:layout_constraintLeft_toLeftOf="@+id/change_password_btn"
+            app:layout_constraintRight_toRightOf="@+id/change_password_btn"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/colorPrimaryText"
+            android:fontFamily="sans-serif-condensed"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:textStyle="normal|bold|italic"
+            android:textAllCaps="false"
+            android:textAlignment="textStart"
+            android:gravity="start"
+            android:textSize="16sp"/>
+
+        <!--Horizontal line-->
+        <ImageView
+            android:id="@+id/horizontal_line_3"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            app:layout_constraintTop_toBottomOf="@+id/change_email_btn"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginTop="8dp"
+            android:background="@color/colorPrimaryText"/>
+
+        <Button
+            android:id="@+id/reset_password_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/reset_password_text"
+            app:layout_constraintTop_toBottomOf="@+id/horizontal_line_3"
+            app:layout_constraintLeft_toLeftOf="@+id/change_email_btn"
+            app:layout_constraintRight_toRightOf="@+id/change_email_btn"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/colorPrimaryText"
+            android:fontFamily="sans-serif-condensed"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:textStyle="normal|bold|italic"
+            android:textAllCaps="false"
+            android:textAlignment="textStart"
+            android:gravity="start"
+            android:textSize="16sp"/>
+
+        <!--Horizontal line-->
+        <ImageView
+            android:id="@+id/horizontal_line_4"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            app:layout_constraintTop_toBottomOf="@+id/reset_password_btn"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginTop="8dp"
+            android:background="@color/colorPrimaryText"/>
+
 
     </android.support.constraint.ConstraintLayout>
 

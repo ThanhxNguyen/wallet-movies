@@ -22,7 +22,6 @@
             <ImageView
                 android:id="@+id/movie_poster"
                 android:scaleType="fitXY"
-                app:srcCompat="@android:drawable/ic_menu_report_image"
                 android:layout_width="80dp"
                 android:layout_height="0dp"
                 app:layout_constraintTop_toTopOf="parent"

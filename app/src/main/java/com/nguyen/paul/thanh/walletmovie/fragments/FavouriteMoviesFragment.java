@@ -115,6 +115,7 @@ public class FavouriteMoviesFragment extends Fragment
         //initiate ProgressDialog
         mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setMessage("Loading favourite movies");
+        mProgressDialog.setCancelable(false);
 
         //initialize shared preference
         mPrefs = mContext.getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
@@ -134,12 +135,12 @@ public class FavouriteMoviesFragment extends Fragment
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mMoviesList = parseMovieResultsFromFirebase(dataSnapshot);
                 //setup recyclerview adapter here
-                mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, FavouriteMoviesFragment.this, R.menu.favourite_movie_list_item_popup_menu);
+//                mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, FavouriteMoviesFragment.this, R.menu.favourite_movie_list_item_popup_menu);
+//                mRecyclerView.setAdapter(mAdapter);
+                populateMovieList();
 
                 //hide progress dialog when complete getting movies
                 mProgressDialog.dismiss();
-
-                mRecyclerView.setAdapter(mAdapter);
 
             }
 
@@ -529,13 +530,12 @@ public class FavouriteMoviesFragment extends Fragment
             
             mMoviesList = movieList;
             //update adapter to refresh the list
-            mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, FavouriteMoviesFragment.this, R.menu.favourite_movie_list_item_popup_menu);
-            mAdapter.notifyDataSetChanged();
-
+//            mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, FavouriteMoviesFragment.this, R.menu.favourite_movie_list_item_popup_menu);
+//            mAdapter.notifyDataSetChanged();
+//            mRecyclerView.setAdapter(mAdapter);
+            populateMovieList();
             //hide ProgressDialog
             mProgressDialog.dismiss();
-
-            mRecyclerView.setAdapter(mAdapter);
 
         }
     }

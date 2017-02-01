@@ -77,6 +77,7 @@ public class SigninActivity extends AppCompatActivity implements GoogleApiClient
         //initiate ProgressDialog
         mProgressDialog = new ProgressDialog(this, ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setMessage("Authenticating...");
+        mProgressDialog.setCancelable(false);
 
         mAuthErrorMessage = (TextView) findViewById(R.id.auth_error_message);
 

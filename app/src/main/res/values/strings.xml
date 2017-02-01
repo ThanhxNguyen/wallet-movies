@@ -83,7 +83,8 @@
     <string name="signin_with_google">Sign in With Google</string>
     <string name="facebook_app_id">140391126468632</string>
     <string name="overview_text">Overview</string>
-    <string name="sign_up_btn">Sign up</string>
+    <string name="signup_btn">Sign up</string>
+    <string name="signin_btn">Sign in</string>
     <string name="account_text">Account Information</string>
     <string name="cast_biography">Biography</string>
     <string name="no_movies_found">No movies found!</string>
@@ -97,5 +98,18 @@
     <string name="guest">Guest</string>
     <string name="display_in_list">Display in list</string>
     <string name="display_in_grid">Display in grid</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="change_password">Change password</string>
+    <string name="change_email_address">Change email address</string>
+    <string name="reenter_password_dialog_text">For security reasons, you must re-enter your password to execute this sensitive action!</string>
+    <string name="alert">Attention</string>
+    <string name="proceed_btn">Proceed</string>
+    <string name="change_password_dialog_title">Update password</string>
+    <string name="old_password_hint">Old password</string>
+    <string name="new_password_hint">New password</string>
+    <string name="reset_password_text">Reset password</string>
+    <string name="change_email_dialog_title">Change email</string>
+    <string name="old_email_label">Old email</string>
+    <string name="new_email_tv_hint">New email</string>
 
 </resources>

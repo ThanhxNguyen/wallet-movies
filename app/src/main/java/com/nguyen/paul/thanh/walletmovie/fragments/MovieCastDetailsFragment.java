@@ -68,6 +68,7 @@ public class MovieCastDetailsFragment extends Fragment {
 
         mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setMessage("Loading data...");
+        mProgressDialog.setCancelable(false);
     }
 
     @Override

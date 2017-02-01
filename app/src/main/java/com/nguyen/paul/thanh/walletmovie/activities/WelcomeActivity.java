@@ -18,6 +18,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
     private Button mSignupBtn;
     private Button mSigninAsGuestBtn;
+    private Button mSigninBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,21 +27,31 @@ public class WelcomeActivity extends AppCompatActivity {
 
         mSignupBtn = (Button) findViewById(R.id.signup_btn);
         mSigninAsGuestBtn = (Button) findViewById(R.id.signin_as_guest_btn);
+        mSigninBtn = (Button) findViewById(R.id.signin_btn);
 
-        setClickListenerForSigninBtn();
+        setClickListenerForSignupBtn();
         setClickListenerForSigninAsGuestBtn();
+        setClickListenerForSigninBtn();
     }
 
     private void setClickListenerForSigninBtn() {
+        mSigninBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //redirect to sign in page
+                Intent intent = new Intent(WelcomeActivity.this, SigninActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
+    private void setClickListenerForSignupBtn() {
         mSignupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //redirect to sign in page
                 Intent intent = new Intent(WelcomeActivity.this, SignupActivity.class);
                 startActivity(intent);
-                //remove this activity from back stack because user shouldn't be able to
-                //access this page again after the first time by clicking back button
-                finish();
             }
         });
     }

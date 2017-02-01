@@ -44,6 +44,7 @@ import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.database.MovieSearchSuggestionProvider;
 import com.nguyen.paul.thanh.walletmovie.database.MoviesTableOperator;
 import com.nguyen.paul.thanh.walletmovie.fragments.AboutUsFragment;
+import com.nguyen.paul.thanh.walletmovie.fragments.AccountFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.FavouriteMoviesFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.HomeFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.MovieListFragment;
@@ -204,8 +205,6 @@ public class MainActivity extends AppCompatActivity
                     mHeaderDisplayName.setText(currentUser.getDisplayName());
                     mHeaderDisplayEmail.setText(currentUser.getEmail());
 
-                    mNavigationView.getMenu().getItem(0).setChecked(true);
-                    onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
                     //since user is signed in, disable guest mode if it's enabled
                     SharedPreferences prefs = getSharedPreferences(GLOBAL_PREF_KEY, MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
@@ -234,9 +233,10 @@ public class MainActivity extends AppCompatActivity
                     mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, false);
                     mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(true);
                     //redirect to home page if the user is not currently on home page
-                    if(currentDrawerItemSelected.equals(FavouriteMoviesFragment.FRAGMENT_TAG)) {
-                        //if the current page is FavouriteMoviesFragment, pop backstack because favourite movies
-                        //page is visible to authenticated users only
+                    if(currentDrawerItemSelected.equals(FavouriteMoviesFragment.FRAGMENT_TAG)
+                            || currentDrawerItemSelected.equals(AccountFragment.FRAGMENT_TAG)) {
+                        //if the current page is favourites or profile page, pop backstack because these
+                        //pages are visible to authenticated users only
                         onBackPressed();
                     }
                 }
@@ -392,6 +392,7 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        Log.e(TAG, "onNavigationItemSelected: called");
 
         FragmentManager fm = getSupportFragmentManager();
         String fragmentTag;
@@ -403,8 +404,8 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         switch (id) {
             case R.id.nav_home:
+                Log.e(TAG, "onNavigationItemSelected: Home");
                 //set flag
-                currentDrawerItemSelected = HomeFragment.FRAGMENT_TAG;
                 fragmentTag = HomeFragment.FRAGMENT_TAG;
                 fragment = fm.findFragmentByTag(fragmentTag);
                 if(fragment == null) {
@@ -413,10 +414,10 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
+                currentDrawerItemSelected = HomeFragment.FRAGMENT_TAG;
                 return true;
 
             case R.id.nav_favourites:
-                currentDrawerItemSelected = FavouriteMoviesFragment.FRAGMENT_TAG;
                 fragmentTag = FavouriteMoviesFragment.FRAGMENT_TAG;
                 fragment = fm.findFragmentByTag(fragmentTag);
                 if(fragment == null) {
@@ -425,6 +426,7 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
+                currentDrawerItemSelected = FavouriteMoviesFragment.FRAGMENT_TAG;
                 return true;
 
             case R.id.nav_clear_search_history:
@@ -432,7 +434,6 @@ public class MainActivity extends AppCompatActivity
                 return true;
 
             case R.id.nav_about:
-                currentDrawerItemSelected = AboutUsFragment.FRAGMENT_TAG;
                 fragmentTag = AboutUsFragment.FRAGMENT_TAG;
                 fragment = fm.findFragmentByTag(fragmentTag);
                 if(fragment == null) {
@@ -441,6 +442,19 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }
+                currentDrawerItemSelected = AboutUsFragment.FRAGMENT_TAG;
+                return true;
+
+            case R.id.nav_account:
+                fragmentTag = AccountFragment.FRAGMENT_TAG;
+                fragment = fm.findFragmentByTag(fragmentTag);
+                if(fragment == null) {
+                    fragment = AccountFragment.newInstance();
+                    fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
+                } else {
+                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                }
+                currentDrawerItemSelected = AccountFragment.FRAGMENT_TAG;
                 return true;
 
             case R.id.nav_signin:
@@ -455,15 +469,15 @@ public class MainActivity extends AppCompatActivity
                 return true;
 
             default:
-                currentDrawerItemSelected = HomeFragment.FRAGMENT_TAG;
-                fragmentTag = HomeFragment.FRAGMENT_TAG;
-                fragment = fm.findFragmentByTag(fragmentTag);
-                if(fragment == null) {
-                    fragment = HomeFragment.newInstance();
-                    fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
-                } else {
-                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
-                }
+//                currentDrawerItemSelected = HomeFragment.FRAGMENT_TAG;
+//                fragmentTag = HomeFragment.FRAGMENT_TAG;
+//                fragment = fm.findFragmentByTag(fragmentTag);
+//                if(fragment == null) {
+//                    fragment = HomeFragment.newInstance();
+//                    fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
+//                } else {
+//                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
+//                }
                 return true;
 
         }

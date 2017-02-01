@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.nguyen.paul.thanh.walletmovie.R;
@@ -81,6 +82,26 @@ public class SignupActivity extends AppCompatActivity {
         setTextChangeListenerForLastNameTv();
         setTextChangeListenerForEmailTv();
         setTextChangeListenerForPasswordTv();
+        setTextChangeListenerForConfirmPasswordTv();
+    }
+
+    private void setTextChangeListenerForConfirmPasswordTv() {
+        mConfirmPasswordTv.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                mConfirmPasswordWrapper.setError(null);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
     }
 
     private void setTextChangeListenerForFirstNameTv() {
@@ -151,6 +172,7 @@ public class SignupActivity extends AppCompatActivity {
         mProgressDialog = new ProgressDialog(SignupActivity.this, ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setTitle("User Registration");
         mProgressDialog.setMessage("Registering user...");
+        mProgressDialog.setCancelable(false);
 
 
         mSignupBtn.setOnClickListener(new View.OnClickListener() {
@@ -167,7 +189,7 @@ public class SignupActivity extends AppCompatActivity {
                 boolean validLastName = validateLastNameInput(lastName);
                 boolean validEmail = validateEmailInput(email);
                 boolean validPassword = validatePasswordInput(password);
-                boolean passwordMatch = ConfirmPassword(password, confirmPassword);
+                boolean passwordMatch = confirmPassword(password, confirmPassword);
 
                 if(validFirstName && validLastName && validEmail && validPassword && passwordMatch) {
                     //show progress dialog
@@ -193,8 +215,15 @@ public class SignupActivity extends AppCompatActivity {
                                         //update profile info
                                         setUserDisplayNameAfterSignup(firstName, lastName);
                                     } else {
-                                        //errors occur while registering new user
-                                        AlertDialog alertDialog = createAlertDialogForRegistrationFail();
+                                        AlertDialog alertDialog;
+                                        if(task.getException() instanceof FirebaseAuthUserCollisionException) {
+                                            //email is already existed
+                                            alertDialog = createAlertDialogForRegistrationFail("Email has already been registered!");
+                                        } else {
+                                            //errors occur while registering new user
+                                            alertDialog = createAlertDialogForRegistrationFail(getString(R.string.dialog_message_registration_fail));
+                                        }
+                                        mProgressDialog.dismiss();
                                         //show alertDialog
                                         alertDialog.show();
                                     }
@@ -207,11 +236,11 @@ public class SignupActivity extends AppCompatActivity {
         });
     }
 
-    private AlertDialog createAlertDialogForRegistrationFail() {
+    private AlertDialog createAlertDialogForRegistrationFail(String message) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SignupActivity.this);
 
         dialogBuilder.setTitle(R.string.dialog_title_registration_fail)
-                .setMessage(R.string.dialog_message_registration_fail);
+                .setMessage(message);
 
         dialogBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
@@ -274,7 +303,7 @@ public class SignupActivity extends AppCompatActivity {
         }
     }
 
-    private boolean ConfirmPassword(String password, String confirmPassword) {
+    private boolean confirmPassword(String password, String confirmPassword) {
         if(mFormValidator.isEmpty(confirmPassword)) {
             mConfirmPasswordWrapper.setError(getString(R.string.error_field_required));
             return false;
