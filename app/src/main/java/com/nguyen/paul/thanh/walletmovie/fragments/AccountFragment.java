@@ -105,6 +105,8 @@ public class AccountFragment extends Fragment
     public void onResume() {
         super.onResume();
 
+        setDisplayNameTextChange();
+
         signedInWithEmail = true;
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -145,8 +147,6 @@ public class AccountFragment extends Fragment
 
         init();
 
-        setDisplayNameTextChange();
-
         setEditProfileClickListener();
         setChangePasswordBtnClickListener();
         setChangeEmailBtnClickListener();
@@ -169,6 +169,7 @@ public class AccountFragment extends Fragment
                     //text does change and different from default, enable edit profile button
                     mEditProfileBtn.setAlpha(1);
                     mEditProfileBtn.setClickable(true);
+                    mEditProfileBtn.setEnabled(true);
                 } else {
                     //text values are not different from default values, disable edit profile button
                     backToCleanState();
@@ -224,7 +225,7 @@ public class AccountFragment extends Fragment
                 } else {
                     mProgressDialog.dismiss();
                     //show dialog message for now, will implement this action for Facebook, Google provider in the future
-                    String message = "The app is currently not able to change email or password from third party provider. Please contact " + providerName + " to perform this action!";
+                    String message = "The app is currently not supported in changing email or password from third party provider. Please contact " + providerName + " to perform this action!";
                     createAlertDialog(message).show();
                 }
             }
@@ -240,7 +241,7 @@ public class AccountFragment extends Fragment
                     openChangeEmailDialog();
                 } else {
                     //show dialog message for now, will implement this action for Facebook, Google provider in the future
-                    String message = "The app is currently not able to change email or password from third party provider. Please contact " + providerName + " to perform this action!";
+                    String message = "The app is currently not supported in changing email or password from third party provider. Please contact " + providerName + " to perform this action!";
                     createAlertDialog(message).show();
                 }
 
@@ -257,7 +258,7 @@ public class AccountFragment extends Fragment
                     openChangePasswordDialog();
                 } else {
                     //show dialog message for now, will implement this action for Facebook, Google provider in the future
-                    String message = "The app is currently not able to change email or password from third party provider. Please contact " + providerName + " to perform this action!";
+                    String message = "The app is currently not supported in changing email or password from third party provider. Please contact " + providerName + " to perform this action!";
                     createAlertDialog(message).show();
                 }
 

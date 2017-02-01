@@ -84,6 +84,7 @@
                         android:topRightRadius="@dimen/btn_radius"
                         android:elevation="@dimen/cardview_elevation"
                         android:clickable="false"
+                        android:enabled="false"
                         android:backgroundTint="@color/colorAccent"/>
                 </LinearLayout>
 

@@ -219,7 +219,7 @@ public class FavouriteMoviesFragment extends Fragment
         mRecyclerView.setLayoutManager(layoutManager);
 
         //setup recycler view adapter here
-        mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this, R.menu.home_movie_list_item_popup_menu);
+        mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this, R.menu.favourite_movie_list_item_popup_menu);
         //check if the display type of list view and set layout appropriately
         if(displayInGrid) {
             mAdapter.setGridListViewLayout();

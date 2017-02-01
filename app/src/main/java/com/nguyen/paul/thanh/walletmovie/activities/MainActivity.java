@@ -411,7 +411,7 @@ public class MainActivity extends AppCompatActivity
                     fragment = HomeFragment.newInstance();
                     fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
                 } else {
-                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                    fm.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
                 }
                 currentDrawerItemSelected = HomeFragment.FRAGMENT_TAG;
                 fm.executePendingTransactions();
@@ -428,7 +428,7 @@ public class MainActivity extends AppCompatActivity
                         fragment = FavouriteMoviesFragment.newInstance();
                         fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
                     } else {
-                        fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                        fm.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
                     }
                     currentDrawerItemSelected = FavouriteMoviesFragment.FRAGMENT_TAG;
                     fm.executePendingTransactions();
@@ -451,7 +451,7 @@ public class MainActivity extends AppCompatActivity
                     fragment = AboutUsFragment.newInstance();
                     fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
                 } else {
-                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                    fm.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
                 }
                 currentDrawerItemSelected = AboutUsFragment.FRAGMENT_TAG;
                 fm.executePendingTransactions();
@@ -464,7 +464,7 @@ public class MainActivity extends AppCompatActivity
                     fragment = AccountFragment.newInstance();
                     fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
                 } else {
-                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                    fm.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
                 }
                 currentDrawerItemSelected = AccountFragment.FRAGMENT_TAG;
                 fm.executePendingTransactions();
