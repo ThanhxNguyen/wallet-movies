@@ -58,8 +58,6 @@ public class MovieDetailsFragment extends Fragment
 
     private static final String TAG = "MovieDetailsFragment";
 
-    public static final String FRAGMENT_TAG = MovieDetailsFragment.class.getSimpleName();
-
     private static final String YOUTUBE_API_KEY = "AIzaSyASofF0E6Lmss9m-u1e75MXPxZTcToeF9c";
 
     private static final String MOVIE_PARCELABLE_KEY = "movie_parcelable_key";
@@ -371,7 +369,7 @@ public class MovieDetailsFragment extends Fragment
                                 //get the first trailer videos for this mMovie (normally the official one)
                                 JSONObject trailerObj = trailerList.getJSONObject(0);
                                 trailerVideoKey = trailerObj.getString("key");
-                                loadVideo(trailerVideoKey);
+                                initializeYoutubePlayer();
 
                             } else {
                                 //no trailer available, display mMovie poster instead
@@ -405,7 +403,7 @@ public class MovieDetailsFragment extends Fragment
 
     }
 
-    private void loadVideo(String videoKey) {
+    private void initializeYoutubePlayer() {
         //load youtube trailer video
         YouTubePlayerSupportFragment youTubePlayerSupportFragment = YouTubePlayerSupportFragment.newInstance();
         //initialize youtube player

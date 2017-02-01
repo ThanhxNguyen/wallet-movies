@@ -148,7 +148,8 @@ public class ChangePasswordDialogFragment extends DialogFragment {
     }
 
     private TextWatcher createTextWatcherForPasswordFields(final TextInputLayout passwordWrapper) {
-        TextWatcher textWatcher = new TextWatcher() {
+
+        return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
@@ -160,8 +161,6 @@ public class ChangePasswordDialogFragment extends DialogFragment {
             @Override
             public void afterTextChanged(Editable editable) {}
         };
-
-        return textWatcher;
     }
 
     private boolean confirmPassword(String password, String confirmPassword) {

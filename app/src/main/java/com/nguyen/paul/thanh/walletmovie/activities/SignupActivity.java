@@ -215,17 +215,15 @@ public class SignupActivity extends AppCompatActivity {
                                         //update profile info
                                         setUserDisplayNameAfterSignup(firstName, lastName);
                                     } else {
-                                        AlertDialog alertDialog;
-                                        if(task.getException() instanceof FirebaseAuthUserCollisionException) {
-                                            //email is already existed
-                                            alertDialog = createAlertDialogForRegistrationFail("Email has already been registered!");
-                                        } else {
-                                            //errors occur while registering new user
-                                            alertDialog = createAlertDialogForRegistrationFail(getString(R.string.dialog_message_registration_fail));
+                                        try {
+                                            mProgressDialog.dismiss();
+                                            throw task.getException();
+                                        } catch (FirebaseAuthUserCollisionException e) {
+                                            createAlertDialogForRegistrationFail("Email has already been registered!").show();
+                                        } catch (Exception e) {
+                                            createAlertDialogForRegistrationFail(getString(R.string.dialog_message_registration_fail)).show();
                                         }
-                                        mProgressDialog.dismiss();
-                                        //show alertDialog
-                                        alertDialog.show();
+
                                     }
                                 }
                             });

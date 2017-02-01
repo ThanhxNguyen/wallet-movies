@@ -22,7 +22,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -391,7 +390,6 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        Log.e(TAG, "onNavigationItemSelected: called");
 
         FragmentManager fm = getSupportFragmentManager();
         String fragmentTag;
@@ -403,7 +401,6 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         switch (id) {
             case R.id.nav_home:
-                Log.e(TAG, "onNavigationItemSelected: Home");
                 //set flag
                 fragmentTag = HomeFragment.FRAGMENT_TAG;
                 fragment = fm.findFragmentByTag(fragmentTag);
@@ -535,7 +532,7 @@ public class MainActivity extends AppCompatActivity
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d(TAG, "onErrorResponse: Error getting genre list " + error.toString());
+//                        Log.d(TAG, "onErrorResponse: Error getting genre list " + error.toString());
                     }
                 });
 
