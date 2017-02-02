@@ -76,6 +76,7 @@ public class MovieDetailsFragment extends Fragment
     private CastRecyclerViewAdapter mCastRecyclerViewAdapter;
     private List<Cast> mCastList;
     private Movie mMovie;
+    private YouTubePlayerSupportFragment mYouTubePlayerSupportFragment;
 
     private ViewGroup mParentContainer;
 
@@ -84,6 +85,7 @@ public class MovieDetailsFragment extends Fragment
 
 //    private ProgressDialog mProgressDialog;
     private List<Genre> mGenreListFromApi;
+    private YouTubePlayer mYoutubePlayer;
 
     public MovieDetailsFragment() {
         // Required empty public constructor
@@ -106,7 +108,7 @@ public class MovieDetailsFragment extends Fragment
         setHasOptionsMenu(true);
 
         //retain this fragment state during activity re-creation progress
-//        setRetainInstance(true);
+        setRetainInstance(true);
     }
 
     @Override
@@ -241,6 +243,14 @@ public class MovieDetailsFragment extends Fragment
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(mYoutubePlayer != null) {
+            mYoutubePlayer = null;
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mParentContainer = container;
@@ -279,6 +289,8 @@ public class MovieDetailsFragment extends Fragment
             populateCastList(mMovie.getId());
 
         }
+
+        initializeYoutubePlayer();
 
         return view;
     }
@@ -369,7 +381,11 @@ public class MovieDetailsFragment extends Fragment
                                 //get the first trailer videos for this mMovie (normally the official one)
                                 JSONObject trailerObj = trailerList.getJSONObject(0);
                                 trailerVideoKey = trailerObj.getString("key");
-                                initializeYoutubePlayer();
+
+                                //initialize youtube player
+                                if(mYouTubePlayerSupportFragment != null) {
+                                    mYouTubePlayerSupportFragment.initialize(YOUTUBE_API_KEY, MovieDetailsFragment.this);
+                                }
 
                             } else {
                                 //no trailer available, display mMovie poster instead
@@ -405,30 +421,28 @@ public class MovieDetailsFragment extends Fragment
 
     private void initializeYoutubePlayer() {
         //load youtube trailer video
-        YouTubePlayerSupportFragment youTubePlayerSupportFragment = YouTubePlayerSupportFragment.newInstance();
+        mYouTubePlayerSupportFragment = YouTubePlayerSupportFragment.newInstance();
         //initialize youtube player
-        youTubePlayerSupportFragment.initialize(YOUTUBE_API_KEY, this);
-
+//        mYouTubePlayerSupportFragment.initialize(YOUTUBE_API_KEY, this);
         //add youtube player fragment to the page
         getChildFragmentManager()
                 .beginTransaction()
-                .replace(R.id.youtube_video_frame, youTubePlayerSupportFragment)
+                .replace(R.id.youtube_video_frame, mYouTubePlayerSupportFragment)
                 .commit();
-        getChildFragmentManager().executePendingTransactions();
-
         //hide progress dialog since mMovie details and mMovie trailer have been loaded
         //mProgressDialog.dismiss();
     }
 
     @Override
     public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean wasRestored) {
-        //successfully load youtube video
+        mYoutubePlayer = youTubePlayer;
+//        //successfully load youtube video
         if(!wasRestored) {
             //set style for youtube player
 //            youTubePlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.MINIMAL);
             youTubePlayer.cueVideo(trailerVideoKey);
-
         }
+
     }
 
     @Override

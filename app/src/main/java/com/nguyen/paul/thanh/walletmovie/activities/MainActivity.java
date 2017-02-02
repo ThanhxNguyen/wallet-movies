@@ -22,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -151,6 +152,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+
         String query = ( (App) getApplicationContext()).getSearchQuery();
 
         if(!TextUtils.isEmpty(query)) {
@@ -268,7 +270,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         FragmentManager fm = getSupportFragmentManager();
-        fm.executePendingTransactions();
         //toggle navigation drawer open/close
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.root_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -277,16 +278,19 @@ public class MainActivity extends AppCompatActivity
 
         /*
          * Get ViewPager reference, because HomeFragment has been inflated into MainActivity
-         * that's why we can get ViewPager reference here.
+         * that's why we can get ViewPager reference if it's currently on Home page.
          */
         ViewPager moviePager = (ViewPager) findViewById(R.id.view_pager);
 
         if(moviePager != null) {
+            //Handle back press logic for viewpager here
+
             //get current position of view pager
             int currentPagerPosition = moviePager.getCurrentItem();
             /**
-             * If the user is currently at the first pager, when the back button is pressed, pop all
-             * in backstack and exit the app.
+             * If the user is currently at home page and at the first pager item and only has one left
+             * in the backstack (last fragment in the backstack), pop the backstack and destroy activity
+             * and exit the app. Otherwise handle back press normally
              *
              * There is another better approach which is store user navigation history in a custom stack
              * such as Stack<Integer>. This way, the user can return to the previous slide (pager) when
@@ -296,12 +300,12 @@ public class MainActivity extends AppCompatActivity
              * the custom stack with First-out-Last-in.
              */
             if(currentPagerPosition == 0) {
-                if(fm.getBackStackEntryCount() > 0) {
-                    FragmentManager.BackStackEntry firstInBackstack = fm.getBackStackEntryAt(0);
-                    fm.popBackStackImmediate(firstInBackstack.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                if(fm.getBackStackEntryCount() == 1) {
+                    super.onBackPressed();
+                    finish();
+                } else {
+                    super.onBackPressed();
                 }
-
-                super.onBackPressed();
             } else if(currentPagerPosition > 0) {
                 //set the active pager manually
                 moviePager.setCurrentItem(currentPagerPosition - 1);
@@ -311,6 +315,7 @@ public class MainActivity extends AppCompatActivity
              * At this stage, the fragment content (HomeFragment) gets destroyed. Therefore, the ViewPager will
              * be null. Handle navigation back the normal way
              */
+            Log.d("test", "onBackPressed: backstack count: " + fm.getBackStackEntryCount());
             super.onBackPressed();
         }
     }
@@ -411,10 +416,14 @@ public class MainActivity extends AppCompatActivity
                     fragment = HomeFragment.newInstance();
                     fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
                 } else {
-                    fm.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+                    if(!fragment.isAdded()) {
+                        //if the fragment is not already added, add it, do nothing otherwise
+                        fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
+                    }
                 }
+
                 currentDrawerItemSelected = HomeFragment.FRAGMENT_TAG;
-                fm.executePendingTransactions();
+//                fm.executePendingTransactions();
                 return true;
 
             case R.id.nav_favourites:
@@ -428,10 +437,13 @@ public class MainActivity extends AppCompatActivity
                         fragment = FavouriteMoviesFragment.newInstance();
                         fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
                     } else {
-                        fm.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+                        if(!fragment.isAdded()) {
+                            //if the fragment is not already added, add it, do nothing otherwise
+                            fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
+                        }
                     }
                     currentDrawerItemSelected = FavouriteMoviesFragment.FRAGMENT_TAG;
-                    fm.executePendingTransactions();
+//                    fm.executePendingTransactions();
 
                 } else {
                     //redirect to sign in page if user not signed in yet
@@ -445,16 +457,20 @@ public class MainActivity extends AppCompatActivity
                 return true;
 
             case R.id.nav_about:
+                Log.d("test", "onNavigationItemSelected: about");
                 fragmentTag = AboutUsFragment.FRAGMENT_TAG;
                 fragment = fm.findFragmentByTag(fragmentTag);
                 if(fragment == null) {
                     fragment = AboutUsFragment.newInstance();
                     fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
                 } else {
-                    fm.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+                    if(!fragment.isAdded()) {
+                        //if the fragment is not already added, add it, do nothing otherwise
+                        fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
+                    }
                 }
                 currentDrawerItemSelected = AboutUsFragment.FRAGMENT_TAG;
-                fm.executePendingTransactions();
+//                fm.executePendingTransactions();
                 return true;
 
             case R.id.nav_account:
@@ -464,10 +480,13 @@ public class MainActivity extends AppCompatActivity
                     fragment = AccountFragment.newInstance();
                     fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
                 } else {
-                    fm.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+                    if(!fragment.isAdded()) {
+                        //if the fragment is not already added, add it, do nothing otherwise
+                        fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
+                    }
                 }
                 currentDrawerItemSelected = AccountFragment.FRAGMENT_TAG;
-                fm.executePendingTransactions();
+//                fm.executePendingTransactions();
                 return true;
 
             case R.id.nav_signin:
@@ -477,7 +496,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
 
             case R.id.nav_signout:
-                fm.executePendingTransactions();
+//                fm.executePendingTransactions();
                 //sign out user
                 signoutUser();
                 return true;
