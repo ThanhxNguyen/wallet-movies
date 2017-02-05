@@ -10,8 +10,8 @@ import java.util.List;
 
 public interface RequestChain {
 
-    interface OnChainComplete {
-        void onChainComplete(List<Movie> movieList);
+    interface RequestChainComplete {
+        void onSearchChainComplete(List<Movie> movieList);
     }
 
     void setNextChain(RequestChain nextChain);

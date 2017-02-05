@@ -164,6 +164,8 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.content_frame, fragment, MovieListFragment.FRAGMENT_TAG)
                     .addToBackStack(null)
                     .commit();
+            //reset the query search to avoid MainActivity display movie search results when onResume() is called
+            ( (App) getApplicationContext()).setSearchQuery("");
         }
 
     }
@@ -315,7 +317,6 @@ public class MainActivity extends AppCompatActivity
              * At this stage, the fragment content (HomeFragment) gets destroyed. Therefore, the ViewPager will
              * be null. Handle navigation back the normal way
              */
-            Log.d("test", "onBackPressed: backstack count: " + fm.getBackStackEntryCount());
             super.onBackPressed();
         }
     }

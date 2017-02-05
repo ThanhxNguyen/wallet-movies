@@ -132,7 +132,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginTop="24dp"
             app:layout_constraintVertical_bias="1.0"
-            android:background="@color/colorCardDark"
+            android:background="@drawable/rounded_button"
             android:elevation="@dimen/cardview_elevation"
             android:textStyle="normal|bold"
             android:textAlignment="center"

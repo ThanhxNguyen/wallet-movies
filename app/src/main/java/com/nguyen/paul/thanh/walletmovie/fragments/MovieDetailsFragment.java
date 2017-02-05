@@ -3,6 +3,8 @@ package com.nguyen.paul.thanh.walletmovie.fragments;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,6 +16,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,8 +33,11 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
-import com.nguyen.paul.thanh.walletmovie.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.nguyen.paul.thanh.walletmovie.App;
+import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.activities.SigninActivity;
 import com.nguyen.paul.thanh.walletmovie.adapters.CastRecyclerViewAdapter;
 import com.nguyen.paul.thanh.walletmovie.model.Cast;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
@@ -48,6 +54,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
 
 /**
  * Fragment to display movie details
@@ -79,6 +88,8 @@ public class MovieDetailsFragment extends Fragment
     private YouTubePlayerSupportFragment mYouTubePlayerSupportFragment;
 
     private ViewGroup mParentContainer;
+
+    private FirebaseAuth mAuth;
 
     //display mMovie poster image if there is no trailers available
     private ImageView mMoviePoster;
@@ -118,10 +129,10 @@ public class MovieDetailsFragment extends Fragment
     }
 
     @Override
-    public void onPrepareOptionsMenu(Menu menu) {
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         //show the "+" icon on toolbar
         menu.findItem(R.id.action_add).setVisible(true);
-        super.onPrepareOptionsMenu(menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -137,33 +148,48 @@ public class MovieDetailsFragment extends Fragment
     }
 
     private void addMovieToFavourites() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setTitle("Confirmation");
-        builder.setMessage("Add this movie to your favourites?");
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                //do something
-                dialogInterface.dismiss();
-            }
-        });
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                AddFavouriteTask task = new AddFavouriteTask(mContext, mGenreListFromApi, getActivity());
-                task.setParentContainerForSnackBar(mParentContainer);
-                task.execute(mMovie);
-                dialogInterface.dismiss();
-            }
-        });
-        AlertDialog alertDialog = builder.create();
+        SharedPreferences prefs = mContext.getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
+        boolean isGuest = prefs.getBoolean(GUEST_MODE_PREF_KEY, true);
+        FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        if(mMovie != null && mGenreListFromApi != null) {
-            //show confirmation popup
-            alertDialog.show();
+        Log.d(TAG, "addMovieToFavourites: guest is: " + isGuest + " and user: " + currentUser);
+
+        if(isGuest || currentUser != null) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+            builder.setTitle("Confirmation");
+            builder.setMessage("Add this movie to your favourites?");
+            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    //do something
+                    dialogInterface.dismiss();
+                }
+            });
+            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    AddFavouriteTask task = new AddFavouriteTask(mContext, mGenreListFromApi, getActivity());
+                    task.setParentContainerForSnackBar(mParentContainer);
+                    task.execute(mMovie);
+                    dialogInterface.dismiss();
+                }
+            });
+            AlertDialog alertDialog = builder.create();
+
+            if(mMovie != null && mGenreListFromApi != null) {
+                //show confirmation popup
+                alertDialog.show();
+            } else {
+                showSnackBar("Error! Sorry could not add movie to your favourites!");
+            }
         } else {
-            showSnackBar("Error! Sorry could not add movie to your favourites!");
+            //redirect to sign in page
+            Intent intent = new Intent(mContext, SigninActivity.class);
+            getActivity().startActivity(intent);
         }
+
+
     }
 
     @Override
@@ -179,6 +205,7 @@ public class MovieDetailsFragment extends Fragment
         mContext = context;
         mNetworkRequest = NetworkRequest.getInstance(mContext);
         mCastList = new ArrayList<>();
+        mAuth = FirebaseAuth.getInstance();
 
         //mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
         //mProgressDialog.setMessage("Loading data...");

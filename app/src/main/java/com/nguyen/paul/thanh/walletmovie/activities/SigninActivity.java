@@ -137,7 +137,6 @@ public class SigninActivity extends AppCompatActivity
 
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.d(TAG, "facebook:onSuccess:" + loginResult);
                 signinFirebaseWithFacebookToken(loginResult.getAccessToken());
             }
 
@@ -165,10 +164,12 @@ public class SigninActivity extends AppCompatActivity
                         // If sign in fails, display a snackbar with failure message to the user. If sign in succeeds
                         // redirect the user back to MainActivity
                         if(task.isSuccessful()) {
+                            //disable guest mode
+                            disableGuestMode();
+
                             //successfully signed in with Google account
                             mProgressDialog.dismiss();
-//                            Intent intent = new Intent(SigninActivity.this, MainActivity.class);
-//                            startActivity(intent);
+                            //redirect back
                             finish();
                         } else {
                             //failed to signed in with Google account
@@ -233,6 +234,9 @@ public class SigninActivity extends AppCompatActivity
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+        //show progress dialog
+        mProgressDialog.show();
+
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         //Firebase sign in with Google email and password
         mAuth.signInWithCredential(credential)
@@ -241,9 +245,10 @@ public class SigninActivity extends AppCompatActivity
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         //successfully signed in with Google account
                         if(task.isSuccessful()) {
+                            //disable guest mode
+                            disableGuestMode();
                             mProgressDialog.dismiss();
-//                            Intent intent = new Intent(SigninActivity.this, MainActivity.class);
-//                            startActivity(intent);
+                            //redirect back
                             finish();
                         } else {
                             //failed to signed in with Google account
@@ -323,16 +328,7 @@ public class SigninActivity extends AppCompatActivity
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if(task.isSuccessful()) {
 
-                                        //since user signed in, disable guest mode
-                                        SharedPreferences prefs = getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
-                                        SharedPreferences.Editor editor = prefs.edit();
-
-                                        boolean isFirstTimeUser = prefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
-
-                                        if(isFirstTimeUser) {
-                                            editor.putBoolean(FIRST_TIME_USER_PREF_KEY, false);
-                                            editor.apply();
-                                        }
+                                        disableGuestMode();
 
                                         //dimiss the progress dialog
                                         progressDialog.dismiss();
@@ -488,5 +484,18 @@ public class SigninActivity extends AppCompatActivity
         //create alert dialog
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    private void disableGuestMode() {
+        //since user signed in, disable guest mode
+        SharedPreferences prefs = getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        boolean isFirstTimeUser = prefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
+
+        if(isFirstTimeUser) {
+            editor.putBoolean(FIRST_TIME_USER_PREF_KEY, false);
+            editor.apply();
+        }
     }
 }

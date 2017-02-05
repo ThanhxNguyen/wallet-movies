@@ -26,12 +26,12 @@ import java.util.List;
 public class SearchMoviesByCast implements RequestChain {
 
     private RequestChain mNextChain;
-    private OnChainComplete mListener;
+    private RequestChainComplete mListener;
     private NetworkRequest mNetworkRequest;
     private String requestTag;
     private Activity mActivity;
 
-    public SearchMoviesByCast(Activity activity, OnChainComplete listener, NetworkRequest networkRequest, String requestTag) {
+    public SearchMoviesByCast(Activity activity, RequestChainComplete listener, NetworkRequest networkRequest, String requestTag) {
         mListener = listener;
         mNetworkRequest = networkRequest;
         this.requestTag = requestTag;
@@ -65,6 +65,8 @@ public class SearchMoviesByCast implements RequestChain {
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            //there is error or can't find any movie
+                            mListener.onSearchChainComplete(null);
                         }
                     }
                 },
@@ -146,10 +148,10 @@ public class SearchMoviesByCast implements RequestChain {
                             //or if movie list is empty, no results when search movies by name
                             //try next chain and search movie by actors/actresses
                             if(movieList.size() > 0) {
-                                mListener.onChainComplete(movieList);
+                                mListener.onSearchChainComplete(movieList);
                             } else {
                                 //since this is the last chain, return whatever the result is
-                                mListener.onChainComplete(movieList);
+                                mListener.onSearchChainComplete(movieList);
                             }
 
                         } catch (JSONException e) {

@@ -14,7 +14,7 @@ public class MoviesMultiSearch {
 
     private RequestChain mSearchMoviesByName;
 
-    public MoviesMultiSearch(Activity activity, RequestChain.OnChainComplete listener, NetworkRequest networkRequest, String requestTag) {
+    public MoviesMultiSearch(Activity activity, RequestChain.RequestChainComplete listener, NetworkRequest networkRequest, String requestTag) {
         mSearchMoviesByName = new SearchMoviesByName(activity, listener, networkRequest, requestTag);
         RequestChain searchMoviesByCast = new SearchMoviesByCast(activity, listener, networkRequest, requestTag);
 

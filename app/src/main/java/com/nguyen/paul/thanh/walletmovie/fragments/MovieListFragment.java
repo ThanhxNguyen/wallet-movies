@@ -49,7 +49,7 @@ import static com.nguyen.paul.thanh.walletmovie.App.MOVIE_VOTE_SORT;
  */
 public class MovieListFragment extends Fragment
         implements MovieRecyclerViewAdapter.OnRecyclerViewClickListener,
-        RequestChain.OnChainComplete {
+        RequestChain.RequestChainComplete {
 
     public static final String FRAGMENT_TAG = MovieListFragment.class.getSimpleName();
 
@@ -169,11 +169,11 @@ public class MovieListFragment extends Fragment
         displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
         //update list view display type icon based on user preference
         if(displayInGrid) {
-            menu.findItem(R.id.action_grid_list_display_type).setVisible(true);
-            menu.findItem(R.id.action_list_display_type).setVisible(false);
-        } else {
             menu.findItem(R.id.action_grid_list_display_type).setVisible(false);
             menu.findItem(R.id.action_list_display_type).setVisible(true);
+        } else {
+            menu.findItem(R.id.action_grid_list_display_type).setVisible(true);
+            menu.findItem(R.id.action_list_display_type).setVisible(false);
         }
 
         populateMovieList();
@@ -246,13 +246,13 @@ public class MovieListFragment extends Fragment
                 break;
 
             case R.id.action_grid_list_display_type:
-                mEditor.putBoolean(DISPLAY_LIST_IN_GRID_KEY, false).apply();
+                mEditor.putBoolean(DISPLAY_LIST_IN_GRID_KEY, true).apply();
                 getActivity().invalidateOptionsMenu();
 //                updateListDisplayTypeMenu(mMenu);
                 break;
 
             case R.id.action_list_display_type:
-                mEditor.putBoolean(DISPLAY_LIST_IN_GRID_KEY, true).apply();
+                mEditor.putBoolean(DISPLAY_LIST_IN_GRID_KEY, false).apply();
                 getActivity().invalidateOptionsMenu();
 //                updateListDisplayTypeMenu(mMenu);
                 break;
@@ -441,16 +441,18 @@ public class MovieListFragment extends Fragment
     }
 
     @Override
-    public void onChainComplete(List<Movie> movieList) {
+    public void onSearchChainComplete(List<Movie> movieList) {
 
-        for(Movie m : movieList) {
-            if(m != null) {
-                mMoviesList.add(m);
+        if(movieList != null && movieList.size() > 0) {
+            for(Movie m : movieList) {
+                if(m != null) {
+                    mMoviesList.add(m);
+                }
             }
+        } else {
+            mMoviesList.clear();
         }
-
         mAdapter.notifyDataSetChanged();
-        
         mProgressDialog.dismiss();
     }
 }

@@ -233,11 +233,11 @@ public class FavouriteMoviesFragment extends Fragment
         displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
         //update list view display type icon based on user preference
         if(displayInGrid) {
-            menu.findItem(R.id.action_grid_list_display_type).setVisible(true);
-            menu.findItem(R.id.action_list_display_type).setVisible(false);
-        } else {
             menu.findItem(R.id.action_grid_list_display_type).setVisible(false);
             menu.findItem(R.id.action_list_display_type).setVisible(true);
+        } else {
+            menu.findItem(R.id.action_grid_list_display_type).setVisible(true);
+            menu.findItem(R.id.action_list_display_type).setVisible(false);
         }
 
         populateMovieList();
@@ -308,13 +308,13 @@ public class FavouriteMoviesFragment extends Fragment
                 break;
 
             case R.id.action_grid_list_display_type:
-                mEditor.putBoolean(DISPLAY_LIST_IN_GRID_KEY, false).apply();
+                mEditor.putBoolean(DISPLAY_LIST_IN_GRID_KEY, true).apply();
                 //refresh toolbar
                 getActivity().invalidateOptionsMenu();
                 break;
 
             case R.id.action_list_display_type:
-                mEditor.putBoolean(DISPLAY_LIST_IN_GRID_KEY, true).apply();
+                mEditor.putBoolean(DISPLAY_LIST_IN_GRID_KEY, false).apply();
                 //refresh toolbar
                 getActivity().invalidateOptionsMenu();
                 break;
