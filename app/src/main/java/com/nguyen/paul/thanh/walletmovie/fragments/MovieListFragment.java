@@ -75,6 +75,17 @@ public class MovieListFragment extends Fragment
     private MoviesMultiSearch mMoviesMultiSearch;
     //flag to indicate the display type of list view
     private boolean displayInGrid;
+    private boolean isViewPagerItem;
+
+    //indicate the total of items in the list after the last request
+    private int previousTotalItemCount = 0;
+    //indicate if the list is getting more data
+    private boolean loading = true;
+    //define the threshold when to load more items (e.g. load more items when the list has 5 items left when scroll down)
+    private int visibleThreshold = 5;
+    //page number for api request
+    private int currentPage = 1;
+    private int firstVisibleItem, visibleItemCount, totalItemCount;
 
     private SharedPreferences mPrefs;
     private SharedPreferences.Editor mEditor;
@@ -82,6 +93,8 @@ public class MovieListFragment extends Fragment
     private ViewGroup mParentContainer;
 
     private ProgressDialog mProgressDialog;
+    private int mTabPosition;
+    private MovieQueryBuilder mMovieQueryBuilder;
 
     public MovieListFragment() {
         // Required empty public constructor
@@ -136,6 +149,8 @@ public class MovieListFragment extends Fragment
         mProgressDialog.setMessage("Loading movies...");
         mProgressDialog.setCancelable(false);
 
+        mMovieQueryBuilder = MovieQueryBuilder.getInstance();
+
         //initialize movie search chain
         mMoviesMultiSearch = new MoviesMultiSearch(getActivity(), this, mNetworkRequest, NETWORK_REQUEST_TAG);
 
@@ -154,7 +169,9 @@ public class MovieListFragment extends Fragment
         if(savedInstanceState == null) {
             mProgressDialog.show();
         }
-        setRetainInstance(true);
+//        setRetainInstance(true);
+        //enable fragment to append menu items to toolbar
+        setHasOptionsMenu(true);
         //get genres value list from cache
         mGenreListFromApi = ( (App) getActivity().getApplicationContext()).getGenreListFromApi();
     }
@@ -163,6 +180,13 @@ public class MovieListFragment extends Fragment
     public void onDestroyView() {
         super.onDestroyView();
         mProgressDialog.dismiss();
+        resetLoadMore();
+    }
+
+    private void resetLoadMore() {
+        currentPage = 1;
+        loading = true;
+        previousTotalItemCount = 0;
     }
 
     private void updateListDisplayTypeMenu(Menu menu) {
@@ -192,31 +216,6 @@ public class MovieListFragment extends Fragment
 
         updateListDisplayTypeMenu(menu);
 
-        MenuItem item;
-        int sortOption = mPrefs.getInt(MOVIE_SORT_SETTINGS_KEY, 0);
-        //get user preference regarding sorting options for movie list and set sorting option appropriately
-        switch (sortOption) {
-            case MOVIE_DATE_SORT:
-                item = menu.findItem(R.id.action_sort_by_date);
-                item.setChecked(true);
-                onOptionsItemSelected(item);
-                break;
-
-            case MOVIE_NAME_SORT:
-                item = menu.findItem(R.id.action_sort_by_name);
-                item.setChecked(true);
-                onOptionsItemSelected(item);
-                break;
-
-            case MOVIE_VOTE_SORT:
-                item = menu.findItem(R.id.action_sort_by_vote);
-                item.setChecked(true);
-                onOptionsItemSelected(item);
-                break;
-
-            default:
-                break;
-        }
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -280,37 +279,38 @@ public class MovieListFragment extends Fragment
         mAdapter.notifyDataSetChanged();
     }
 
-    private void displayMoviesForViewPager(int tabPosition) {
+    private void displayMoviesForViewPager() {
         String url;
-        MovieQueryBuilder movieQueryBuilder = MovieQueryBuilder.getInstance();
                 /* grab movies according tab position
                 * 0: top movies list
                 * 1: now showing movies list
                 * 3: upcoming movies list
                 */
-        switch (tabPosition) {
+        switch (mTabPosition) {
             case 0:
-                url = movieQueryBuilder.discover().mostPopular().build();
+                url = mMovieQueryBuilder.discover().mostPopular().page(currentPage).build();
                 break;
             case 1:
-                url = movieQueryBuilder.discover().showing().build();
+                url = mMovieQueryBuilder.discover().showing().page(currentPage).build();
                 break;
             case 2:
-                url = movieQueryBuilder.discover().upcoming().build();
+                url = mMovieQueryBuilder.discover().upcoming().page(currentPage).build();
                 break;
             default:
-                url = movieQueryBuilder.discover().mostPopular().build();
+                url = mMovieQueryBuilder.discover().mostPopular().page(currentPage).build();
                 break;
         }
         sendRequestToGetMovieList(url);
     }
 
     private void displayMoviesForSearchResult(String searchQuery) {
+        mMoviesList.clear();
         String url = MovieQueryBuilder.getInstance().search().query(searchQuery).build();
         sendRequestToGetMovieList(url);
     }
 
     private void displayMoviesRelatedToCast(int castId) {
+        mMoviesList.clear();
         String url = MovieQueryBuilder.getInstance().discover().moviesRelatedTo(castId).build();
         sendRequestToGetMovieList(url);
     }
@@ -322,15 +322,60 @@ public class MovieListFragment extends Fragment
         // Inflate the layout for this fragment
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_movie_pager_item, container, false);
 
-        //enable fragment to append menu items to toolbar
-        setHasOptionsMenu(true);
-
         mRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.movie_list);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         //get placeholder view and set it to display when the list is empty
         TextView placeholderView = (TextView) view.findViewById(R.id.placeholder_view);
         mRecyclerView.setPlaceholderView(placeholderView);
         populateMovieList();
+
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            //this method will be invoked when a scroll event occurs, need to implement with care here
+            //because it can slow down the performance
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                RecyclerView.LayoutManager layoutManager;
+
+                //check if the user scroll down and this fragment is inside the view pager
+                if(isViewPagerItem && dy > 0) {
+                    if(displayInGrid) {
+                        //grid layout manager
+                        firstVisibleItem = ( (GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+                    } else {
+                        //linear layout manager
+                        firstVisibleItem = ( (LinearLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+                    }
+                    //get the visible items (items are seen on the mobile screen)
+                    visibleItemCount = mRecyclerView.getChildCount();
+                    //the total list items in the adapter
+                    totalItemCount = mRecyclerView.getLayoutManager().getItemCount();
+
+
+                    if(totalItemCount < previousTotalItemCount) {
+                        previousTotalItemCount = totalItemCount;
+                        currentPage = 1;
+                        if(totalItemCount == 0) {
+                            loading = true;
+                        }
+                    }
+                    //finish loading
+                    if (loading && (totalItemCount > previousTotalItemCount)) {
+                        loading = false;
+                        previousTotalItemCount = totalItemCount;
+                    }
+                    //if the user is about to reach the end of the current list view, get more movies from api and append
+                    //to the list
+                    if (!loading && (firstVisibleItem + visibleItemCount + visibleThreshold) >= totalItemCount) {
+                        currentPage++;
+                        displayMoviesForViewPager();
+                    }
+
+                }
+
+            }
+        });
 
         Bundle args = getArguments();
         if(args != null) {
@@ -339,14 +384,18 @@ public class MovieListFragment extends Fragment
             switch (displayType) {
                 case DISPLAY_MOVIES_FOR_VIEWPAGER:
                     int tabPosition = args.getInt(TAB_POSITION_KEY, 0);
-                    displayMoviesForViewPager(tabPosition);
+                    isViewPagerItem = true;
+                    mTabPosition = tabPosition;
+                    displayMoviesForViewPager();
                     break;
                 case DISPLAY_MOVIES_FOR_SEARCH_RESULT:
+                    isViewPagerItem = false;
                     getActivity().setTitle(R.string.title_search_result);
                     String searchQuery = args.getString(SEARCH_QUERY_KEY);
                     displayMoviesForSearchResult(searchQuery);
                     break;
                 case DISPLAY_MOVIES_RELATED_TO_CAST:
+                    isViewPagerItem = false;
                     int castId = args.getInt(CAST_ID_KEY);
                     getActivity().setTitle(R.string.title_movie_list);
                     displayMoviesRelatedToCast(castId);
@@ -405,8 +454,6 @@ public class MovieListFragment extends Fragment
     }
 
     private void sendRequestToGetMovieList(String url) {
-        //empty movie list if there is any
-        mMoviesList.clear();
         //start getting movies
         mMoviesMultiSearch.search(url);
     }
@@ -443,15 +490,16 @@ public class MovieListFragment extends Fragment
     @Override
     public void onSearchChainComplete(List<Movie> movieList) {
 
-        if(movieList != null && movieList.size() > 0) {
-            for(Movie m : movieList) {
-                if(m != null) {
-                    mMoviesList.add(m);
+        if(movieList != null) {
+            if(movieList.size() > 0) {
+                for(Movie m : movieList) {
+                    if(m != null) {
+                        mMoviesList.add(m);
+                    }
                 }
             }
-        } else {
-            mMoviesList.clear();
         }
+
         mAdapter.notifyDataSetChanged();
         mProgressDialog.dismiss();
     }

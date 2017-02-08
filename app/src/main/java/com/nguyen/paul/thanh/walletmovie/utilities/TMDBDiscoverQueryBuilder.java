@@ -16,7 +16,7 @@ import java.util.Date;
 public class TMDBDiscoverQueryBuilder implements CustomBuilder {
 
     private static final String BASE_URL = "https://api.themoviedb.org/3/discover/movie";
-    private static final int RESULT_LIMIT = 1;
+    private int pageNum = 1;
     //constant indicates how many more days will be added to start date for "showing movies" url
     private static final int MOVIE_SHOWING_TIME_PERIOD = 7;
     //constant indicates start date for "showing movies" url
@@ -65,6 +65,11 @@ public class TMDBDiscoverQueryBuilder implements CustomBuilder {
         return this;
     }
 
+    public TMDBDiscoverQueryBuilder page(int pageNum) {
+        this.pageNum = pageNum;
+        return this;
+    }
+
     private String addOrMinusDaysToCurrentDate(String startDate, int numDays) {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
@@ -100,10 +105,12 @@ public class TMDBDiscoverQueryBuilder implements CustomBuilder {
                     .appendQueryParameter("language", "en-US")
                     .appendQueryParameter("include_video", "false")
                     .appendQueryParameter("include_adult", "false")
-                    .appendQueryParameter("page", Integer.toString(RESULT_LIMIT));
+                    .appendQueryParameter("page", Integer.toString(pageNum));
         String url = mUrlBuilder.build().toString();
         //clear url params
         mUrlBuilder.clearQuery();
+        //reset page number back to 1
+        pageNum = 1;
 
         return url;
     }

@@ -3,7 +3,6 @@ package com.nguyen.paul.thanh.walletmovie.adapters;
 import android.content.Context;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -178,7 +177,6 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
             mThreeDotsMenu.setOnClickListener(mThreeDotsMenuClickListener);
 
             if(mMovie.getPosterPath().equals("")) {
-                Log.d("something", "bind: poster path is null for " + mMovie.getTitle());
                 Glide.with(mContext)
                         .load("")
                         .placeholder(R.drawable.ic_image_placeholder_white_24dp)

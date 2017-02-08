@@ -102,7 +102,7 @@ public class CastRecyclerViewAdapter extends RecyclerView.Adapter<CastRecyclerVi
                 mCastCharacter.setText(character.contains("/") ? character.split("/")[0] : character);
             }
 
-            String imgUrl = MovieQueryBuilder.getInstance().getImageBaseUrl("w500") + mCast.getProfilePath();
+            String imgUrl = MovieQueryBuilder.getInstance().getImageBaseUrl("w92") + mCast.getProfilePath();
             Glide.with(mContext).load(imgUrl)
                     .dontAnimate()
                     .placeholder(R.drawable.ic_account_circle_white_24dp)

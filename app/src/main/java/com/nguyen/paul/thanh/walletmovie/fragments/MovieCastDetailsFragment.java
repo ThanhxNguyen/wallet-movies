@@ -25,6 +25,7 @@ import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.model.Cast;
 import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
+import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -169,9 +170,16 @@ public class MovieCastDetailsFragment extends Fragment {
                                 //hide progress dialog
                                 mProgressDialog.dismiss();
 
+                                String castProfilePhotoSize;
+                                //get screen size and display cast profile photo appropriately.
+                                ScreenMeasurer screenMeasurer = new ScreenMeasurer(getActivity());
+                                int screenWidth = screenMeasurer.getDpWidth();
+
+                                castProfilePhotoSize = (screenWidth < 840) ? "w342" : "w500";
+
                                 //load cast profile image
                                 String castProfileImageUrl = MovieQueryBuilder.getInstance()
-                                                                .getImageBaseUrl("w500") + cast.getProfilePath();
+                                                                .getImageBaseUrl(castProfilePhotoSize) + cast.getProfilePath();
                                 Glide.with(mContext).load(castProfileImageUrl)
                                         .crossFade()
                                         .diskCacheStrategy(DiskCacheStrategy.SOURCE)
