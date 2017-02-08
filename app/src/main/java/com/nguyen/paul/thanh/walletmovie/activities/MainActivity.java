@@ -22,7 +22,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -424,7 +423,6 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 currentDrawerItemSelected = HomeFragment.FRAGMENT_TAG;
-//                fm.executePendingTransactions();
                 return true;
 
             case R.id.nav_favourites:
@@ -458,7 +456,6 @@ public class MainActivity extends AppCompatActivity
                 return true;
 
             case R.id.nav_about:
-                Log.d("test", "onNavigationItemSelected: about");
                 fragmentTag = AboutUsFragment.FRAGMENT_TAG;
                 fragment = fm.findFragmentByTag(fragmentTag);
                 if(fragment == null) {
@@ -487,7 +484,6 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
                 currentDrawerItemSelected = AccountFragment.FRAGMENT_TAG;
-//                fm.executePendingTransactions();
                 return true;
 
             case R.id.nav_signin:
@@ -503,15 +499,6 @@ public class MainActivity extends AppCompatActivity
                 return true;
 
             default:
-//                currentDrawerItemSelected = HomeFragment.FRAGMENT_TAG;
-//                fragmentTag = HomeFragment.FRAGMENT_TAG;
-//                fragment = fm.findFragmentByTag(fragmentTag);
-//                if(fragment == null) {
-//                    fragment = HomeFragment.newInstance();
-//                    fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
-//                } else {
-//                    fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
-//                }
                 return true;
 
         }
@@ -586,7 +573,7 @@ public class MainActivity extends AppCompatActivity
                 e.printStackTrace();
             }
         }
-        //cache genres list value to app
+        //cache genres list value
         ((App) getApplication()).setGenreListFromApi(mGenreListFromApi);
     }
 
