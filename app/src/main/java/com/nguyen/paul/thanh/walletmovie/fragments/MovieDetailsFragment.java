@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -22,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -84,6 +86,8 @@ public class MovieDetailsFragment extends Fragment
     private TextView mVoteValue;
     private TextView mGenres;
     private TextView mDescription;
+    private ConstraintLayout mCastListLayout;
+    private ProgressBar mCastListSpinner;
     private CastRecyclerViewAdapter mCastRecyclerViewAdapter;
     private List<Cast> mCastList;
     private Movie mMovie;
@@ -308,6 +312,12 @@ public class MovieDetailsFragment extends Fragment
         mDescription = (TextView) view.findViewById(R.id.movie_description);
         mMoviePoster = (ImageView) view.findViewById(R.id.movie_poster);
 
+        mCastListLayout = (ConstraintLayout) view.findViewById(R.id.cast_list_constraint);
+        mCastListSpinner = (ProgressBar) view.findViewById(R.id.spinner);
+        //hide cast list while loading and show spinner
+        mCastListLayout.setVisibility(View.GONE);
+        mCastListSpinner.setVisibility(View.VISIBLE);
+
         Bundle args = getArguments();
         if(args != null) {
             mMovie = args.getParcelable(MOVIE_PARCELABLE_KEY);
@@ -353,16 +363,24 @@ public class MovieDetailsFragment extends Fragment
 
                             //update adapter
                             mCastRecyclerViewAdapter.notifyDataSetChanged();
+                            //show cast list
+                            mCastListLayout.setVisibility(View.VISIBLE);
+                            mCastListSpinner.setVisibility(View.GONE);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            //show cast list
+                            mCastListLayout.setVisibility(View.VISIBLE);
+                            mCastListSpinner.setVisibility(View.GONE);
                         }
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        //handle error
+                        //show cast list
+                        mCastListLayout.setVisibility(View.VISIBLE);
+                        mCastListSpinner.setVisibility(View.GONE);
                     }
                 });
 

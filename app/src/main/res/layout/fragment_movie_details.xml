@@ -169,6 +169,14 @@
             android:paddingBottom="8dp"
             >
 
+            <ProgressBar
+                android:id="@+id/spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:layout_gravity="center"
+                android:background="@color/colorCardDark"/>
+
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/cast_list_constraint"
                 android:layout_width="match_parent"
