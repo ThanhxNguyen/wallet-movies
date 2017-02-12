@@ -93,7 +93,6 @@ public class MovieListFragment extends Fragment
     private int firstVisibleItem, visibleItemCount, totalItemCount;
 
     private SharedPreferences mPrefs;
-    private SharedPreferences.Editor mEditor;
 
     private ViewGroup mParentContainer;
 
@@ -160,7 +159,6 @@ public class MovieListFragment extends Fragment
 
         //initialize shared preference
         mPrefs = mContext.getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
-        mEditor = mPrefs.edit();
 
         //set the list view display in grid by default
         displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
@@ -178,157 +176,15 @@ public class MovieListFragment extends Fragment
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        resetLoadMore();
-    }
-
-    private void resetLoadMore() {
-        currentPage = 1;
-        loading = true;
-        previousTotalItemCount = 0;
-    }
-
-    private void updateListDisplayTypeMenu(Menu menu) {
-//        ( (AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Test");
-        displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
-        //update list view display type icon based on user preference
-        if(displayInGrid) {
-            menu.findItem(R.id.action_grid_list_display_type).setVisible(false);
-            menu.findItem(R.id.action_list_display_type).setVisible(true);
-        } else {
-            menu.findItem(R.id.action_grid_list_display_type).setVisible(true);
-            menu.findItem(R.id.action_list_display_type).setVisible(false);
-        }
-
-        populateMovieList();
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        updateListDisplayTypeMenu(menu);
-
-        super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_action_movie, menu);
-
-        updateListDisplayTypeMenu(menu);
-
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-//        displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
-        int id = item.getItemId();
-        item.setChecked(true);
-
-        switch (id) {
-            case R.id.action_sort_by_name:
-                Collections.sort(mMoviesList, Movie.MovieNameSort);
-                mAdapter.notifyDataSetChanged();
-                mEditor.putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_NAME_SORT).apply();
-                break;
-
-            case R.id.action_sort_by_date:
-                Collections.sort(mMoviesList, Movie.MovieReleaseDateSort);
-                mAdapter.notifyDataSetChanged();
-                mEditor.putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_DATE_SORT).apply();
-                break;
-
-            case R.id.action_sort_by_vote:
-                Collections.sort(mMoviesList, Movie.MovieVoteSort);
-                mAdapter.notifyDataSetChanged();
-                mEditor.putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_VOTE_SORT).apply();
-                break;
-
-            case R.id.action_grid_list_display_type:
-                mEditor.putBoolean(DISPLAY_LIST_IN_GRID_KEY, true).apply();
-                getActivity().invalidateOptionsMenu();
-//                updateListDisplayTypeMenu(mMenu);
-                break;
-
-            case R.id.action_list_display_type:
-                mEditor.putBoolean(DISPLAY_LIST_IN_GRID_KEY, false).apply();
-                getActivity().invalidateOptionsMenu();
-//                updateListDisplayTypeMenu(mMenu);
-                break;
-
-            default:
-                break;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
-
-        GridLayoutManager layoutManager;
-        if(displayInGrid) {
-            int numRows = getNumRowsForMovieList();
-            //update grid layout based on new screen size
-            layoutManager = (GridLayoutManager) mRecyclerView.getLayoutManager();
-            layoutManager.setSpanCount(numRows);
-            mRecyclerView.setLayoutManager(layoutManager);
-        }
-        mAdapter.notifyDataSetChanged();
-    }
-
-    private void displayMoviesForViewPager() {
-        String url;
-                /* grab movies according tab position
-                * 0: top movies list
-                * 1: now showing movies list
-                * 3: upcoming movies list
-                */
-        switch (mTabPosition) {
-            case 0:
-                url = mMovieQueryBuilder.discover().mostPopular().page(currentPage).build();
-                break;
-            case 1:
-                url = mMovieQueryBuilder.discover().showing().page(currentPage).build();
-                break;
-            case 2:
-                url = mMovieQueryBuilder.discover().upcoming().page(currentPage).build();
-                break;
-            default:
-                url = mMovieQueryBuilder.discover().mostPopular().page(currentPage).build();
-                break;
-        }
-        sendRequestToGetMovieList(url);
-    }
-
-    private void displayMoviesForSearchResult(String searchQuery) {
-        mMoviesList.clear();
-        String url = MovieQueryBuilder.getInstance().search().query(searchQuery).build();
-        sendRequestToGetMovieList(url);
-    }
-
-    private void displayMoviesRelatedToCast(int castId) {
-        mMoviesList.clear();
-        String url = MovieQueryBuilder.getInstance().discover().moviesRelatedTo(castId).build();
-        sendRequestToGetMovieList(url);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mParentContainer = container;
         // Inflate the layout for this fragment
-        ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_movie_pager_item, container, false);
+        ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_movie_list, container, false);
 
         mRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.movie_list);
         mSpinner = (ProgressBar) view.findViewById(R.id.spinner);
-
-        if(savedInstanceState == null) {
-            mSpinner.setVisibility(View.VISIBLE);
-        }
+        if(mMoviesList != null && mMoviesList.size() == 0) mSpinner.setVisibility(View.VISIBLE);
 
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         //get placeholder view and set it to display when the list is empty
@@ -344,6 +200,7 @@ public class MovieListFragment extends Fragment
                 if(isViewPagerItem) {
                     //reset page number
                     currentPage = 1;
+                    mMoviesList.clear();
                     displayMoviesForViewPager();
                 } else {
                     mSwipeRefreshLayout.setRefreshing(false);
@@ -429,6 +286,145 @@ public class MovieListFragment extends Fragment
         }//end if
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        resetLoadMore();
+    }
+
+    private void resetLoadMore() {
+        currentPage = 1;
+        loading = true;
+        previousTotalItemCount = 0;
+    }
+
+    private void updateListDisplayTypeMenu(Menu menu) {
+//        ( (AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Test");
+        displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
+        //update list view display type icon based on user preference
+        if(displayInGrid) {
+            menu.findItem(R.id.action_grid_list_display_type).setVisible(false);
+            menu.findItem(R.id.action_list_display_type).setVisible(true);
+        } else {
+            menu.findItem(R.id.action_grid_list_display_type).setVisible(true);
+            menu.findItem(R.id.action_list_display_type).setVisible(false);
+        }
+
+        populateMovieList();
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        updateListDisplayTypeMenu(menu);
+
+        super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_action_movie, menu);
+
+        updateListDisplayTypeMenu(menu);
+
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+//        displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
+        int id = item.getItemId();
+        item.setChecked(true);
+
+        switch (id) {
+            case R.id.action_sort_by_name:
+                Collections.sort(mMoviesList, Movie.MovieNameSort);
+                mAdapter.notifyDataSetChanged();
+                mPrefs.edit().putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_NAME_SORT).apply();
+                break;
+
+            case R.id.action_sort_by_date:
+                Collections.sort(mMoviesList, Movie.MovieReleaseDateSort);
+                mAdapter.notifyDataSetChanged();
+                mPrefs.edit().putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_DATE_SORT).apply();
+                break;
+
+            case R.id.action_sort_by_vote:
+                Collections.sort(mMoviesList, Movie.MovieVoteSort);
+                mAdapter.notifyDataSetChanged();
+                mPrefs.edit().putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_VOTE_SORT).apply();
+                break;
+
+            case R.id.action_grid_list_display_type:
+                mPrefs.edit().putBoolean(DISPLAY_LIST_IN_GRID_KEY, true).apply();
+                getActivity().invalidateOptionsMenu();
+//                updateListDisplayTypeMenu(mMenu);
+                break;
+
+            case R.id.action_list_display_type:
+                mPrefs.edit().putBoolean(DISPLAY_LIST_IN_GRID_KEY, false).apply();
+                getActivity().invalidateOptionsMenu();
+//                updateListDisplayTypeMenu(mMenu);
+                break;
+
+            default:
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
+
+        GridLayoutManager layoutManager;
+        if(displayInGrid) {
+            int numRows = getNumRowsForMovieList();
+            //update grid layout based on new screen size
+            layoutManager = (GridLayoutManager) mRecyclerView.getLayoutManager();
+            layoutManager.setSpanCount(numRows);
+            mRecyclerView.setLayoutManager(layoutManager);
+        }
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private void displayMoviesForViewPager() {
+        String url;
+                /* grab movies according tab position
+                * 0: top movies list
+                * 1: now showing movies list
+                * 3: upcoming movies list
+                */
+        switch (mTabPosition) {
+            case 0:
+                url = mMovieQueryBuilder.discover().mostPopular().page(currentPage).build();
+                break;
+            case 1:
+                url = mMovieQueryBuilder.discover().showing().page(currentPage).build();
+                break;
+            case 2:
+                url = mMovieQueryBuilder.discover().upcoming().page(currentPage).build();
+                break;
+            default:
+                url = mMovieQueryBuilder.discover().mostPopular().page(currentPage).build();
+                break;
+        }
+        sendRequestToGetMovieList(url);
+    }
+
+    private void displayMoviesForSearchResult(String searchQuery) {
+        mMoviesList.clear();
+        String url = MovieQueryBuilder.getInstance().search().query(searchQuery).build();
+        sendRequestToGetMovieList(url);
+    }
+
+    private void displayMoviesRelatedToCast(int castId) {
+        mMoviesList.clear();
+        String url = MovieQueryBuilder.getInstance().discover().moviesRelatedTo(castId).build();
+        sendRequestToGetMovieList(url);
     }
 
     private void populateMovieList() {

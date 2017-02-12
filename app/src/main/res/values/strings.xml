@@ -94,7 +94,7 @@
     <string name="about_us_des">This app is completely free to use and is a must-have for any movie lovers. The app offers a range of different features including viewing movie details, trailers, casts etc…Users can also search for movies as well as bookmark movies as their favourites. The app is frequently updated to improve the performance and provide best user experience.</string>
     <string name="attribute_title">Credits</string>
     <string name="attribute_des">This product uses the TMDb API but is not endorsed or certified by TMDb.</string>
-    <string name="welcome_title">Welcome!</string>
+    <string name="welcome_title">Howdy!</string>
     <string name="guest">Guest</string>
     <string name="display_in_list">Display in list</string>
     <string name="display_in_grid">Display in grid</string>

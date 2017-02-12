@@ -1,14 +1,15 @@
 package com.nguyen.paul.thanh.walletmovie.fragments;
 
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -21,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,6 +34,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.activities.MainActivity;
+import com.nguyen.paul.thanh.walletmovie.activities.SigninActivity;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
 import com.nguyen.paul.thanh.walletmovie.database.MoviesTableOperator;
 import com.nguyen.paul.thanh.walletmovie.database.interfaces.DatabaseOperator;
@@ -63,12 +66,12 @@ public class FavouriteMoviesFragment extends Fragment
 
     private Context mContext;
     private MainActivity mActivity;
+    private SwipeRefreshLayout mRefreshLayout;
     private List<Movie> mMoviesList;
     private MovieRecyclerViewAdapter mAdapter;
     private RecyclerViewWithEmptyView mRecyclerView;
     private ViewGroup mViewContainer;
-
-    private ProgressDialog mProgressDialog;
+    private ProgressBar mSpinner;
 
     //Firebase
     private FirebaseAuth mAuth;
@@ -77,7 +80,6 @@ public class FavouriteMoviesFragment extends Fragment
     private ValueEventListener mValueEventListener;
 
     private SharedPreferences mPrefs;
-    private SharedPreferences.Editor mEditor;
 
     //flag to indicate if the user is in guest mode or register mode
     private boolean isGuest;
@@ -117,14 +119,8 @@ public class FavouriteMoviesFragment extends Fragment
 
         mMoviesList = new ArrayList<>();
 
-        //initiate ProgressDialog
-        mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setMessage("Loading favourite movies");
-        mProgressDialog.setCancelable(false);
-
         //initialize shared preference
         mPrefs = mContext.getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
-        mEditor = mPrefs.edit();
 
         //set the list view display in grid by default
         displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
@@ -139,14 +135,8 @@ public class FavouriteMoviesFragment extends Fragment
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mMoviesList = parseMovieResultsFromFirebase(dataSnapshot);
-                //setup recyclerview adapter here
-//                mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, FavouriteMoviesFragment.this, R.menu.favourite_movie_list_item_popup_menu);
-//                mRecyclerView.setAdapter(mAdapter);
+                mSpinner.setVisibility(View.GONE);
                 populateMovieList();
-
-                //hide progress dialog when complete getting movies
-                mProgressDialog.dismiss();
-
             }
 
             @Override
@@ -174,20 +164,24 @@ public class FavouriteMoviesFragment extends Fragment
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_favourite_movies, container, false);
 
+        mSpinner = (ProgressBar) view.findViewById(R.id.spinner);
+        if(mMoviesList.size() == 0) mSpinner.setVisibility(View.VISIBLE);
+
+        mRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //refresh the movie list
+                initMovieList();
+            }
+        });
+
         mRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.favourite_movie_list);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        //layout manager
-//        int numRows = getNumRowsForMovieList();
-//        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, numRows);
-//        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-//        mRecyclerView.setLayoutManager(layoutManager);
 
         //placeholder view when the list is empty
         TextView placeholderView = (TextView) view.findViewById(R.id.placeholder_view);
         mRecyclerView.setPlaceholderView(placeholderView);
-
-        //setup recyclerview adapter here
-//        mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, FavouriteMoviesFragment.this, R.menu.favourite_movie_list_item_popup_menu);
 
         initMovieList();
 
@@ -229,6 +223,9 @@ public class FavouriteMoviesFragment extends Fragment
             mAdapter.setListViewLayout();
         }
         mRecyclerView.setAdapter(mAdapter);
+
+        //hide refresh spinner
+        mRefreshLayout.setRefreshing(false);
     }
 
     private void updateListDisplayTypeMenu(Menu menu) {
@@ -257,32 +254,7 @@ public class FavouriteMoviesFragment extends Fragment
         inflater.inflate(R.menu.menu_action_movie, menu);
 
         updateListDisplayTypeMenu(menu);
-
-        MenuItem item;
-        int sortOption = mPrefs.getInt(MOVIE_SORT_SETTINGS_KEY, 0);
-        //get user preference regarding sorting options for movie list and set sorting option appropriately
-        switch (sortOption) {
-            case MOVIE_DATE_SORT:
-                item = menu.findItem(R.id.action_sort_by_date);
-                item.setChecked(true);
-                onOptionsItemSelected(item);
-                break;
-
-            case MOVIE_NAME_SORT:
-                item = menu.findItem(R.id.action_sort_by_name);
-                item.setChecked(true);
-                onOptionsItemSelected(item);
-                break;
-
-            case MOVIE_VOTE_SORT:
-                item = menu.findItem(R.id.action_sort_by_vote);
-                item.setChecked(true);
-                onOptionsItemSelected(item);
-                break;
-
-            default:
-                break;
-        }
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -294,29 +266,29 @@ public class FavouriteMoviesFragment extends Fragment
             case R.id.action_sort_by_name:
                 Collections.sort(mMoviesList, Movie.MovieNameSort);
                 mAdapter.notifyDataSetChanged();
-                mEditor.putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_NAME_SORT).apply();
+                mPrefs.edit().putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_NAME_SORT).apply();
                 break;
 
             case R.id.action_sort_by_date:
                 Collections.sort(mMoviesList, Movie.MovieReleaseDateSort);
                 mAdapter.notifyDataSetChanged();
-                mEditor.putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_DATE_SORT).apply();
+                mPrefs.edit().putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_DATE_SORT).apply();
                 break;
 
             case R.id.action_sort_by_vote:
                 Collections.sort(mMoviesList, Movie.MovieVoteSort);
                 mAdapter.notifyDataSetChanged();
-                mEditor.putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_VOTE_SORT).apply();
+                mPrefs.edit().putInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_VOTE_SORT).apply();
                 break;
 
             case R.id.action_grid_list_display_type:
-                mEditor.putBoolean(DISPLAY_LIST_IN_GRID_KEY, true).apply();
+                mPrefs.edit().putBoolean(DISPLAY_LIST_IN_GRID_KEY, true).apply();
                 //refresh toolbar
                 getActivity().invalidateOptionsMenu();
                 break;
 
             case R.id.action_list_display_type:
-                mEditor.putBoolean(DISPLAY_LIST_IN_GRID_KEY, false).apply();
+                mPrefs.edit().putBoolean(DISPLAY_LIST_IN_GRID_KEY, false).apply();
                 //refresh toolbar
                 getActivity().invalidateOptionsMenu();
                 break;
@@ -371,7 +343,6 @@ public class FavouriteMoviesFragment extends Fragment
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mProgressDialog.dismiss();
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null) {
@@ -380,7 +351,6 @@ public class FavouriteMoviesFragment extends Fragment
     }
 
     private void initMovieList() {
-        mProgressDialog.show();
         if(isGuest) {
             //get favourite movies from local db (Sqlite)
             getFavouriteMoviesFromLocalDB();
@@ -399,10 +369,7 @@ public class FavouriteMoviesFragment extends Fragment
                         .addValueEventListener(mValueEventListener);
 
         }
-//        else {
-//            Intent intent = new Intent(getActivity(), SigninActivity.class);
-//            getActivity().startActivity(intent);
-//        }
+
     }
 
     private void getFavouriteMoviesFromLocalDB() {
@@ -477,7 +444,8 @@ public class FavouriteMoviesFragment extends Fragment
                         .child(String.valueOf(movie.getId()))
                         .removeValue(this);
             } else {
-                Utils.createSnackBar(getResources(), mViewContainer, "Please sign in to proceed").show();
+                Intent intent = new Intent(mContext, SigninActivity.class);
+                getActivity().startActivity(intent);
             }
         }
     }
@@ -542,13 +510,9 @@ public class FavouriteMoviesFragment extends Fragment
         protected void onPostExecute(List<Movie> movieList) {
             
             mMoviesList = movieList;
-            //update adapter to refresh the list
-//            mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, FavouriteMoviesFragment.this, R.menu.favourite_movie_list_item_popup_menu);
-//            mAdapter.notifyDataSetChanged();
-//            mRecyclerView.setAdapter(mAdapter);
             populateMovieList();
-            //hide ProgressDialog
-            mProgressDialog.dismiss();
+            //hide spinner
+            mSpinner.setVisibility(View.GONE);
 
         }
     }

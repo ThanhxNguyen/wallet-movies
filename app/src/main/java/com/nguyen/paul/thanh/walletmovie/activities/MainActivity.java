@@ -81,8 +81,7 @@ public class MainActivity extends AppCompatActivity
     private String currentDrawerItemSelected;
 
     private SharedPreferences mPrefs;
-    private SharedPreferences.Editor mEditor;
-
+    private ActionBarDrawerToggle mDrawerToggle;
 
 
     @Override
@@ -99,11 +98,10 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //set to false because using custom toolbar title
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        if(getSupportActionBar() != null) getSupportActionBar().setDisplayShowTitleEnabled(false);
         mToolbarTitle = (TextView) findViewById(R.id.toolbar_title);
 
         mPrefs = getSharedPreferences(GLOBAL_PREF_KEY, MODE_PRIVATE);
-        mEditor = mPrefs.edit();
 
         mNetworkRequest = NetworkRequest.getInstance(this);
         mGenreListFromApi = ((App) getApplication()).getGenreListFromApi();
@@ -128,10 +126,10 @@ public class MainActivity extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.root_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        mDrawerToggle = new ActionBarDrawerToggle(
                 this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        mDrawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
+        mDrawerToggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         //get navigation drawer header
@@ -142,7 +140,7 @@ public class MainActivity extends AppCompatActivity
         mNavMenu = navigationView.getMenu();
         navigationView.setNavigationItemSelectedListener(this);
 
-        onNavigationItemSelected(navigationView.getMenu().getItem(0));
+        if(savedInstanceState == null) onNavigationItemSelected(navigationView.getMenu().getItem(0));
 
         prepareFireBaseAuthListener();
 
@@ -222,8 +220,7 @@ public class MainActivity extends AppCompatActivity
                     boolean isGuest = mPrefs.getBoolean(GUEST_MODE_PREF_KEY, true);
 
                     if(isGuest) {
-                        mEditor.putBoolean(GUEST_MODE_PREF_KEY, false);
-                        mEditor.apply();
+                        mPrefs.edit().putBoolean(GUEST_MODE_PREF_KEY, false).apply();
                         //transfer movies from local db to cloud and empty local db
                         TransferLocalMoviesToCloudTask task = new TransferLocalMoviesToCloudTask();
                         task.execute();
@@ -263,6 +260,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
     @Override
@@ -430,8 +428,6 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 currentDrawerItemSelected = HomeFragment.FRAGMENT_TAG;
-                //set toolbar title
-                setToolbarTitle(R.string.title_home);
 
                 return true;
 
@@ -452,8 +448,6 @@ public class MainActivity extends AppCompatActivity
                         }
                     }
                     currentDrawerItemSelected = FavouriteMoviesFragment.FRAGMENT_TAG;
-                    //set toolbar title
-                    setToolbarTitle(R.string.title_favourite_movies);
 
                 } else {
                     //redirect to sign in page if user not signed in yet
@@ -479,8 +473,6 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
                 currentDrawerItemSelected = AboutUsFragment.FRAGMENT_TAG;
-                //set toolbar title
-                setToolbarTitle(R.string.title_about);
 
                 return true;
 
@@ -497,8 +489,7 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
                 currentDrawerItemSelected = AccountFragment.FRAGMENT_TAG;
-                //set toolbar title
-                setToolbarTitle(R.string.title_about);
+
                 return true;
 
             case R.id.nav_signin:
