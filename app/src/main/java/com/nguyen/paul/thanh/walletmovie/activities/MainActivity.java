@@ -68,8 +68,8 @@ public class MainActivity extends AppCompatActivity
 
     private static final String NETWORK_REQUEST_TAG = "network_request_tag";
 
+    private TextView mToolbarTitle;
     private DrawerLayout mDrawerLayout;
-    private NavigationView mNavigationView;
     private Menu mNavMenu;
     private TextView mHeaderDisplayName;
     private TextView mHeaderDisplayEmail;
@@ -98,6 +98,9 @@ public class MainActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        //set to false because using custom toolbar title
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        mToolbarTitle = (TextView) findViewById(R.id.toolbar_title);
 
         mPrefs = getSharedPreferences(GLOBAL_PREF_KEY, MODE_PRIVATE);
         mEditor = mPrefs.edit();
@@ -130,15 +133,16 @@ public class MainActivity extends AppCompatActivity
         mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         //get navigation drawer header
-        View navHeader = mNavigationView.getHeaderView(0);
+        View navHeader = navigationView.getHeaderView(0);
         mHeaderDisplayName = (TextView) navHeader.findViewById(R.id.display_name);
         mHeaderDisplayEmail = (TextView) navHeader.findViewById(R.id.display_email);
         //get navigation menu refs for show/hide menu items when authenticating users
-        mNavMenu = mNavigationView.getMenu();
-        mNavigationView.setNavigationItemSelectedListener(this);
-        onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
+        mNavMenu = navigationView.getMenu();
+        navigationView.setNavigationItemSelectedListener(this);
+
+        onNavigationItemSelected(navigationView.getMenu().getItem(0));
 
         prepareFireBaseAuthListener();
 
@@ -399,7 +403,7 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
         FragmentManager fm = getSupportFragmentManager();
         String fragmentTag;
@@ -414,6 +418,7 @@ public class MainActivity extends AppCompatActivity
                 //set flag
                 fragmentTag = HomeFragment.FRAGMENT_TAG;
                 fragment = fm.findFragmentByTag(fragmentTag);
+
                 if(fragment == null) {
                     fragment = HomeFragment.newInstance();
                     fm.beginTransaction().replace(R.id.content_frame, fragment, fragmentTag).addToBackStack(null).commit();
@@ -425,6 +430,9 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 currentDrawerItemSelected = HomeFragment.FRAGMENT_TAG;
+                //set toolbar title
+                setToolbarTitle(R.string.title_home);
+
                 return true;
 
             case R.id.nav_favourites:
@@ -444,7 +452,8 @@ public class MainActivity extends AppCompatActivity
                         }
                     }
                     currentDrawerItemSelected = FavouriteMoviesFragment.FRAGMENT_TAG;
-//                    fm.executePendingTransactions();
+                    //set toolbar title
+                    setToolbarTitle(R.string.title_favourite_movies);
 
                 } else {
                     //redirect to sign in page if user not signed in yet
@@ -470,7 +479,9 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
                 currentDrawerItemSelected = AboutUsFragment.FRAGMENT_TAG;
-//                fm.executePendingTransactions();
+                //set toolbar title
+                setToolbarTitle(R.string.title_about);
+
                 return true;
 
             case R.id.nav_account:
@@ -486,6 +497,8 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
                 currentDrawerItemSelected = AccountFragment.FRAGMENT_TAG;
+                //set toolbar title
+                setToolbarTitle(R.string.title_about);
                 return true;
 
             case R.id.nav_signin:
@@ -495,7 +508,6 @@ public class MainActivity extends AppCompatActivity
                 return true;
 
             case R.id.nav_signout:
-//                fm.executePendingTransactions();
                 //sign out user
                 signoutUser();
                 return true;
@@ -614,5 +626,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    public void setToolbarTitle(int stringResId) {
+        mToolbarTitle.setText(getString(stringResId));
+    }
+
+    public void setToolbarTitle(String str) {
+        mToolbarTitle.setText(str);
+    }
 
 }

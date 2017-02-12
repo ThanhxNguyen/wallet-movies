@@ -42,7 +42,7 @@
     <string name="prompt_password">Password (optional)</string>
     <string name="action_sign_in">Sign in or register</string>
     <string name="action_sign_in_short">Sign in</string>
-    <string name="signin_form_text">Signin Form</string>
+    <string name="signin_text">Sign in</string>
     <string name="error_field_required">This field is required!</string>
     <string name="error_email_invalid">The email is invalid!</string>
     <string name="error_password_too_short">The password must be greater than 6 characters!</string>
@@ -51,7 +51,7 @@
     <string name="error_auth_fail">Authentication failed! Incorrect email or password!</string>
     <string name="error_name_invalid">The name input is invalid!</string>
     <string name="error_password_not_match">The passwords are not matched!</string>
-    <string name="signup_form_text">Signup Form</string>
+    <string name="signup_text">Registration</string>
     <string name="ok">OK</string>
     <string name="dialog_title_registration_fail">Registration Failed</string>
     <string name="dialog_message_registration_fail">Opps! Something went wrong!\nFailed to register new user.</string>
@@ -72,7 +72,7 @@
     <string name="title_movie_details">Movie Details</string>
     <string name="title_movie_list">Movies</string>
     <string name="title_search_result">Search Results</string>
-    <string name="title_profile">Profile</string>
+    <string name="title_account">Account</string>
     <string name="title_cast_details">Cast Details</string>
     <string name="title_favourite_movies">Favourites</string>
 
@@ -93,7 +93,7 @@
     <string name="about_us_text">About Us</string>
     <string name="about_us_des">This app is completely free to use and is a must-have for any movie lovers. The app offers a range of different features including viewing movie details, trailers, casts etc…Users can also search for movies as well as bookmark movies as their favourites. The app is frequently updated to improve the performance and provide best user experience.</string>
     <string name="attribute_title">Credits</string>
-    <string name="attribute_des">This product uses the TMDb (themoviedb.org) API but is not endorsed or certified by TMDb.</string>
+    <string name="attribute_des">This product uses the TMDb API but is not endorsed or certified by TMDb.</string>
     <string name="welcome_title">Welcome!</string>
     <string name="guest">Guest</string>
     <string name="display_in_list">Display in list</string>
@@ -112,5 +112,6 @@
     <string name="old_email_label">Old email</string>
     <string name="new_email_tv_hint">New email</string>
     <string name="forgot_password_reset">Forgot password? Reset now</string>
+    <string name="title_about">About</string>
 
 </resources>

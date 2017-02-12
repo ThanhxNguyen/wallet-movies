@@ -37,6 +37,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.nguyen.paul.thanh.walletmovie.App;
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.activities.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.activities.SigninActivity;
 import com.nguyen.paul.thanh.walletmovie.adapters.CastRecyclerViewAdapter;
 import com.nguyen.paul.thanh.walletmovie.model.Cast;
@@ -77,6 +78,7 @@ public class MovieDetailsFragment extends Fragment
     private String trailerVideoKey;
 
     private Context mContext;
+    private MainActivity mActivity;
     private TextView mTitle;
     private TextView mReleaseDateValue;
     private TextView mVoteValue;
@@ -123,6 +125,13 @@ public class MovieDetailsFragment extends Fragment
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        //set toolbar title
+        if(mActivity != null) mActivity.setToolbarTitle(R.string.title_movie_details);
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         //mProgressDialog.dismiss();
@@ -151,8 +160,6 @@ public class MovieDetailsFragment extends Fragment
         SharedPreferences prefs = mContext.getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
         boolean isGuest = prefs.getBoolean(GUEST_MODE_PREF_KEY, true);
         FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        Log.d(TAG, "addMovieToFavourites: guest is: " + isGuest + " and user: " + currentUser);
 
         if(isGuest || currentUser != null) {
 
@@ -193,16 +200,12 @@ public class MovieDetailsFragment extends Fragment
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        //set title for toolbar
-        getActivity().setTitle(R.string.title_movie_details);
-    }
-
-    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = context;
+        if(getActivity() instanceof MainActivity) {
+            mActivity = (MainActivity) getActivity();
+        }
         mNetworkRequest = NetworkRequest.getInstance(mContext);
         mCastList = new ArrayList<>();
         mAuth = FirebaseAuth.getInstance();

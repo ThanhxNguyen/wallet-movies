@@ -39,7 +39,16 @@
                 android:minHeight="?attr/actionBarSize"
                 app:popupTheme="@style/AppTheme.PopupOverlay"
                 app:contentScrim="?attr/colorPrimary"
-                app:layout_collapseMode="pin"/>
+                app:layout_collapseMode="pin">
+                <TextView
+                    android:id="@+id/toolbar_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="18sp"
+                    android:textColor="@color/colorPrimaryText"
+                    android:textStyle="normal|bold"/>
+            </android.support.v7.widget.Toolbar>
 
         </android.support.design.widget.CollapsingToolbarLayout>
 

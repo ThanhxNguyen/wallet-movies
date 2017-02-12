@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.nguyen.paul.thanh.walletmovie.App;
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.activities.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
 import com.nguyen.paul.thanh.walletmovie.chains.RequestChain;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
@@ -68,6 +69,7 @@ public class MovieListFragment extends Fragment
 
     private static final String NETWORK_REQUEST_TAG = "network_request_tag";
     private Context mContext;
+    private MainActivity mActivity;
     private NetworkRequest mNetworkRequest;
     private List<Movie> mMoviesList;
     private List<Genre> mGenreListFromApi;
@@ -144,6 +146,10 @@ public class MovieListFragment extends Fragment
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = context;
+        if(getActivity() instanceof MainActivity) {
+            mActivity = (MainActivity) getActivity();
+        }
+
         mNetworkRequest = NetworkRequest.getInstance(mContext);
         mMoviesList = new ArrayList<>();
 
@@ -184,6 +190,7 @@ public class MovieListFragment extends Fragment
     }
 
     private void updateListDisplayTypeMenu(Menu menu) {
+//        ( (AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Test");
         displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
         //update list view display type icon based on user preference
         if(displayInGrid) {
@@ -330,7 +337,6 @@ public class MovieListFragment extends Fragment
 
         populateMovieList();
 
-        //test
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -352,7 +358,6 @@ public class MovieListFragment extends Fragment
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                RecyclerView.LayoutManager layoutManager;
 
                 //check if the user scroll down and this fragment is inside the view pager
                 if(isViewPagerItem && dy > 0) {
@@ -401,19 +406,23 @@ public class MovieListFragment extends Fragment
                 case DISPLAY_MOVIES_FOR_VIEWPAGER:
                     int tabPosition = args.getInt(TAB_POSITION_KEY, 0);
                     isViewPagerItem = true;
+                    //set toolbar title
+                    if(mActivity != null) mActivity.setToolbarTitle(R.string.title_home);
                     mTabPosition = tabPosition;
                     displayMoviesForViewPager();
                     break;
                 case DISPLAY_MOVIES_FOR_SEARCH_RESULT:
                     isViewPagerItem = false;
-                    getActivity().setTitle(R.string.title_search_result);
+                    //set toolbar title
+                    if(mActivity != null) mActivity.setToolbarTitle(R.string.title_search_result);
                     String searchQuery = args.getString(SEARCH_QUERY_KEY);
                     displayMoviesForSearchResult(searchQuery);
                     break;
                 case DISPLAY_MOVIES_RELATED_TO_CAST:
                     isViewPagerItem = false;
+                    //set toolbar title
+                    if(mActivity != null) mActivity.setToolbarTitle(R.string.title_movie_list);
                     int castId = args.getInt(CAST_ID_KEY);
-                    getActivity().setTitle(R.string.title_movie_list);
                     displayMoviesRelatedToCast(castId);
             }
 

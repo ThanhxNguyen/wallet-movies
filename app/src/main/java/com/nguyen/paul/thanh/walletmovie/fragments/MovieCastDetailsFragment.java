@@ -4,7 +4,6 @@ package com.nguyen.paul.thanh.walletmovie.fragments;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -22,6 +21,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.activities.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.model.Cast;
 import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
@@ -39,6 +39,7 @@ public class MovieCastDetailsFragment extends Fragment {
     private static final String NETWORK_REQUEST_TAG = "network_request_tag";
 
     private Context mContext;
+    private MainActivity mActivity;
     private NetworkRequest mNetworkRequest;
 //    private ImageView mCastProfile;
     private TextView mCastName;
@@ -65,6 +66,9 @@ public class MovieCastDetailsFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = context;
+        if(getActivity() instanceof MainActivity) {
+            mActivity = (MainActivity) getActivity();
+        }
         mNetworkRequest = NetworkRequest.getInstance(mContext);
 
         mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
@@ -92,15 +96,17 @@ public class MovieCastDetailsFragment extends Fragment {
         if(savedInstanceState == null) {
             mProgressDialog.show();
         }
+
         //retain this fragment state during activity re-creation progress
 //        setRetainInstance(true);
 
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        getActivity().setTitle(R.string.title_cast_details);
+    public void onResume() {
+        super.onResume();
+        //set toolbar title to empty
+        if(mActivity != null) mActivity.setToolbarTitle("");
     }
 
     @Override

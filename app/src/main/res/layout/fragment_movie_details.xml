@@ -167,7 +167,7 @@
             app:cardElevation="@dimen/cardview_elevation"
             app:cardUseCompatPadding="true"
             android:paddingBottom="8dp"
-            android:layout_marginTop="8dp">
+            >
 
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/cast_list_constraint"
@@ -227,7 +227,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginTop="8dp"
             android:background="@color/colorCardDark"
             app:layout_constraintTop_toBottomOf="@+id/card_cast_list"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -235,7 +234,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:cardUseCompatPadding="true"
             app:cardElevation="@dimen/cardview_elevation"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintVertical_bias="0.0"
+            android:layout_marginBottom="4dp">
 
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/movie_overview_constraint"

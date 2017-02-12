@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -32,6 +31,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.activities.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
 import com.nguyen.paul.thanh.walletmovie.database.MoviesTableOperator;
 import com.nguyen.paul.thanh.walletmovie.database.interfaces.DatabaseOperator;
@@ -62,6 +62,7 @@ public class FavouriteMoviesFragment extends Fragment
     public static final String FRAGMENT_TAG = FavouriteMoviesFragment.class.getSimpleName();
 
     private Context mContext;
+    private MainActivity mActivity;
     private List<Movie> mMoviesList;
     private MovieRecyclerViewAdapter mAdapter;
     private RecyclerViewWithEmptyView mRecyclerView;
@@ -110,6 +111,10 @@ public class FavouriteMoviesFragment extends Fragment
         isGuest = prefs.getBoolean(GUEST_MODE_PREF_KEY, true);
 
         mContext = context;
+        if(getActivity() instanceof MainActivity) {
+            mActivity = (MainActivity) getActivity();
+        }
+
         mMoviesList = new ArrayList<>();
 
         //initiate ProgressDialog
@@ -163,12 +168,6 @@ public class FavouriteMoviesFragment extends Fragment
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        getActivity().setTitle(R.string.title_favourite_movies);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mViewContainer = container;
@@ -198,6 +197,9 @@ public class FavouriteMoviesFragment extends Fragment
     @Override
     public void onResume() {
         super.onResume();
+        //set toolbar title
+        if(mActivity != null) mActivity.setToolbarTitle(R.string.title_favourite_movies);
+
         FirebaseUser currentUser = mAuth.getCurrentUser();
         isGuest = mPrefs.getBoolean(GUEST_MODE_PREF_KEY, true);
         if(!isGuest && currentUser == null) {

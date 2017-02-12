@@ -33,6 +33,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.activities.MainActivity;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -59,6 +60,7 @@ public class AccountFragment extends Fragment
     private Button mResetPasswordBtn;
 
     private Context mContext;
+    private MainActivity mActivity;
     private FirebaseAuth mAuth;
     private ProgressDialog mProgressDialog;
     private String currentName;
@@ -94,6 +96,9 @@ public class AccountFragment extends Fragment
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = context;
+        if(getActivity() instanceof MainActivity) {
+            mActivity = (MainActivity) getActivity();
+        }
         mAuth = FirebaseAuth.getInstance();
 
         //initiate ProgressDialog
@@ -105,6 +110,9 @@ public class AccountFragment extends Fragment
     @Override
     public void onResume() {
         super.onResume();
+
+        //set toolbar title
+        if(mActivity != null) mActivity.setToolbarTitle(R.string.title_account);
 
         setDisplayNameTextChange();
 
