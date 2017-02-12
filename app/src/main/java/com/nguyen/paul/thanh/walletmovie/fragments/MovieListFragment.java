@@ -1,12 +1,12 @@
 package com.nguyen.paul.thanh.walletmovie.fragments;
 
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.nguyen.paul.thanh.walletmovie.App;
@@ -73,6 +74,8 @@ public class MovieListFragment extends Fragment
     private MovieRecyclerViewAdapter mAdapter;
     private RecyclerViewWithEmptyView mRecyclerView;
     private MoviesMultiSearch mMoviesMultiSearch;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private ProgressBar mSpinner;
     //flag to indicate the display type of list view
     private boolean displayInGrid;
     private boolean isViewPagerItem;
@@ -92,7 +95,6 @@ public class MovieListFragment extends Fragment
 
     private ViewGroup mParentContainer;
 
-    private ProgressDialog mProgressDialog;
     private int mTabPosition;
     private MovieQueryBuilder mMovieQueryBuilder;
 
@@ -144,10 +146,6 @@ public class MovieListFragment extends Fragment
         mContext = context;
         mNetworkRequest = NetworkRequest.getInstance(mContext);
         mMoviesList = new ArrayList<>();
-        //initiate ProgressDialog
-        mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setMessage("Loading movies...");
-        mProgressDialog.setCancelable(false);
 
         mMovieQueryBuilder = MovieQueryBuilder.getInstance();
 
@@ -166,9 +164,6 @@ public class MovieListFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState == null) {
-            mProgressDialog.show();
-        }
 //        setRetainInstance(true);
         //enable fragment to append menu items to toolbar
         setHasOptionsMenu(true);
@@ -179,7 +174,6 @@ public class MovieListFragment extends Fragment
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mProgressDialog.dismiss();
         resetLoadMore();
     }
 
@@ -323,11 +317,33 @@ public class MovieListFragment extends Fragment
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_movie_pager_item, container, false);
 
         mRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.movie_list);
+        mSpinner = (ProgressBar) view.findViewById(R.id.spinner);
+
+        if(savedInstanceState == null) {
+            mSpinner.setVisibility(View.VISIBLE);
+        }
+
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         //get placeholder view and set it to display when the list is empty
         TextView placeholderView = (TextView) view.findViewById(R.id.placeholder_view);
         mRecyclerView.setPlaceholderView(placeholderView);
+
         populateMovieList();
+
+        //test
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if(isViewPagerItem) {
+                    //reset page number
+                    currentPage = 1;
+                    displayMoviesForViewPager();
+                } else {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                }
+            }
+        });
 
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
@@ -501,6 +517,7 @@ public class MovieListFragment extends Fragment
         }
 
         mAdapter.notifyDataSetChanged();
-        mProgressDialog.dismiss();
+        mSpinner.setVisibility(View.GONE);
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 }

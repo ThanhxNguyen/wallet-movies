@@ -7,12 +7,25 @@
               android:gravity="center"
               tools:context="com.nguyen.paul.thanh.walletmovie.fragments.MovieListFragment">
 
+    <ProgressBar
+        android:id="@+id/spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
 
-    <com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView
-        android:id="@+id/movie_list"
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        android:layout_height="wrap_content">
+
+        <com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView
+            android:id="@+id/movie_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <TextView
         android:id="@+id/placeholder_view"
