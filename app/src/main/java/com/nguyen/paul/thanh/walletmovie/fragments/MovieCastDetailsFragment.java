@@ -176,12 +176,15 @@ public class MovieCastDetailsFragment extends Fragment {
                                 //hide progress dialog
                                 mProgressDialog.dismiss();
 
-                                String castProfilePhotoSize;
-                                //get screen size and display cast profile photo appropriately.
-                                ScreenMeasurer screenMeasurer = new ScreenMeasurer(getActivity());
-                                int screenWidth = screenMeasurer.getDpWidth();
+                                String castProfilePhotoSize = "w342";
 
-                                castProfilePhotoSize = (screenWidth < 840) ? "w342" : "w500";
+                                if(getActivity() != null) {
+                                    //get screen size and display cast profile photo appropriately.
+                                    ScreenMeasurer screenMeasurer = new ScreenMeasurer(getActivity());
+                                    int screenWidth = screenMeasurer.getDpWidth();
+
+                                    castProfilePhotoSize = (screenWidth < 840) ? "w342" : "w500";
+                                }
 
                                 //load cast profile image
                                 String castProfileImageUrl = MovieQueryBuilder.getInstance()

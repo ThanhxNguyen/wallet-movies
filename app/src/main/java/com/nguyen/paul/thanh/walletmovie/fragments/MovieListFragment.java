@@ -381,7 +381,7 @@ public class MovieListFragment extends Fragment
         displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
 
         GridLayoutManager layoutManager;
-        if(displayInGrid) {
+        if(displayInGrid && mRecyclerView.getLayoutManager() instanceof GridLayoutManager) {
             int numRows = getNumRowsForMovieList();
             //update grid layout based on new screen size
             layoutManager = (GridLayoutManager) mRecyclerView.getLayoutManager();
