@@ -169,18 +169,10 @@
             android:paddingBottom="8dp"
             >
 
-            <ProgressBar
-                android:id="@+id/spinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:layout_gravity="center"
-                android:background="@color/colorCardDark"/>
-
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/cast_list_constraint"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:background="@color/colorCardDark">
 
                 <TextView
@@ -197,6 +189,17 @@
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent"/>
 
+                <ProgressBar
+                    android:id="@+id/spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@+id/movie_cast_list_text"
+                    app:layout_constraintLeft_toLeftOf="@+id/movie_cast_list_text"
+                    app:layout_constraintRight_toRightOf="@+id/movie_cast_list_text"
+                    android:visibility="gone"
+                    android:layout_gravity="center"
+                    android:background="@color/colorCardDark"/>
+
                 <com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView
                     android:id="@+id/movie_cast_list"
                     android:layout_width="0dp"
@@ -205,6 +208,7 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_goneMarginTop="8dp"
                     app:layout_behavior="@string/appbar_scrolling_view_behavior"
                     android:clipToPadding="false"
                     app:layout_constraintTop_toBottomOf="@+id/movie_cast_list_text"
@@ -215,16 +219,17 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-condensed"
-                    android:text="@string/no_movies_found"
+                    android:text="@string/no_casts_found"
                     android:textAlignment="center"
                     android:textColor="@color/colorPrimaryText"
                     android:textSize="14sp"
                     android:textStyle="normal|italic"
                     android:visibility="gone"
+                    app:layout_goneMarginTop="12dp"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/movie_cast_list_text"/>
+                    app:layout_constraintTop_toBottomOf="@+id/movie_cast_list"/>
 
             </android.support.constraint.ConstraintLayout>
 

@@ -22,7 +22,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -66,12 +65,11 @@ public class FavouriteMoviesFragment extends Fragment
 
     private Context mContext;
     private MainActivity mActivity;
-    private SwipeRefreshLayout mRefreshLayout;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
     private List<Movie> mMoviesList;
     private MovieRecyclerViewAdapter mAdapter;
     private RecyclerViewWithEmptyView mRecyclerView;
     private ViewGroup mViewContainer;
-    private ProgressBar mSpinner;
 
     //Firebase
     private FirebaseAuth mAuth;
@@ -135,7 +133,7 @@ public class FavouriteMoviesFragment extends Fragment
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mMoviesList = parseMovieResultsFromFirebase(dataSnapshot);
-                mSpinner.setVisibility(View.GONE);
+                mSwipeRefreshLayout.setRefreshing(false);
                 populateMovieList();
             }
 
@@ -164,17 +162,21 @@ public class FavouriteMoviesFragment extends Fragment
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_favourite_movies, container, false);
 
-        mSpinner = (ProgressBar) view.findViewById(R.id.spinner);
-        if(mMoviesList.size() == 0) mSpinner.setVisibility(View.VISIBLE);
 
-        mRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
-        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 //refresh the movie list
+                if(mMoviesList != null && mAdapter != null) {
+                    mMoviesList.clear();
+                    mAdapter.notifyDataSetChanged();
+                }
                 initMovieList();
             }
         });
+
+        if(mMoviesList.size() == 0) mSwipeRefreshLayout.setRefreshing(true);
 
         mRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.favourite_movie_list);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -203,6 +205,22 @@ public class FavouriteMoviesFragment extends Fragment
     }
 
     private void populateMovieList() {
+        //sorting movies
+        int sortType = mPrefs.getInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_VOTE_SORT);
+        switch (sortType) {
+            case MOVIE_NAME_SORT:
+                Collections.sort(mMoviesList, Movie.MovieNameSort);
+                break;
+            case MOVIE_DATE_SORT:
+                Collections.sort(mMoviesList, Movie.MovieReleaseDateSort);
+                break;
+            case MOVIE_VOTE_SORT:
+                Collections.sort(mMoviesList, Movie.MovieVoteSort);
+                break;
+            default:
+                break;
+        }
+
         displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
         RecyclerView.LayoutManager layoutManager;
         if(displayInGrid) {
@@ -225,7 +243,7 @@ public class FavouriteMoviesFragment extends Fragment
         mRecyclerView.setAdapter(mAdapter);
 
         //hide refresh spinner
-        mRefreshLayout.setRefreshing(false);
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     private void updateListDisplayTypeMenu(Menu menu) {
@@ -512,7 +530,7 @@ public class FavouriteMoviesFragment extends Fragment
             mMoviesList = movieList;
             populateMovieList();
             //hide spinner
-            mSpinner.setVisibility(View.GONE);
+            mSwipeRefreshLayout.setRefreshing(false);
 
         }
     }

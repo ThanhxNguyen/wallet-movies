@@ -13,12 +13,6 @@
         android:gravity="center"
         tools:context="com.nguyen.paul.thanh.walletmovie.fragments.FavouriteMoviesFragment">
 
-        <ProgressBar
-            android:id="@+id/spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"/>
-
         <com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView
             android:layout_width="match_parent"
             android:layout_height="match_parent"

@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -86,7 +85,6 @@ public class MovieDetailsFragment extends Fragment
     private TextView mVoteValue;
     private TextView mGenres;
     private TextView mDescription;
-    private ConstraintLayout mCastListLayout;
     private ProgressBar mCastListSpinner;
     private CastRecyclerViewAdapter mCastRecyclerViewAdapter;
     private List<Cast> mCastList;
@@ -103,6 +101,8 @@ public class MovieDetailsFragment extends Fragment
 //    private ProgressDialog mProgressDialog;
     private List<Genre> mGenreListFromApi;
     private YouTubePlayer mYoutubePlayer;
+    private RecyclerViewWithEmptyView mCastRecyclerView;
+    private TextView mPlaceholderView;
 
     public MovieDetailsFragment() {
         // Required empty public constructor
@@ -292,18 +292,18 @@ public class MovieDetailsFragment extends Fragment
         View view = inflater.inflate(R.layout.fragment_movie_details, container, false);
 
         //setup recycler view list for mMovie casts
-        RecyclerViewWithEmptyView castRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.movie_cast_list);
+        mCastRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.movie_cast_list);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayout.HORIZONTAL, false);
-        castRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        castRecyclerView.setLayoutManager(layoutManager);
+        mCastRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mCastRecyclerView.setLayoutManager(layoutManager);
         //set placeholder view when the list is empty
-        TextView placeholderView = (TextView) view.findViewById(R.id.placeholder_view);
-        castRecyclerView.setPlaceholderView(placeholderView);
+        mPlaceholderView = (TextView) view.findViewById(R.id.placeholder_view);
+        mCastRecyclerView.setPlaceholderView(mPlaceholderView);
         //make scrolling smooth when recyclerview inside another scrolling layout
-        castRecyclerView.setNestedScrollingEnabled(false);
+        mCastRecyclerView.setNestedScrollingEnabled(false);
         mCastRecyclerViewAdapter = new CastRecyclerViewAdapter(mContext, mCastList, this);
         //set adapter for recycler view
-        castRecyclerView.setAdapter(mCastRecyclerViewAdapter);
+        mCastRecyclerView.setAdapter(mCastRecyclerViewAdapter);
 
         mTitle = (TextView) view.findViewById(R.id.movie_title);
         mReleaseDateValue = (TextView) view.findViewById(R.id.movie_release_date_value);
@@ -312,10 +312,10 @@ public class MovieDetailsFragment extends Fragment
         mDescription = (TextView) view.findViewById(R.id.movie_description);
         mMoviePoster = (ImageView) view.findViewById(R.id.movie_poster);
 
-        mCastListLayout = (ConstraintLayout) view.findViewById(R.id.cast_list_constraint);
         mCastListSpinner = (ProgressBar) view.findViewById(R.id.spinner);
         //hide cast list while loading and show spinner
-        mCastListLayout.setVisibility(View.GONE);
+//        mCastRecyclerView.setVisibility(View.GONE);
+        mPlaceholderView.setText(R.string.loading);
         mCastListSpinner.setVisibility(View.VISIBLE);
 
         Bundle args = getArguments();
@@ -364,13 +364,13 @@ public class MovieDetailsFragment extends Fragment
                             //update adapter
                             mCastRecyclerViewAdapter.notifyDataSetChanged();
                             //show cast list
-                            mCastListLayout.setVisibility(View.VISIBLE);
+                            mCastRecyclerView.setVisibility(View.VISIBLE);
                             mCastListSpinner.setVisibility(View.GONE);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
                             //show cast list
-                            mCastListLayout.setVisibility(View.VISIBLE);
+                            mCastRecyclerView.setVisibility(View.VISIBLE);
                             mCastListSpinner.setVisibility(View.GONE);
                         }
                     }
@@ -379,7 +379,7 @@ public class MovieDetailsFragment extends Fragment
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         //show cast list
-                        mCastListLayout.setVisibility(View.VISIBLE);
+                        mCastRecyclerView.setVisibility(View.VISIBLE);
                         mCastListSpinner.setVisibility(View.GONE);
                     }
                 });

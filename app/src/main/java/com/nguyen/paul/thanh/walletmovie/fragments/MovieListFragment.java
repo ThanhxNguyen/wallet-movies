@@ -18,7 +18,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.nguyen.paul.thanh.walletmovie.App;
@@ -77,7 +76,6 @@ public class MovieListFragment extends Fragment
     private RecyclerViewWithEmptyView mRecyclerView;
     private MoviesMultiSearch mMoviesMultiSearch;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private ProgressBar mSpinner;
     //flag to indicate the display type of list view
     private boolean displayInGrid;
     private boolean isViewPagerItem;
@@ -98,6 +96,7 @@ public class MovieListFragment extends Fragment
 
     private int mTabPosition;
     private MovieQueryBuilder mMovieQueryBuilder;
+    private TextView mPlaceholderView;
 
     public MovieListFragment() {
         // Required empty public constructor
@@ -183,13 +182,11 @@ public class MovieListFragment extends Fragment
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_movie_list, container, false);
 
         mRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.movie_list);
-        mSpinner = (ProgressBar) view.findViewById(R.id.spinner);
-        if(mMoviesList != null && mMoviesList.size() == 0) mSpinner.setVisibility(View.VISIBLE);
 
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         //get placeholder view and set it to display when the list is empty
-        TextView placeholderView = (TextView) view.findViewById(R.id.placeholder_view);
-        mRecyclerView.setPlaceholderView(placeholderView);
+        mPlaceholderView = (TextView) view.findViewById(R.id.placeholder_view);
+        mRecyclerView.setPlaceholderView(mPlaceholderView);
 
         populateMovieList();
 
@@ -201,6 +198,7 @@ public class MovieListFragment extends Fragment
                     //reset page number
                     currentPage = 1;
                     mMoviesList.clear();
+                    if(mAdapter != null) mAdapter.notifyDataSetChanged();
                     displayMoviesForViewPager();
                 } else {
                     mSwipeRefreshLayout.setRefreshing(false);
@@ -475,6 +473,8 @@ public class MovieListFragment extends Fragment
     }
 
     private void sendRequestToGetMovieList(String url) {
+        mSwipeRefreshLayout.setRefreshing(true);
+        mPlaceholderView.setText(R.string.loading);
         //start getting movies
         mMoviesMultiSearch.search(url);
     }
@@ -515,14 +515,39 @@ public class MovieListFragment extends Fragment
             if(movieList.size() > 0) {
                 for(Movie m : movieList) {
                     if(m != null) {
-                        mMoviesList.add(m);
+                        boolean exist = false;
+                        if(mMoviesList.size() > 0) {
+                            for(Movie temp : mMoviesList) {
+                                if(temp.getId() == m.getId()) {
+                                    exist = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if(!exist) mMoviesList.add(m);
                     }
                 }
             }
         }
 
+        //sorting movies
+        int sortType = mPrefs.getInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_VOTE_SORT);
+        switch (sortType) {
+            case MOVIE_NAME_SORT:
+                Collections.sort(mMoviesList, Movie.MovieNameSort);
+                break;
+            case MOVIE_DATE_SORT:
+                Collections.sort(mMoviesList, Movie.MovieReleaseDateSort);
+                break;
+            case MOVIE_VOTE_SORT:
+                Collections.sort(mMoviesList, Movie.MovieVoteSort);
+                break;
+            default:
+                break;
+        }
+
         mAdapter.notifyDataSetChanged();
-        mSpinner.setVisibility(View.GONE);
         mSwipeRefreshLayout.setRefreshing(false);
+        mPlaceholderView.setText(R.string.no_movies_found);
     }
 }
