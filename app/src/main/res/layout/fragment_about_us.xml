@@ -12,7 +12,7 @@
                                                  android:layout_width="match_parent"
                                                  android:layout_height="match_parent"
                                                  android:background="@color/colorBackgroundDark"
-                                                 tools:context="com.nguyen.paul.thanh.walletmovie.fragments.AboutUsFragment">
+                                                 tools:context="com.nguyen.paul.thanh.walletmovie.pages.about.AboutUsFragment">
 
         <TextView
             android:text="@string/about_us_text"

@@ -28,10 +28,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -42,21 +38,14 @@ import com.nguyen.paul.thanh.walletmovie.activities.SigninActivity;
 import com.nguyen.paul.thanh.walletmovie.activities.WelcomeActivity;
 import com.nguyen.paul.thanh.walletmovie.database.MovieSearchSuggestionProvider;
 import com.nguyen.paul.thanh.walletmovie.database.MoviesTableOperator;
-import com.nguyen.paul.thanh.walletmovie.fragments.AboutUsFragment;
+import com.nguyen.paul.thanh.walletmovie.pages.about.AboutUsFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.AccountFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.FavouriteMoviesFragment;
-import com.nguyen.paul.thanh.walletmovie.fragments.HomeFragment;
-import com.nguyen.paul.thanh.walletmovie.fragments.MovieListFragment;
-import com.nguyen.paul.thanh.walletmovie.model.Genre;
+import com.nguyen.paul.thanh.walletmovie.pages.home.HomeFragment;
+import com.nguyen.paul.thanh.walletmovie.pages.home.MovieListFragment;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import com.nguyen.paul.thanh.walletmovie.model.User;
-import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
-import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.List;
 
@@ -68,16 +57,14 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
                     FirebaseAuthManager.AuthenticateListener {
 
-    private static final String NETWORK_REQUEST_TAG = "network_request_tag";
-
     private TextView mToolbarTitle;
     private DrawerLayout mDrawerLayout;
     private Menu mNavMenu;
     private TextView mHeaderDisplayName;
     private TextView mHeaderDisplayEmail;
     private AuthManager mAuth;
-    private NetworkRequest mNetworkRequest;
-    private List<Genre> mGenreListFromApi;
+//    private NetworkRequest mNetworkRequest;
+//    private List<Genre> mGenreListFromApi;
     //a flag to indicate the current selected drawer item
     private String currentDrawerItemSelected;
 
@@ -99,18 +86,17 @@ public class MainActivity extends AppCompatActivity
         boolean isFirstTimeUser = mPrefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
         if(isFirstTimeUser) {
             //user accesses the app for the first time, show welcome page
-            Intent intent = new Intent(MainActivity.this, WelcomeActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(MainActivity.this, WelcomeActivity.class));
             finish();
         }
 
-        mNetworkRequest = NetworkRequest.getInstance(this);
-        mGenreListFromApi = ((App) getApplication()).getGenreListFromApi();
+//        mNetworkRequest = NetworkRequest.getInstance(this);
+//        mGenreListFromApi = ((App) getApplication()).getGenreListFromApi();
 
-        if(mGenreListFromApi.size() == 0) {
-            String genreListUrl = MovieQueryBuilder.getInstance().getGenreListUrl();
-            sendRequestToGetGenreList(genreListUrl);
-        }
+//        if(mGenreListFromApi.size() == 0) {
+//            String genreListUrl = MovieQueryBuilder.getInstance().getGenreListUrl();
+//            sendRequestToGetGenreList(genreListUrl);
+//        }
 
         /**
          * Follow android developer guide for launchMode="singleTop"
@@ -550,48 +536,48 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private void sendRequestToGetGenreList(String url) {
-        JsonObjectRequest genreJsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        //successfully get data
-                        try {
-                            JSONArray genres = response.getJSONArray("genres");
-                            parseGenreList(genres);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-//                        Log.d(TAG, "onErrorResponse: Error getting genre list " + error.toString());
-                    }
-                });
-
-        mNetworkRequest.addToRequestQueue(genreJsonRequest, NETWORK_REQUEST_TAG);
-    }
-
-    private void parseGenreList(JSONArray genres) {
-        for(int i=0; i<genres.length(); i++) {
-            try {
-                JSONObject genreJsonObj = genres.getJSONObject(i);
-                int genreId = genreJsonObj.getInt("id");
-                String genreName = genreJsonObj.getString("name");
-
-                Genre genre = new Genre(genreId, genreName);
-                mGenreListFromApi.add(genre);
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        //cache genres list value
-        ((App) getApplication()).setGenreListFromApi(mGenreListFromApi);
-    }
+//    private void sendRequestToGetGenreList(String url) {
+//        JsonObjectRequest genreJsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+//                new Response.Listener<JSONObject>() {
+//                    @Override
+//                    public void onResponse(JSONObject response) {
+//                        //successfully get data
+//                        try {
+//                            JSONArray genres = response.getJSONArray("genres");
+//                            parseGenreList(genres);
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                    }
+//                },
+//                new Response.ErrorListener() {
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+////                        Log.d(TAG, "onErrorResponse: Error getting genre list " + error.toString());
+//                    }
+//                });
+//
+//        mNetworkRequest.addToRequestQueue(genreJsonRequest, NETWORK_REQUEST_TAG);
+//    }
+//
+//    private void parseGenreList(JSONArray genres) {
+//        for(int i=0; i<genres.length(); i++) {
+//            try {
+//                JSONObject genreJsonObj = genres.getJSONObject(i);
+//                int genreId = genreJsonObj.getInt("id");
+//                String genreName = genreJsonObj.getString("name");
+//
+//                Genre genre = new Genre(genreId, genreName);
+//                mGenreListFromApi.add(genre);
+//
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        //cache genres list value
+//        ((App) getApplication()).setGenreListFromApi(mGenreListFromApi);
+//    }
 
     @Override
     public void onSignIn() {

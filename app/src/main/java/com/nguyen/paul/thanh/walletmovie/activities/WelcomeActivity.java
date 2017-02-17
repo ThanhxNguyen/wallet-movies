@@ -26,6 +26,8 @@ public class WelcomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
 
+        if(getSupportActionBar() != null) getSupportActionBar().hide();
+
         mSignupBtn = (Button) findViewById(R.id.signup_btn);
         mSigninAsGuestBtn = (Button) findViewById(R.id.signin_as_guest_btn);
         mSigninBtn = (Button) findViewById(R.id.signin_btn);

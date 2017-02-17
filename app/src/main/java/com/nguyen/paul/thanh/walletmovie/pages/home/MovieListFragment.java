@@ -1,4 +1,4 @@
-package com.nguyen.paul.thanh.walletmovie.fragments;
+package com.nguyen.paul.thanh.walletmovie.pages.home;
 
 
 import android.content.Context;
@@ -21,18 +21,18 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nguyen.paul.thanh.walletmovie.App;
-import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.MainActivity;
+import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
-import com.nguyen.paul.thanh.walletmovie.chains.RequestChain;
+import com.nguyen.paul.thanh.walletmovie.fragments.MovieDetailsFragment;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
+import com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager;
 import com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView;
-import com.nguyen.paul.thanh.walletmovie.utilities.AddFavouriteTask;
 import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
-import com.nguyen.paul.thanh.walletmovie.utilities.MoviesMultiSearch;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
 import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
+import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,7 +50,7 @@ import static com.nguyen.paul.thanh.walletmovie.App.MOVIE_VOTE_SORT;
  */
 public class MovieListFragment extends Fragment
         implements MovieRecyclerViewAdapter.OnRecyclerViewClickListener,
-        RequestChain.RequestChainComplete {
+                    MovieListContract.View {
 
     public static final String FRAGMENT_TAG = MovieListFragment.class.getSimpleName();
 
@@ -74,7 +74,7 @@ public class MovieListFragment extends Fragment
     private List<Genre> mGenreListFromApi;
     private MovieRecyclerViewAdapter mAdapter;
     private RecyclerViewWithEmptyView mRecyclerView;
-    private MoviesMultiSearch mMoviesMultiSearch;
+//    private MoviesMultiSearch mMoviesMultiSearch;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     //flag to indicate the display type of list view
     private boolean displayInGrid;
@@ -97,6 +97,7 @@ public class MovieListFragment extends Fragment
     private int mTabPosition;
     private MovieQueryBuilder mMovieQueryBuilder;
     private TextView mPlaceholderView;
+    private MovieListPresenter mPresenter;
 
     public MovieListFragment() {
         // Required empty public constructor
@@ -148,13 +149,16 @@ public class MovieListFragment extends Fragment
             mActivity = (MainActivity) getActivity();
         }
 
+        //link this view to its presenter
+        mPresenter = new MovieListPresenter(this);
+
         mNetworkRequest = NetworkRequest.getInstance(mContext);
         mMoviesList = new ArrayList<>();
 
         mMovieQueryBuilder = MovieQueryBuilder.getInstance();
 
         //initialize movie search chain
-        mMoviesMultiSearch = new MoviesMultiSearch(getActivity(), this, mNetworkRequest, NETWORK_REQUEST_TAG);
+//        mMoviesMultiSearch = new MoviesMultiSearch(getActivity(), this, mNetworkRequest, NETWORK_REQUEST_TAG);
 
         //initialize shared preference
         mPrefs = mContext.getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
@@ -187,6 +191,9 @@ public class MovieListFragment extends Fragment
         //get placeholder view and set it to display when the list is empty
         mPlaceholderView = (TextView) view.findViewById(R.id.placeholder_view);
         mRecyclerView.setPlaceholderView(mPlaceholderView);
+
+        //setup adapter
+        mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this, R.menu.home_movie_list_item_popup_menu);
 
         populateMovieList();
 
@@ -410,19 +417,19 @@ public class MovieListFragment extends Fragment
                 url = mMovieQueryBuilder.discover().mostPopular().page(currentPage).build();
                 break;
         }
-        sendRequestToGetMovieList(url);
+        makeMovieRequest(url);
     }
 
     private void displayMoviesForSearchResult(String searchQuery) {
         mMoviesList.clear();
         String url = MovieQueryBuilder.getInstance().search().query(searchQuery).build();
-        sendRequestToGetMovieList(url);
+        makeMovieRequest(url);
     }
 
     private void displayMoviesRelatedToCast(int castId) {
         mMoviesList.clear();
         String url = MovieQueryBuilder.getInstance().discover().moviesRelatedTo(castId).build();
-        sendRequestToGetMovieList(url);
+        makeMovieRequest(url);
     }
 
     private void populateMovieList() {
@@ -437,8 +444,6 @@ public class MovieListFragment extends Fragment
         }
         mRecyclerView.setLayoutManager(layoutManager);
 
-        //setup recycler view adapter here
-        mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this, R.menu.home_movie_list_item_popup_menu);
         //check if the display type of list view and set layout appropriately
         if(displayInGrid) {
             mAdapter.setGridListViewLayout();
@@ -469,14 +474,16 @@ public class MovieListFragment extends Fragment
         super.onStop();
         //having trouble when add to request queue using singleton class methods
 //        mNetworkRequest.cancelPendingRequests(NETWORK_REQUEST_TAG);
-        mNetworkRequest.getRequestQueue().cancelAll(NETWORK_REQUEST_TAG);
+//        mNetworkRequest.getRequestQueue().cancelAll(NETWORK_REQUEST_TAG);
+        mPresenter.cancelRequests();
     }
 
-    private void sendRequestToGetMovieList(String url) {
+    private void makeMovieRequest(String url) {
         mSwipeRefreshLayout.setRefreshing(true);
         mPlaceholderView.setText(R.string.loading);
         //start getting movies
-        mMoviesMultiSearch.search(url);
+//        mMoviesMultiSearch.search(url);
+        mPresenter.getMovies(url);
     }
 
 
@@ -495,22 +502,65 @@ public class MovieListFragment extends Fragment
 
         switch (action) {
             case MovieRecyclerViewAdapter.OnRecyclerViewClickListener.ADD_TO_FAVOURITE_TRIGGERED:
-                addMovieToFavourites(movie, mGenreListFromApi);
+                mPresenter.addMovieToFavourite(movie);
                 break;
             default:
                 break;
         }
     }
 
-    private void addMovieToFavourites(Movie movie, List<Genre> genreList) {
-        AddFavouriteTask task = new AddFavouriteTask(mContext, genreList, getActivity());
-        task.setParentContainerForSnackBar(mParentContainer);
-        task.execute(movie);
-    }
+//    private void addMovieToFavourites(Movie movie, List<Genre> genreList) {
+//        AddFavouriteTask task = new AddFavouriteTask(mContext, genreList, getActivity());
+//        task.setParentContainerForSnackBar(mParentContainer);
+//        task.execute(movie);
+//    }
+
+//    @Override
+//    public void onMoviesSearchComplete(List<Movie> movieList) {
+//
+//        if(movieList != null) {
+//            if(movieList.size() > 0) {
+//                for(Movie m : movieList) {
+//                    if(m != null) {
+//                        boolean exist = false;
+//                        if(mMoviesList.size() > 0) {
+//                            for(Movie temp : mMoviesList) {
+//                                if(temp.getId() == m.getId()) {
+//                                    exist = true;
+//                                    break;
+//                                }
+//                            }
+//                        }
+//                        if(!exist) mMoviesList.add(m);
+//                    }
+//                }
+//            }
+//        }
+//
+//        //sorting movies
+//        int sortType = mPrefs.getInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_VOTE_SORT);
+//        switch (sortType) {
+//            case MOVIE_NAME_SORT:
+//                Collections.sort(mMoviesList, Movie.MovieNameSort);
+//                break;
+//            case MOVIE_DATE_SORT:
+//                Collections.sort(mMoviesList, Movie.MovieReleaseDateSort);
+//                break;
+//            case MOVIE_VOTE_SORT:
+//                Collections.sort(mMoviesList, Movie.MovieVoteSort);
+//                break;
+//            default:
+//                break;
+//        }
+//
+//        mAdapter.notifyDataSetChanged();
+//        mSwipeRefreshLayout.setRefreshing(false);
+//        mPlaceholderView.setText(R.string.no_movies_found);
+//    }
 
     @Override
-    public void onSearchChainComplete(List<Movie> movieList) {
-
+    public void updateMovieList(List<Movie> movieList) {
+        //update movie list
         if(movieList != null) {
             if(movieList.size() > 0) {
                 for(Movie m : movieList) {
@@ -549,5 +599,23 @@ public class MovieListFragment extends Fragment
         mAdapter.notifyDataSetChanged();
         mSwipeRefreshLayout.setRefreshing(false);
         mPlaceholderView.setText(R.string.no_movies_found);
+    }
+
+    @Override
+    public void showSnackBarWithResult(MovieSourceManager.RESULT result) {
+        switch (result) {
+            case SUCCESS_ADD_MOVIE:
+                Utils.createSnackBar(getResources(), mParentContainer, getString(R.string.success_add_movie)).show();
+                break;
+            case FAIL_ADD_MOVIE:
+                Utils.createSnackBar(getResources(), mParentContainer, getString(R.string.fail_add_movie)).show();
+                break;
+            case MOVIE_EXIST:
+                Utils.createSnackBar(getResources(), mParentContainer, getString(R.string.movie_exist)).show();
+                break;
+            default:
+                Utils.createSnackBar(getResources(), mParentContainer, getString(R.string.default_snackbar_error_message)).show();
+                break;
+        }
     }
 }

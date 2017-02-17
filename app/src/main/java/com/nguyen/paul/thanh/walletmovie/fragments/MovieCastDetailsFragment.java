@@ -23,6 +23,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.model.Cast;
+import com.nguyen.paul.thanh.walletmovie.pages.home.MovieListFragment;
 import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
 import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;

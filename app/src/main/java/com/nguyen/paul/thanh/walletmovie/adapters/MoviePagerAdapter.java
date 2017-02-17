@@ -4,7 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.nguyen.paul.thanh.walletmovie.fragments.MovieListFragment;
+import com.nguyen.paul.thanh.walletmovie.pages.home.MovieListFragment;
 
 /**
  * Adapter for movie pager on home page

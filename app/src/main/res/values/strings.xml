@@ -119,5 +119,9 @@
     <string name="clear_history_dialog_message">Are you sure you want to clear your browsing history?</string>
     <string name="signout_dialog_title">Signout Confirmation</string>
     <string name="signout_dialog_message">Are you sure you want to sign out?</string>
+    <string name="success_add_movie">Successfully added to your favourite!</string>
+    <string name="fail_add_movie">Error! Failed to complete the task</string>
+    <string name="movie_exist">This movie has already been in your favourite</string>
+    <string name="default_snackbar_error_message">Opps! Something went wrong!</string>
 
 </resources>
