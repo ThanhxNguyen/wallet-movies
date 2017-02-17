@@ -122,7 +122,7 @@ public class SigninActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        mProgressDialog.dismiss();
+//        mProgressDialog.dismiss();
     }
 
     @Override
@@ -304,10 +304,6 @@ public class SigninActivity extends AppCompatActivity
     }
 
     private void setClickListenerForSigninBtn() {
-        final ProgressDialog progressDialog = new ProgressDialog(SigninActivity.this, ProgressDialog.STYLE_SPINNER);
-        progressDialog.setTitle("User Authentication");
-        progressDialog.setMessage("Authenticating...");
-
         mSigninBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -320,7 +316,7 @@ public class SigninActivity extends AppCompatActivity
 
                 if(validEmail && validPassword) {
                     //show progress dialog
-                    progressDialog.show();
+                    mProgressDialog.show();
 
                     //sign in user with email and password
                     mAuth.signInWithEmailAndPassword(emailInput, passwordInput)
@@ -332,14 +328,14 @@ public class SigninActivity extends AppCompatActivity
                                         disableGuestMode();
 
                                         //dimiss the progress dialog
-                                        progressDialog.dismiss();
+                                        mProgressDialog.dismiss();
                                         //successfully signed in, redirect to MainActivity for now
                                         showSnackBar("Sign in successfully!");
                                         finish();
 
                                     } else {
                                         //dismiss progress dialog and display errors
-                                        progressDialog.dismiss();
+                                        mProgressDialog.dismiss();
                                         mAuthErrorMessage.setVisibility(View.VISIBLE);
                                         mAuthErrorMessage.setText(getString(R.string.error_auth_fail));
                                     }
