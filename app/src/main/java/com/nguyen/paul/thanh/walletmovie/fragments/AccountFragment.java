@@ -33,7 +33,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.nguyen.paul.thanh.walletmovie.R;
-import com.nguyen.paul.thanh.walletmovie.activities.MainActivity;
+import com.nguyen.paul.thanh.walletmovie.MainActivity;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 

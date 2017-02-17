@@ -38,7 +38,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.nguyen.paul.thanh.walletmovie.App;
 import com.nguyen.paul.thanh.walletmovie.R;
-import com.nguyen.paul.thanh.walletmovie.activities.MainActivity;
+import com.nguyen.paul.thanh.walletmovie.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.activities.SigninActivity;
 import com.nguyen.paul.thanh.walletmovie.adapters.CastRecyclerViewAdapter;
 import com.nguyen.paul.thanh.walletmovie.model.Cast;

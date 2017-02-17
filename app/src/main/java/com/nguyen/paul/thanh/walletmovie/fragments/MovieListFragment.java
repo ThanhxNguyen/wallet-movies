@@ -22,7 +22,7 @@ import android.widget.TextView;
 
 import com.nguyen.paul.thanh.walletmovie.App;
 import com.nguyen.paul.thanh.walletmovie.R;
-import com.nguyen.paul.thanh.walletmovie.activities.MainActivity;
+import com.nguyen.paul.thanh.walletmovie.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
 import com.nguyen.paul.thanh.walletmovie.chains.RequestChain;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;

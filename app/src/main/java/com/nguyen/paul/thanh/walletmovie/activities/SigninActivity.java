@@ -44,6 +44,7 @@ import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 import static com.nguyen.paul.thanh.walletmovie.App.FIRST_TIME_USER_PREF_KEY;
 import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
 
 public class SigninActivity extends AppCompatActivity
         implements GoogleApiClient.OnConnectionFailedListener,
@@ -489,13 +490,18 @@ public class SigninActivity extends AppCompatActivity
     private void disableGuestMode() {
         //since user signed in, disable guest mode
         SharedPreferences prefs = getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
 
         boolean isFirstTimeUser = prefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
 
         if(isFirstTimeUser) {
-            editor.putBoolean(FIRST_TIME_USER_PREF_KEY, false);
-            editor.apply();
+            prefs.edit().putBoolean(FIRST_TIME_USER_PREF_KEY, false).apply();
+        }
+
+        //since user is signed in, disable guest mode if it's enabled
+        boolean isGuest = prefs.getBoolean(GUEST_MODE_PREF_KEY, true);
+
+        if(isGuest) {
+            prefs.edit().putBoolean(GUEST_MODE_PREF_KEY, false).apply();
         }
     }
 }

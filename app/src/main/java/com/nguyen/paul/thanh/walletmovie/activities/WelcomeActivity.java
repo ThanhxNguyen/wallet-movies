@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import com.nguyen.paul.thanh.walletmovie.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.R;
 
 import static com.nguyen.paul.thanh.walletmovie.App.FIRST_TIME_USER_PREF_KEY;
@@ -32,6 +33,20 @@ public class WelcomeActivity extends AppCompatActivity {
         setClickListenerForSignupBtn();
         setClickListenerForSigninAsGuestBtn();
         setClickListenerForSigninBtn();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences prefs = getSharedPreferences(GLOBAL_PREF_KEY, MODE_PRIVATE);
+        boolean isFirstTimeUser = prefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
+        //since this page is only accessible to first time user only, redirect if not
+        if(!isFirstTimeUser) {
+            Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+            startActivity(intent);
+            //remove from backstack as well
+            finish();
+        }
     }
 
     private void setClickListenerForSigninBtn() {

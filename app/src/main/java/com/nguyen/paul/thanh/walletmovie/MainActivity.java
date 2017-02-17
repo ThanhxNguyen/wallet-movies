@@ -1,4 +1,4 @@
-package com.nguyen.paul.thanh.walletmovie.activities;
+package com.nguyen.paul.thanh.walletmovie;
 
 import android.app.SearchManager;
 import android.content.Context;
@@ -32,14 +32,14 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.facebook.AccessToken;
-import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.nguyen.paul.thanh.walletmovie.App;
-import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.Auth.AuthManager;
+import com.nguyen.paul.thanh.walletmovie.Auth.FirebaseAuthManager;
+import com.nguyen.paul.thanh.walletmovie.activities.SigninActivity;
+import com.nguyen.paul.thanh.walletmovie.activities.WelcomeActivity;
 import com.nguyen.paul.thanh.walletmovie.database.MovieSearchSuggestionProvider;
 import com.nguyen.paul.thanh.walletmovie.database.MoviesTableOperator;
 import com.nguyen.paul.thanh.walletmovie.fragments.AboutUsFragment;
@@ -49,6 +49,7 @@ import com.nguyen.paul.thanh.walletmovie.fragments.HomeFragment;
 import com.nguyen.paul.thanh.walletmovie.fragments.MovieListFragment;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
+import com.nguyen.paul.thanh.walletmovie.model.User;
 import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
@@ -64,7 +65,8 @@ import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
 import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+                    FirebaseAuthManager.AuthenticateListener {
 
     private static final String NETWORK_REQUEST_TAG = "network_request_tag";
 
@@ -73,15 +75,18 @@ public class MainActivity extends AppCompatActivity
     private Menu mNavMenu;
     private TextView mHeaderDisplayName;
     private TextView mHeaderDisplayEmail;
-    private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
+    private AuthManager mAuth;
     private NetworkRequest mNetworkRequest;
     private List<Genre> mGenreListFromApi;
     //a flag to indicate the current selected drawer item
     private String currentDrawerItemSelected;
 
+    private AlertDialog mClearHistoryDialog;
+    private AlertDialog mSignOutDialog;
+
     private SharedPreferences mPrefs;
     private ActionBarDrawerToggle mDrawerToggle;
+    private NavigationView mNavigationView;
 
 
     @Override
@@ -89,19 +94,15 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /**
-         * Follow android developer guide for launchMode="singleTop"
-         * Reference: https://developer.android.com/guide/topics/search/search-dialog.html
-         */
-        handleIntent(getIntent());
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        //set to false because using custom toolbar title
-        if(getSupportActionBar() != null) getSupportActionBar().setDisplayShowTitleEnabled(false);
-        mToolbarTitle = (TextView) findViewById(R.id.toolbar_title);
-
-        mPrefs = getSharedPreferences(GLOBAL_PREF_KEY, MODE_PRIVATE);
+        //determine if this is the first time user accesses the app
+        mPrefs = getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
+        boolean isFirstTimeUser = mPrefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
+        if(isFirstTimeUser) {
+            //user accesses the app for the first time, show welcome page
+            Intent intent = new Intent(MainActivity.this, WelcomeActivity.class);
+            startActivity(intent);
+            finish();
+        }
 
         mNetworkRequest = NetworkRequest.getInstance(this);
         mGenreListFromApi = ((App) getApplication()).getGenreListFromApi();
@@ -111,45 +112,28 @@ public class MainActivity extends AppCompatActivity
             sendRequestToGetGenreList(genreListUrl);
         }
 
-        //determine if this is the first time user accesses the app
-        SharedPreferences prefs = getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
-        boolean isFirstTimeUser = prefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
-        if(isFirstTimeUser) {
-            //user accesses the app for the first time, show welcome page
-            Intent intent = new Intent(MainActivity.this, WelcomeActivity.class);
-            startActivity(intent);
-            finish();
-        }
-
+        /**
+         * Follow android developer guide for launchMode="singleTop"
+         * Reference: https://developer.android.com/guide/topics/search/search-dialog.html
+         */
+        handleIntent(getIntent());
 
         //initialize Firebase auth
-        mAuth = FirebaseAuth.getInstance();
+        mAuth = new FirebaseAuthManager(this);
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.root_layout);
-        mDrawerToggle = new ActionBarDrawerToggle(
-                this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        mDrawerLayout.addDrawerListener(mDrawerToggle);
-        mDrawerToggle.syncState();
+        populateUIs();
+        init();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        //get navigation drawer header
-        View navHeader = navigationView.getHeaderView(0);
-        mHeaderDisplayName = (TextView) navHeader.findViewById(R.id.display_name);
-        mHeaderDisplayEmail = (TextView) navHeader.findViewById(R.id.display_email);
-        //get navigation menu refs for show/hide menu items when authenticating users
-        mNavMenu = navigationView.getMenu();
-        navigationView.setNavigationItemSelectedListener(this);
+        if(savedInstanceState == null) onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
 
-        if(savedInstanceState == null) onNavigationItemSelected(navigationView.getMenu().getItem(0));
-
-        prepareFireBaseAuthListener();
 
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
+        //start listening for auth changes
+        mAuth.on();
     }
 
     @Override
@@ -171,6 +155,73 @@ public class MainActivity extends AppCompatActivity
             ( (App) getApplicationContext()).setSearchQuery("");
         }
 
+    }
+
+    private void populateUIs() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        //set to false because using custom toolbar title
+        if(getSupportActionBar() != null) getSupportActionBar().setDisplayShowTitleEnabled(false);
+        mToolbarTitle = (TextView) findViewById(R.id.toolbar_title);
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.root_layout);
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
+        mDrawerToggle.syncState();
+
+        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        //get navigation drawer header
+        View navHeader = mNavigationView.getHeaderView(0);
+        mHeaderDisplayName = (TextView) navHeader.findViewById(R.id.display_name);
+        mHeaderDisplayEmail = (TextView) navHeader.findViewById(R.id.display_email);
+        //get navigation menu refs for show/hide menu items when authenticating users
+        mNavMenu = mNavigationView.getMenu();
+        mNavigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void init() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        //build clear search history dialog
+        builder.setTitle(R.string.clear_history_dialog_title);
+        builder.setMessage(R.string.clear_history_dialog_message);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                SearchRecentSuggestions suggestions = new SearchRecentSuggestions(MainActivity.this,
+                        MovieSearchSuggestionProvider.AUTHORITY,
+                        MovieSearchSuggestionProvider.MODE);
+                suggestions.clearHistory();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        mClearHistoryDialog = builder.create();
+
+        //build sign out confirmation dialog
+        builder.setTitle(R.string.signout_dialog_title);
+        builder.setMessage(R.string.signout_dialog_message);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //signout Firebase
+                mAuth.signOut();
+                Utils.createSnackBar(getResources(), findViewById(R.id.root_layout), "You have successfully signed out!").show();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+
+        mSignOutDialog = builder.create();
     }
 
     /**
@@ -203,54 +254,54 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void prepareFireBaseAuthListener() {
-        //setup listener for authentication changes (when user signin/signout)
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                //get authenticated user, if user==null, user is signed out otherwise user is signed in
-                FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-
-                if(currentUser != null) {
-                    //set display name and email in navigation drawer header
-                    mHeaderDisplayName.setText(currentUser.getDisplayName());
-                    mHeaderDisplayEmail.setText(currentUser.getEmail());
-
-                    //since user is signed in, disable guest mode if it's enabled
-                    boolean isGuest = mPrefs.getBoolean(GUEST_MODE_PREF_KEY, true);
-
-                    if(isGuest) {
-                        mPrefs.edit().putBoolean(GUEST_MODE_PREF_KEY, false).apply();
-                        //transfer movies from local db to cloud and empty local db
-                        TransferLocalMoviesToCloudTask task = new TransferLocalMoviesToCloudTask();
-                        task.execute();
-                    }
-                    
-                    //show/hide navigation menu items appropriately
-//                    mNavMenu.findItem(R.id.nav_favourites).setVisible(true);
-                    mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, true);
-                    mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(false);
-
-                } else {
-                    //set display name and email to guest mode since the user is signed out
-                    mHeaderDisplayName.setText(R.string.guest);
-                    mHeaderDisplayEmail.setText("");
-
-                    //user is signed out, show/hide menus appropriately
-//                    mNavMenu.findItem(R.id.nav_favourites).setVisible(false);
-                    mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, false);
-                    mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(true);
-                    //redirect to home page if the user is not currently on home page
-                    if(currentDrawerItemSelected != null && (currentDrawerItemSelected.equals(FavouriteMoviesFragment.FRAGMENT_TAG)
-                            || currentDrawerItemSelected.equals(AccountFragment.FRAGMENT_TAG)) ) {
-                        //if the current page is favourites or profile page, pop backstack because these
-                        //pages are visible to authenticated users only
-                        onBackPressed();
-                    }
-                }
-            }
-        };
-    }
+//    private void prepareFireBaseAuthListener() {
+//        //setup listener for authentication changes (when user signin/signout)
+//        mAuthListener = new FirebaseAuth.AuthStateListener() {
+//            @Override
+//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+//                //get authenticated user, if user==null, user is signed out otherwise user is signed in
+//                FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+//
+//                if(currentUser != null) {
+//                    //set display name and email in navigation drawer header
+//                    mHeaderDisplayName.setText(currentUser.getDisplayName());
+//                    mHeaderDisplayEmail.setText(currentUser.getEmail());
+//
+//                    //since user is signed in, disable guest mode if it's enabled
+//                    boolean isGuest = mPrefs.getBoolean(GUEST_MODE_PREF_KEY, true);
+//
+//                    if(isGuest) {
+//                        mPrefs.edit().putBoolean(GUEST_MODE_PREF_KEY, false).apply();
+//                        //transfer movies from local db to cloud and empty local db
+//                        TransferLocalMoviesToCloudTask task = new TransferLocalMoviesToCloudTask();
+//                        task.execute();
+//                    }
+//
+//                    //show/hide navigation menu items appropriately
+////                    mNavMenu.findItem(R.id.nav_favourites).setVisible(true);
+//                    mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, true);
+//                    mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(false);
+//
+//                } else {
+//                    //set display name and email to guest mode since the user is signed out
+//                    mHeaderDisplayName.setText(R.string.guest);
+//                    mHeaderDisplayEmail.setText("");
+//
+//                    //user is signed out, show/hide menus appropriately
+////                    mNavMenu.findItem(R.id.nav_favourites).setVisible(false);
+//                    mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, false);
+//                    mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(true);
+//                    //redirect to home page if the user is not currently on home page
+//                    if(currentDrawerItemSelected != null && (currentDrawerItemSelected.equals(FavouriteMoviesFragment.FRAGMENT_TAG)
+//                            || currentDrawerItemSelected.equals(AccountFragment.FRAGMENT_TAG)) ) {
+//                        //if the current page is favourites or profile page, pop backstack because these
+//                        //pages are visible to authenticated users only
+//                        onBackPressed();
+//                    }
+//                }
+//            }
+//        };
+//    }
 
     /**
      * This method helps to manage navigation drawer state, when activity is re-created
@@ -266,10 +317,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
-        if(mAuthListener != null) {
-            //remove auth listener
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
+//        if(mAuthListener != null) {
+//            //remove auth listener
+//            mAuth.removeAuthStateListener(mAuthListener);
+//        }
+
+        //stop listening for auth changes
+        mAuth.off();
     }
 
     @Override
@@ -376,26 +430,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void clearSearchHistory() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Clear History");
-        builder.setMessage("Are you sure you want to clear your browsing history?");
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                SearchRecentSuggestions suggestions = new SearchRecentSuggestions(MainActivity.this,
-                        MovieSearchSuggestionProvider.AUTHORITY,
-                        MovieSearchSuggestionProvider.MODE);
-                suggestions.clearHistory();
-            }
-        });
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
-
-        builder.create().show();
+        mClearHistoryDialog.show();
 
     }
 
@@ -433,7 +468,7 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.nav_favourites:
                 boolean isGuest = mPrefs.getBoolean(GUEST_MODE_PREF_KEY, true);
-                FirebaseUser user = mAuth.getCurrentUser();
+                User user = mAuth.getCurrentUser();
                 if(isGuest || user != null) {
                     //if user is in guest mode, go to favourite page normally
                     fragmentTag = FavouriteMoviesFragment.FRAGMENT_TAG;
@@ -500,7 +535,7 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.nav_signout:
                 //sign out user
-                signoutUser();
+                signOut();
                 return true;
 
             default:
@@ -510,32 +545,8 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private void signoutUser() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Signout Confirmation");
-        builder.setMessage("Are you sure you want to sign out?");
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                //check if the user is currently signed in with Facebook
-                AccessToken accessToken = AccessToken.getCurrentAccessToken();
-                if(accessToken != null && !accessToken.isExpired()) {
-                    //signout Facebook
-                    LoginManager.getInstance().logOut();
-                }
-                //signout Firebase
-                mAuth.signOut();
-                Utils.createSnackBar(getResources(), findViewById(R.id.root_layout), "You have successfully signed out!").show();
-            }
-        });
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
-
-        builder.create().show();
+    private void signOut() {
+        mSignOutDialog.show();
 
     }
 
@@ -580,6 +591,45 @@ public class MainActivity extends AppCompatActivity
         }
         //cache genres list value
         ((App) getApplication()).setGenreListFromApi(mGenreListFromApi);
+    }
+
+    @Override
+    public void onSignIn() {
+        //set display name and email in navigation drawer header
+        mHeaderDisplayName.setText(mAuth.getCurrentUser().getDisplayName());
+        mHeaderDisplayEmail.setText(mAuth.getCurrentUser().getEmail());
+
+        //since user is signed in, disable guest mode if it's enabled
+        boolean isGuest = mPrefs.getBoolean(GUEST_MODE_PREF_KEY, true);
+
+        if(isGuest) {
+            mPrefs.edit().putBoolean(GUEST_MODE_PREF_KEY, false).apply();
+            //transfer movies from local db to cloud and empty local db
+            TransferLocalMoviesToCloudTask task = new TransferLocalMoviesToCloudTask();
+            task.execute();
+        }
+
+        //show/hide navigation menu items appropriately
+        mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, true);
+        mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(false);
+    }
+
+    @Override
+    public void onSignOut() {
+        //set display name and email to guest mode since the user is signed out
+        mHeaderDisplayName.setText(R.string.guest);
+        mHeaderDisplayEmail.setText("");
+
+        //user is signed out, show/hide menus appropriately
+        mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, false);
+        mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(true);
+        //redirect to home page if the user is not currently on home page
+        if(currentDrawerItemSelected != null && (currentDrawerItemSelected.equals(FavouriteMoviesFragment.FRAGMENT_TAG)
+                || currentDrawerItemSelected.equals(AccountFragment.FRAGMENT_TAG)) ) {
+            //if the current page is favourites or profile page, pop backstack because these
+            //pages are visible to authenticated users only
+            onBackPressed();
+        }
     }
 
     private class TransferLocalMoviesToCloudTask extends AsyncTask<Void, Void, Void> {
