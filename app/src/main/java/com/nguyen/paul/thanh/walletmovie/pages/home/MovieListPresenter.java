@@ -18,7 +18,7 @@ public class MovieListPresenter implements MovieListContract.Presenter,
     private MovieSourceManager mMovieSourceManager;
     private MovieListContract.View mView;
 
-    public MovieListPresenter(MovieListContract.View view) {
+    MovieListPresenter(MovieListContract.View view) {
         mTMDBSource = new TMDBSource(this);
         mMovieSourceManager = new MovieSourceManager(this);
         mView = view;
@@ -45,18 +45,19 @@ public class MovieListPresenter implements MovieListContract.Presenter,
     }
 
     //callbacks when complete movie operations such as add, delete, get etc...
+    //it will pass the result back to view
     @Override
     public void onAddMovieComplete(MovieSourceManager.RESULT result) {
         mView.showSnackBarWithResult(result);
     }
 
     @Override
-    public void onDeleteMovieComplete() {
+    public void onDeleteMovieComplete(MovieSourceManager.RESULT result) {
 
     }
 
     @Override
-    public void onGetMoviesComplete() {
+    public void onGetMoviesComplete(List<Movie> movieList) {
 
     }
 }

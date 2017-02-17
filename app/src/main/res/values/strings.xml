@@ -123,5 +123,7 @@
     <string name="fail_add_movie">Error! Failed to complete the task</string>
     <string name="movie_exist">This movie has already been in your favourite</string>
     <string name="default_snackbar_error_message">Opps! Something went wrong!</string>
+    <string name="success_delete_movie">Successfully removed from favourites!</string>
+    <string name="fail_delete_movie">Error! Trouble removing the movie from favourites</string>
 
 </resources>

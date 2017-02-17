@@ -2,13 +2,11 @@ package com.nguyen.paul.thanh.walletmovie.model.source;
 
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 
-import java.util.List;
-
 /**
  * Created by THANH on 17/02/2017.
  */
 
-public class SimpleDataSource implements DataSourceContract {
+public class SimpleDataSource implements DataSource {
 
     @Override
     public void addMovie(Movie movie) {
@@ -20,12 +18,16 @@ public class SimpleDataSource implements DataSourceContract {
     }
 
     @Override
-    public List<Movie> getMovies() {
-        return null;
+    public void getMovies() {
     }
 
     @Override
     public Movie find(int movieId) {
         return null;
+    }
+
+    @Override
+    public void deleteMovie(Movie movie) {
+
     }
 }

@@ -1,12 +1,10 @@
-package com.nguyen.paul.thanh.walletmovie.fragments;
+package com.nguyen.paul.thanh.walletmovie.pages.favourites;
 
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -26,18 +24,14 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.MainActivity;
-import com.nguyen.paul.thanh.walletmovie.activities.SigninActivity;
+import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
-import com.nguyen.paul.thanh.walletmovie.database.MoviesTableOperator;
-import com.nguyen.paul.thanh.walletmovie.database.interfaces.DatabaseOperator;
+import com.nguyen.paul.thanh.walletmovie.fragments.MovieDetailsFragment;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
+import com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager;
 import com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView;
 import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
@@ -59,7 +53,7 @@ import static com.nguyen.paul.thanh.walletmovie.App.MOVIE_VOTE_SORT;
  */
 public class FavouriteMoviesFragment extends Fragment
                                 implements MovieRecyclerViewAdapter.OnRecyclerViewClickListener,
-                                            DatabaseReference.CompletionListener{
+                                            FavouritesContract.View {
 
     public static final String FRAGMENT_TAG = FavouriteMoviesFragment.class.getSimpleName();
 
@@ -71,12 +65,13 @@ public class FavouriteMoviesFragment extends Fragment
     private RecyclerViewWithEmptyView mRecyclerView;
     private ViewGroup mViewContainer;
 
+    private FavouritesPresenter mPresenter;
+
     //Firebase
     private FirebaseAuth mAuth;
     private DatabaseReference mUserRef;
     //listener to listen for data changes
-    private ValueEventListener mValueEventListener;
-
+//    private ValueEventListener mValueEventListener;
     private SharedPreferences mPrefs;
 
     //flag to indicate if the user is in guest mode or register mode
@@ -105,6 +100,9 @@ public class FavouriteMoviesFragment extends Fragment
     public void onAttach(Context context) {
         super.onAttach(context);
 
+        //initialize presenter
+        mPresenter = new FavouritesPresenter(this);
+
         //get shared preference
         SharedPreferences prefs = getActivity().getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
         //determine if the user is in guest mode or registered mode
@@ -129,20 +127,20 @@ public class FavouriteMoviesFragment extends Fragment
         mUserRef = firebaseDatabase.getReference("users");
 
         //initialize ValueEventListener
-        mValueEventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mMoviesList = parseMovieResultsFromFirebase(dataSnapshot);
-                mSwipeRefreshLayout.setRefreshing(false);
-                populateMovieList();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                //errors occur
-                Utils.createSnackBar(getResources(), mViewContainer, databaseError.toString()).show();
-            }
-        };
+//        mValueEventListener = new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                mMoviesList = parseMovieResultsFromFirebase(dataSnapshot);
+//                mSwipeRefreshLayout.setRefreshing(false);
+//                populateMovieList();
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//                //errors occur
+//                Utils.createSnackBar(getResources(), mViewContainer, databaseError.toString()).show();
+//            }
+//        };
 
     }
 
@@ -361,51 +359,33 @@ public class FavouriteMoviesFragment extends Fragment
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        //remove event listener from Firebase
+        mPresenter.removeFirebaseListener();
 
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null) {
-            mUserRef.child(currentUser.getUid()).removeEventListener(mValueEventListener);
-        }
+//        FirebaseUser currentUser = mAuth.getCurrentUser();
+//        if(currentUser != null) {
+//            mUserRef.child(currentUser.getUid()).removeEventListener(mValueEventListener);
+//        }
     }
 
     private void initMovieList() {
-        if(isGuest) {
-            //get favourite movies from local db (Sqlite)
-            getFavouriteMoviesFromLocalDB();
-        } else {
-            //get favourite movies from cloud db (Firebase)
-            getFavouriteMoviesFromFirebase();
-        }
+        mPresenter.getFavouriteMovies();
     }
 
-    private void getFavouriteMoviesFromFirebase() {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null) {
-            //user is currently signed in
-            mUserRef.child(currentUser.getUid())
-                    .child("favourite_movies")
-                        .addValueEventListener(mValueEventListener);
-
-        }
-
-    }
-
-    private void getFavouriteMoviesFromLocalDB() {
-        GetFavouriteMoviesTask getFavouriteMoviesTask = new GetFavouriteMoviesTask();
-        getFavouriteMoviesTask.execute();
-    }
-
-    private List<Movie> parseMovieResultsFromFirebase(DataSnapshot snapshot) {
-        List<Movie> movieList = new ArrayList<>();
-        for (DataSnapshot childSnapshot : snapshot.getChildren()) {
-            //each movie object has a key to identify each movie
-            String childKey = childSnapshot.getKey();
-            Movie movie = snapshot.child(childKey).getValue(Movie.class);
-            movieList.add(movie);
-        }
-
-        return movieList;
-    }
+//    private void getFavouriteMoviesFromFirebase() {
+//        //get favourites movies from Firebase
+//        mPresenter.getFavouriteMovies();
+//
+////        FirebaseUser currentUser = mAuth.getCurrentUser();
+////        if(currentUser != null) {
+////            //user is currently signed in
+////            mUserRef.child(currentUser.getUid())
+////                    .child("favourite_movies")
+////                        .addValueEventListener(mValueEventListener);
+////
+////        }
+//
+//    }
 
     @Override
     public void onRecyclerViewClick(Movie movie) {
@@ -442,96 +422,96 @@ public class FavouriteMoviesFragment extends Fragment
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                removeMovieFromFavouritesList(movie);
                 dialogInterface.dismiss();
+                mPresenter.removeMovieFromFavourites(movie);
             }
         });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
 
-    private void removeMovieFromFavouritesList(Movie movie) {
-        if(isGuest) {
-            DeleteMoveFromFavouritesTask deleteMoveFromFavouritesTask = new DeleteMoveFromFavouritesTask();
-            deleteMoveFromFavouritesTask.execute(movie);
-        } else {
-            FirebaseUser currentUser = mAuth.getCurrentUser();
-            if(currentUser != null) {
-                mUserRef.child(currentUser.getUid())
-                        .child("favourite_movies")
-                        .child(String.valueOf(movie.getId()))
-                        .removeValue(this);
-            } else {
-                Intent intent = new Intent(mContext, SigninActivity.class);
-                getActivity().startActivity(intent);
+
+
+
+
+//    private void removeMovieFromFavouritesList(Movie movie) {
+//        if(isGuest) {
+//            DeleteMoveFromFavouritesTask deleteMoveFromFavouritesTask = new DeleteMoveFromFavouritesTask();
+//            deleteMoveFromFavouritesTask.execute(movie);
+//        } else {
+//            FirebaseUser currentUser = mAuth.getCurrentUser();
+//            if(currentUser != null) {
+//                mUserRef.child(currentUser.getUid())
+//                        .child("favourite_movies")
+//                        .child(String.valueOf(movie.getId()))
+//                        .removeValue(this);
+//            } else {
+//                Intent intent = new Intent(mContext, SigninActivity.class);
+//                getActivity().startActivity(intent);
+//            }
+//        }
+//    }
+
+    @Override
+    public void updateMovieList(List<Movie> movieList) {
+        if(movieList.size() > 0) {
+            mMoviesList.clear();
+            for(Movie m : movieList) {
+                mMoviesList.add(m);
             }
+        }
+        mSwipeRefreshLayout.setRefreshing(false);
+        populateMovieList();
+    }
+
+    @Override
+    public void showSnackBarWithResult(MovieSourceManager.RESULT result) {
+        switch (result) {
+            case SUCCESS_DELETE:
+                Utils.createSnackBar(getResources(), mViewContainer, getString(R.string.success_delete_movie)).show();
+                break;
+            case FAIL_DELETE:
+                Utils.createSnackBar(getResources(), mViewContainer, getString(R.string.fail_delete_movie)).show();
+                break;
+            default:
+                Utils.createSnackBar(getResources(), mViewContainer, getString(R.string.default_snackbar_error_message)).show();
+                break;
         }
     }
 
     @Override
-    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-        //get called when complete Firebase write operation. If success DatabaseError object is empty, fail otherwise
-        if(databaseError != null) {
-            //errors occur
-            Utils.createSnackBar(getResources(), mViewContainer, "Error! Sorry failed to remove this movie").show();
-        } else {
-            //success
-            Utils.createSnackBar(getResources(), mViewContainer, "Successfully removed from favourite").show();
-        }
+    public void notifyListChange() {
+        mPresenter.getFavouriteMovies();
     }
 
-    //handle data operation in background thread
-    private class DeleteMoveFromFavouritesTask extends AsyncTask<Movie, Void, Movie> {
-
-        @Override
-        protected Movie doInBackground(Movie... movies) {
-            Movie movie = movies[0];
-            DatabaseOperator databaseOperator = MoviesTableOperator.getInstance(mContext);
-            int result = databaseOperator.delete(movie.getId());
-
-            if(result > 0) {
-                //successfully deleted
-                return movie;
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Movie movie) {
-            if(movie != null) {
-                //successfully removed movie
-                Utils.createSnackBar(getResources(), mViewContainer, "Successfully removed from favourite").show();
-                //update movie list and adapter
-                mMoviesList.remove(movie);
-                mAdapter.notifyDataSetChanged();
-            } else {
-                //failed to remove movie from favourites
-                Utils.createSnackBar(getResources(), mViewContainer, "Error! Sorry failed to remove this movie").show();
-            }
-        }
-    }
-
-    //handle database operation in background thread
-    private class GetFavouriteMoviesTask extends AsyncTask<Void, Void, List<Movie>> {
-
-        @Override
-        protected List<Movie> doInBackground(Void... voids) {
-            List<Movie> movieList;
-            //get movie from local database and return to onPostExecute (UI thread) to handle data
-            DatabaseOperator databaseOperator = MoviesTableOperator.getInstance(mContext);
-            movieList = databaseOperator.findAll();
-
-            return movieList;
-        }
-
-        @Override
-        protected void onPostExecute(List<Movie> movieList) {
-            
-            mMoviesList = movieList;
-            populateMovieList();
-            //hide spinner
-            mSwipeRefreshLayout.setRefreshing(false);
-
-        }
-    }
+//    //handle data operation in background thread
+//    private class DeleteMovieFromFavouritesTask extends AsyncTask<Movie, Void, Movie> {
+//
+//        @Override
+//        protected Movie doInBackground(Movie... movies) {
+//            Movie movie = movies[0];
+//            DatabaseOperator databaseOperator = MoviesTableOperator.getInstance(mContext);
+//            int result = databaseOperator.delete(movie.getId());
+//
+//            if(result > 0) {
+//                //successfully deleted
+//                return movie;
+//            }
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Movie movie) {
+//            if(movie != null) {
+//                //successfully removed movie
+//                Utils.createSnackBar(getResources(), mViewContainer, "Successfully removed from favourite").show();
+//                //update movie list and adapter
+//                mMoviesList.remove(movie);
+//                mAdapter.notifyDataSetChanged();
+//            } else {
+//                //failed to remove movie from favourites
+//                Utils.createSnackBar(getResources(), mViewContainer, "Error! Sorry failed to remove this movie").show();
+//            }
+//        }
+//    }
 }

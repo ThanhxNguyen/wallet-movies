@@ -206,7 +206,7 @@ public class MovieListFragment extends Fragment
                     currentPage = 1;
                     mMoviesList.clear();
                     if(mAdapter != null) mAdapter.notifyDataSetChanged();
-                    displayMoviesForViewPager();
+                    getMoviesForViewPager();
                 } else {
                     mSwipeRefreshLayout.setRefreshing(false);
                 }
@@ -252,7 +252,7 @@ public class MovieListFragment extends Fragment
                     //to the list
                     if (!loading && (firstVisibleItem + visibleItemCount + visibleThreshold) >= totalItemCount) {
                         currentPage++;
-                        displayMoviesForViewPager();
+                        getMoviesForViewPager();
                     }
 
                 }
@@ -271,21 +271,21 @@ public class MovieListFragment extends Fragment
                     //set toolbar title
                     if(mActivity != null) mActivity.setToolbarTitle(R.string.title_home);
                     mTabPosition = tabPosition;
-                    displayMoviesForViewPager();
+                    getMoviesForViewPager();
                     break;
                 case DISPLAY_MOVIES_FOR_SEARCH_RESULT:
                     isViewPagerItem = false;
                     //set toolbar title
                     if(mActivity != null) mActivity.setToolbarTitle(R.string.title_search_result);
                     String searchQuery = args.getString(SEARCH_QUERY_KEY);
-                    displayMoviesForSearchResult(searchQuery);
+                    getMoviesForSearchResult(searchQuery);
                     break;
                 case DISPLAY_MOVIES_RELATED_TO_CAST:
                     isViewPagerItem = false;
                     //set toolbar title
                     if(mActivity != null) mActivity.setToolbarTitle(R.string.title_movie_list);
                     int castId = args.getInt(CAST_ID_KEY);
-                    displayMoviesRelatedToCast(castId);
+                    getMoviesRelatedToCast(castId);
             }
 
         }//end if
@@ -396,7 +396,7 @@ public class MovieListFragment extends Fragment
         mAdapter.notifyDataSetChanged();
     }
 
-    private void displayMoviesForViewPager() {
+    private void getMoviesForViewPager() {
         String url;
                 /* grab movies according tab position
                 * 0: top movies list
@@ -420,13 +420,13 @@ public class MovieListFragment extends Fragment
         makeMovieRequest(url);
     }
 
-    private void displayMoviesForSearchResult(String searchQuery) {
+    private void getMoviesForSearchResult(String searchQuery) {
         mMoviesList.clear();
         String url = MovieQueryBuilder.getInstance().search().query(searchQuery).build();
         makeMovieRequest(url);
     }
 
-    private void displayMoviesRelatedToCast(int castId) {
+    private void getMoviesRelatedToCast(int castId) {
         mMoviesList.clear();
         String url = MovieQueryBuilder.getInstance().discover().moviesRelatedTo(castId).build();
         makeMovieRequest(url);
@@ -472,9 +472,6 @@ public class MovieListFragment extends Fragment
     @Override
     public void onStop() {
         super.onStop();
-        //having trouble when add to request queue using singleton class methods
-//        mNetworkRequest.cancelPendingRequests(NETWORK_REQUEST_TAG);
-//        mNetworkRequest.getRequestQueue().cancelAll(NETWORK_REQUEST_TAG);
         mPresenter.cancelRequests();
     }
 
@@ -482,11 +479,8 @@ public class MovieListFragment extends Fragment
         mSwipeRefreshLayout.setRefreshing(true);
         mPlaceholderView.setText(R.string.loading);
         //start getting movies
-//        mMoviesMultiSearch.search(url);
         mPresenter.getMovies(url);
     }
-
-
 
     @Override
     public void onRecyclerViewClick(Movie movie) {
@@ -502,61 +496,13 @@ public class MovieListFragment extends Fragment
 
         switch (action) {
             case MovieRecyclerViewAdapter.OnRecyclerViewClickListener.ADD_TO_FAVOURITE_TRIGGERED:
+                //add the movie to favourite
                 mPresenter.addMovieToFavourite(movie);
                 break;
             default:
                 break;
         }
     }
-
-//    private void addMovieToFavourites(Movie movie, List<Genre> genreList) {
-//        AddFavouriteTask task = new AddFavouriteTask(mContext, genreList, getActivity());
-//        task.setParentContainerForSnackBar(mParentContainer);
-//        task.execute(movie);
-//    }
-
-//    @Override
-//    public void onMoviesSearchComplete(List<Movie> movieList) {
-//
-//        if(movieList != null) {
-//            if(movieList.size() > 0) {
-//                for(Movie m : movieList) {
-//                    if(m != null) {
-//                        boolean exist = false;
-//                        if(mMoviesList.size() > 0) {
-//                            for(Movie temp : mMoviesList) {
-//                                if(temp.getId() == m.getId()) {
-//                                    exist = true;
-//                                    break;
-//                                }
-//                            }
-//                        }
-//                        if(!exist) mMoviesList.add(m);
-//                    }
-//                }
-//            }
-//        }
-//
-//        //sorting movies
-//        int sortType = mPrefs.getInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_VOTE_SORT);
-//        switch (sortType) {
-//            case MOVIE_NAME_SORT:
-//                Collections.sort(mMoviesList, Movie.MovieNameSort);
-//                break;
-//            case MOVIE_DATE_SORT:
-//                Collections.sort(mMoviesList, Movie.MovieReleaseDateSort);
-//                break;
-//            case MOVIE_VOTE_SORT:
-//                Collections.sort(mMoviesList, Movie.MovieVoteSort);
-//                break;
-//            default:
-//                break;
-//        }
-//
-//        mAdapter.notifyDataSetChanged();
-//        mSwipeRefreshLayout.setRefreshing(false);
-//        mPlaceholderView.setText(R.string.no_movies_found);
-//    }
 
     @Override
     public void updateMovieList(List<Movie> movieList) {

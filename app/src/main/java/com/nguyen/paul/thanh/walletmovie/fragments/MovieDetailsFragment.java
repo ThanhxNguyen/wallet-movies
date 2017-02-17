@@ -45,7 +45,6 @@ import com.nguyen.paul.thanh.walletmovie.model.Cast;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView;
-import com.nguyen.paul.thanh.walletmovie.utilities.AddFavouriteTask;
 import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
@@ -177,15 +176,15 @@ public class MovieDetailsFragment extends Fragment
                     dialogInterface.dismiss();
                 }
             });
-            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    AddFavouriteTask task = new AddFavouriteTask(mContext, mGenreListFromApi, getActivity());
-                    task.setParentContainerForSnackBar(mParentContainer);
-                    task.execute(mMovie);
-                    dialogInterface.dismiss();
-                }
-            });
+//            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialogInterface, int i) {
+//                    AddFavouriteTask task = new AddFavouriteTask(mContext, mGenreListFromApi, getActivity());
+//                    task.setParentContainerForSnackBar(mParentContainer);
+//                    task.execute(mMovie);
+//                    dialogInterface.dismiss();
+//                }
+//            });
             AlertDialog alertDialog = builder.create();
 
             if(mMovie != null && mGenreListFromApi != null) {
