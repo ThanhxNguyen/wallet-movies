@@ -1,4 +1,4 @@
-package com.nguyen.paul.thanh.walletmovie.activities;
+package com.nguyen.paul.thanh.walletmovie.pages.intro;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +10,8 @@ import android.widget.Button;
 
 import com.nguyen.paul.thanh.walletmovie.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.pages.signin.SigninActivity;
+import com.nguyen.paul.thanh.walletmovie.pages.signup.SignupActivity;
 
 import static com.nguyen.paul.thanh.walletmovie.App.FIRST_TIME_USER_PREF_KEY;
 import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;

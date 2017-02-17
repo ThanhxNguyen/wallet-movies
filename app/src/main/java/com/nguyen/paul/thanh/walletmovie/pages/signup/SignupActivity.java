@@ -1,4 +1,4 @@
-package com.nguyen.paul.thanh.walletmovie.activities;
+package com.nguyen.paul.thanh.walletmovie.pages.signup;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -172,8 +172,8 @@ public class SignupActivity extends AppCompatActivity {
     private void setListenerForSignupBtn() {
 
         mProgressDialog = new ProgressDialog(SignupActivity.this, ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setTitle("User Registration");
-        mProgressDialog.setMessage("Registering user...");
+        mProgressDialog.setTitle(getString(R.string.dialog_user_registration_title));
+        mProgressDialog.setMessage(getString(R.string.dialog_user_registration_message));
         mProgressDialog.setCancelable(false);
 
 

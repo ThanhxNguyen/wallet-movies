@@ -40,7 +40,7 @@
                 android:resource="@xml/searchable"/>
         </activity>
         <activity
-            android:name=".activities.SigninActivity"
+            android:name=".pages.signin.SigninActivity"
             android:label="@string/signin_text"
             android:windowSoftInputMode="adjustResize|stateHidden"
             android:parentActivityName=".MainActivity">
@@ -51,19 +51,19 @@
                 android:value=".MainActivity" />
         </activity>
         <activity
-            android:name=".activities.SignupActivity"
+            android:name=".pages.signup.SignupActivity"
             android:label="@string/signup_text"
             android:windowSoftInputMode="adjustResize|stateHidden"
-            android:parentActivityName=".activities.SigninActivity">
+            android:parentActivityName=".pages.signin.SigninActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.SigninActivity" />
+                android:value=".pages.signin.SigninActivity" />
         </activity>
 
         <activity
-            android:name=".activities.WelcomeActivity"/>
+            android:name=".pages.intro.WelcomeActivity"/>
     </application>
 
 </manifest>

@@ -125,5 +125,7 @@
     <string name="default_snackbar_error_message">Opps! Something went wrong!</string>
     <string name="success_delete_movie">Successfully removed from favourites!</string>
     <string name="fail_delete_movie">Error! Trouble removing the movie from favourites</string>
+    <string name="dialog_user_registration_title">User Registration</string>
+    <string name="dialog_user_registration_message">Registering user...</string>
 
 </resources>

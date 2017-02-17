@@ -1,4 +1,4 @@
-package com.nguyen.paul.thanh.walletmovie.activities;
+package com.nguyen.paul.thanh.walletmovie.pages.signin;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -38,6 +38,7 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.pages.signup.SignupActivity;
 import com.nguyen.paul.thanh.walletmovie.fragments.ResetPasswordDialogFragment;
 import com.nguyen.paul.thanh.walletmovie.utilities.FormInputValidator;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
@@ -84,7 +85,7 @@ public class SigninActivity extends AppCompatActivity
 
         //initiate ProgressDialog
         mProgressDialog = new ProgressDialog(this, ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setMessage("Loading...");
+        mProgressDialog.setMessage(getString(R.string.loading));
         mProgressDialog.setCancelable(false);
 
         mAuthErrorMessage = (TextView) findViewById(R.id.auth_error_message);

@@ -14,7 +14,7 @@
                                                  android:id="@+id/signup_form_activity"
                                                  android:layout_width="match_parent"
                                                  android:layout_height="match_parent"
-                                                 tools:context="com.nguyen.paul.thanh.walletmovie.activities.SignupActivity">
+                                                 tools:context="com.nguyen.paul.thanh.walletmovie.pages.signup.SignupActivity">
 
         <TextView
             android:text="@string/signup_text"
