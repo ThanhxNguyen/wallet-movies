@@ -11,26 +11,26 @@ import com.nguyen.paul.thanh.walletmovie.database.MoviesTableOperator;
 import com.nguyen.paul.thanh.walletmovie.database.interfaces.DatabaseOperator;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
-import com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager;
-import com.nguyen.paul.thanh.walletmovie.model.source.SimpleDataSource;
+import com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager;
+import com.nguyen.paul.thanh.walletmovie.model.source.SimpleDataStore;
 
 import java.util.List;
 
-import static com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager.RESULT.FAIL_ADD_MOVIE;
-import static com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager.RESULT.FAIL_DELETE;
-import static com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager.RESULT.MOVIE_EXIST;
-import static com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager.RESULT.SUCCESS_ADD_MOVIE;
-import static com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager.RESULT.SUCCESS_DELETE;
+import static com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager.RESULT.FAIL_ADD_MOVIE;
+import static com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager.RESULT.FAIL_DELETE;
+import static com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager.RESULT.MOVIE_EXIST;
+import static com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager.RESULT.SUCCESS_ADD_MOVIE;
+import static com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager.RESULT.SUCCESS_DELETE;
 
 /**
  * Created by THANH on 17/02/2017.
  */
 
-public class LocalDBSource extends SimpleDataSource {
+public class LocalDBStore extends SimpleDataStore {
 
-    private MovieSourceManager.MovieOperationListener mListener;
+    private MovieStoreManager.MovieOperationListener mListener;
 
-    public LocalDBSource(MovieSourceManager.MovieOperationListener listener) {
+    public LocalDBStore(MovieStoreManager.MovieOperationListener listener) {
         mListener = listener;
     }
 
@@ -54,9 +54,9 @@ public class LocalDBSource extends SimpleDataSource {
     public static class DeleteMovieFromFavouritesTask extends AsyncTask<Movie, Void, Movie> {
 
         private Context mContext;
-        private MovieSourceManager.MovieOperationListener mListener;
+        private MovieStoreManager.MovieOperationListener mListener;
 
-        public DeleteMovieFromFavouritesTask(Context context, MovieSourceManager.MovieOperationListener listener) {
+        public DeleteMovieFromFavouritesTask(Context context, MovieStoreManager.MovieOperationListener listener) {
             mContext = context;
             mListener = listener;
         }
@@ -90,9 +90,9 @@ public class LocalDBSource extends SimpleDataSource {
 
     public static class GetFavouriteMoviesTask extends AsyncTask<Void, Void, List<Movie>> {
         private Context mContext;
-        private MovieSourceManager.MovieOperationListener mListener;
+        private MovieStoreManager.MovieOperationListener mListener;
 
-        public GetFavouriteMoviesTask(Context context, MovieSourceManager.MovieOperationListener listener) {
+        public GetFavouriteMoviesTask(Context context, MovieStoreManager.MovieOperationListener listener) {
             mContext = context;
             mListener = listener;
         }
@@ -114,15 +114,15 @@ public class LocalDBSource extends SimpleDataSource {
     }
 
     //AsyncTask to handle adding movies locally or remotely
-    public static class AddFavouriteTask extends AsyncTask<Movie, Void, MovieSourceManager.RESULT> {
+    public static class AddFavouriteTask extends AsyncTask<Movie, Void, MovieStoreManager.RESULT> {
 
         private Context mContext;
         private FirebaseAuth mAuth;
         private DatabaseReference mUsersRef;
         private List<Genre> mGenreListFromApi;
-        private MovieSourceManager.MovieOperationListener mListener;
+        private MovieStoreManager.MovieOperationListener mListener;
 
-        public AddFavouriteTask(Context context, MovieSourceManager.MovieOperationListener listener, List<Genre> genreList) {
+        public AddFavouriteTask(Context context, MovieStoreManager.MovieOperationListener listener, List<Genre> genreList) {
             mContext = context;
             mGenreListFromApi = genreList;
             mListener = listener;
@@ -132,7 +132,7 @@ public class LocalDBSource extends SimpleDataSource {
         }
 
         @Override
-        protected MovieSourceManager.RESULT doInBackground(Movie... movies) {
+        protected MovieStoreManager.RESULT doInBackground(Movie... movies) {
             Movie movie = movies[0];
 
             //user is in guest mode
@@ -159,7 +159,7 @@ public class LocalDBSource extends SimpleDataSource {
         }
 
         @Override
-        protected void onPostExecute(MovieSourceManager.RESULT result) {
+        protected void onPostExecute(MovieStoreManager.RESULT result) {
             super.onPostExecute(result);
             mListener.onAddMovieComplete(result);
         }

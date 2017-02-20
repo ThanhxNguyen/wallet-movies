@@ -31,7 +31,7 @@ import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
 import com.nguyen.paul.thanh.walletmovie.fragments.MovieDetailsFragment;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
-import com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager;
+import com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager;
 import com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView;
 import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
@@ -361,31 +361,11 @@ public class FavouriteMoviesFragment extends Fragment
         super.onDestroyView();
         //remove event listener from Firebase
         mPresenter.removeFirebaseListener();
-
-//        FirebaseUser currentUser = mAuth.getCurrentUser();
-//        if(currentUser != null) {
-//            mUserRef.child(currentUser.getUid()).removeEventListener(mValueEventListener);
-//        }
     }
 
     private void initMovieList() {
         mPresenter.getFavouriteMovies();
     }
-
-//    private void getFavouriteMoviesFromFirebase() {
-//        //get favourites movies from Firebase
-//        mPresenter.getFavouriteMovies();
-//
-////        FirebaseUser currentUser = mAuth.getCurrentUser();
-////        if(currentUser != null) {
-////            //user is currently signed in
-////            mUserRef.child(currentUser.getUid())
-////                    .child("favourite_movies")
-////                        .addValueEventListener(mValueEventListener);
-////
-////        }
-//
-//    }
 
     @Override
     public void onRecyclerViewClick(Movie movie) {
@@ -430,28 +410,6 @@ public class FavouriteMoviesFragment extends Fragment
         alertDialog.show();
     }
 
-
-
-
-
-//    private void removeMovieFromFavouritesList(Movie movie) {
-//        if(isGuest) {
-//            DeleteMoveFromFavouritesTask deleteMoveFromFavouritesTask = new DeleteMoveFromFavouritesTask();
-//            deleteMoveFromFavouritesTask.execute(movie);
-//        } else {
-//            FirebaseUser currentUser = mAuth.getCurrentUser();
-//            if(currentUser != null) {
-//                mUserRef.child(currentUser.getUid())
-//                        .child("favourite_movies")
-//                        .child(String.valueOf(movie.getId()))
-//                        .removeValue(this);
-//            } else {
-//                Intent intent = new Intent(mContext, SigninActivity.class);
-//                getActivity().startActivity(intent);
-//            }
-//        }
-//    }
-
     @Override
     public void updateMovieList(List<Movie> movieList) {
         if(movieList.size() > 0) {
@@ -465,7 +423,7 @@ public class FavouriteMoviesFragment extends Fragment
     }
 
     @Override
-    public void showSnackBarWithResult(MovieSourceManager.RESULT result) {
+    public void showSnackBarWithResult(MovieStoreManager.RESULT result) {
         switch (result) {
             case SUCCESS_DELETE:
                 Utils.createSnackBar(getResources(), mViewContainer, getString(R.string.success_delete_movie)).show();

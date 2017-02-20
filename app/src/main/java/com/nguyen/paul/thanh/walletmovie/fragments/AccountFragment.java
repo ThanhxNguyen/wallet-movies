@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
@@ -32,8 +33,8 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.MainActivity;
+import com.nguyen.paul.thanh.walletmovie.R;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -103,7 +104,7 @@ public class AccountFragment extends Fragment
 
         //initiate ProgressDialog
         mProgressDialog = new ProgressDialog(mContext, ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setMessage("Please wait...");
+        mProgressDialog.setMessage(getString(R.string.loading));
         mProgressDialog.setCancelable(false);
     }
 
@@ -295,18 +296,22 @@ public class AccountFragment extends Fragment
 
     private void openChangeEmailDialog() {
         ChangeEmailDialogFragment dialog = new ChangeEmailDialogFragment();
+        //set the dialog to full screen
+        dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.AppTheme);
         dialog.setEmailAcquireListener(this);
         //prevent user cancel dialog when click outside of dialog
-        dialog.setCancelable(false);
+//        dialog.setCancelable(false);
 //        dialog.show(getActivity().getSupportFragmentManager(), CHANGE_EMAIL_DIALOG_TAG);
         dialog.show(getFragmentManager(), CHANGE_EMAIL_DIALOG_TAG);
     }
 
     private void openChangePasswordDialog() {
         ChangePasswordDialogFragment dialog = new ChangePasswordDialogFragment();
+        //set the dialog to full screen
+        dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.AppTheme);
         dialog.setPasswordsAcquireListener(this);
         //prevent user cancel dialog when click outside of dialog
-        dialog.setCancelable(false);
+//        dialog.setCancelable(false);
 //        dialog.show(getActivity().getSupportFragmentManager(), CHANGE_PASSWORD_DIALOG_TAG);
         dialog.show(getFragmentManager(), CHANGE_PASSWORD_DIALOG_TAG);
     }

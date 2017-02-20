@@ -3,19 +3,19 @@ package com.nguyen.paul.thanh.walletmovie.pages.favourites;
 import com.nguyen.paul.thanh.walletmovie.BasePresenter;
 import com.nguyen.paul.thanh.walletmovie.BaseView;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
-import com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager;
+import com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager;
 
 import java.util.List;
 
 /**
- * Created by THANH on 17/02/2017.
+ * Contracts for favourite page view and presenter
  */
 
 public interface FavouritesContract {
 
     interface View extends BaseView {
         void updateMovieList(List<Movie> movieList);
-        void showSnackBarWithResult(MovieSourceManager.RESULT result);
+        void showSnackBarWithResult(MovieStoreManager.RESULT result);
         void notifyListChange();
     }
 

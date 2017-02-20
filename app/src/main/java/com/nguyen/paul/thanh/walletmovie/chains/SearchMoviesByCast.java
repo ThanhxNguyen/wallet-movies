@@ -153,6 +153,7 @@ public class SearchMoviesByCast implements MovieSearchChain {
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            mListener.onMoviesSearchComplete(null);
                         }
                     }
                 },

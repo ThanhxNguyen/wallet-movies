@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -20,17 +21,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.nguyen.paul.thanh.walletmovie.App;
 import com.nguyen.paul.thanh.walletmovie.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
 import com.nguyen.paul.thanh.walletmovie.fragments.MovieDetailsFragment;
-import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
-import com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager;
+import com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager;
 import com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView;
 import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
-import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
 import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
@@ -54,24 +52,22 @@ public class MovieListFragment extends Fragment
 
     public static final String FRAGMENT_TAG = MovieListFragment.class.getSimpleName();
 
-    private static final String TAB_POSITION_KEY = "tab_position_key";
-    private static final String SEARCH_QUERY_KEY = "search_query_key";
+    public static final String TAB_POSITION_KEY = "tab_position_key";
+    public static final String SEARCH_QUERY_KEY = "search_query_key";
     public static final String CAST_ID_KEY = "cast_id_key";
+    public static final String SCROLL_POSITION_KEY = "scroll_position_key";
 
     //these constants will be used to identify what kind of movies it should display
     //such as movies for viewpager from home page, movies for user search query or
     //movies related to a cast.
-    private static final String INIT_KEY = "initiating_key";
+    public static final String INIT_KEY = "initiating_key";
     public static final int DISPLAY_MOVIES_FOR_VIEWPAGER = 1;
     public static final int DISPLAY_MOVIES_FOR_SEARCH_RESULT = 2;
     public static final int DISPLAY_MOVIES_RELATED_TO_CAST = 3;
 
-    private static final String NETWORK_REQUEST_TAG = "network_request_tag";
     private Context mContext;
     private MainActivity mActivity;
-    private NetworkRequest mNetworkRequest;
     private List<Movie> mMoviesList;
-    private List<Genre> mGenreListFromApi;
     private MovieRecyclerViewAdapter mAdapter;
     private RecyclerViewWithEmptyView mRecyclerView;
 //    private MoviesMultiSearch mMoviesMultiSearch;
@@ -88,7 +84,8 @@ public class MovieListFragment extends Fragment
     private int visibleThreshold = 5;
     //page number for api request
     private int currentPage = 1;
-    private int firstVisibleItem, visibleItemCount, totalItemCount;
+    private int firstVisibleItem = 0;
+    private int visibleItemCount, totalItemCount;
 
     private SharedPreferences mPrefs;
 
@@ -96,7 +93,6 @@ public class MovieListFragment extends Fragment
 
     private int mTabPosition;
     private MovieQueryBuilder mMovieQueryBuilder;
-    private TextView mPlaceholderView;
     private MovieListPresenter mPresenter;
 
     public MovieListFragment() {
@@ -152,7 +148,6 @@ public class MovieListFragment extends Fragment
         //link this view to its presenter
         mPresenter = new MovieListPresenter(this);
 
-        mNetworkRequest = NetworkRequest.getInstance(mContext);
         mMoviesList = new ArrayList<>();
 
         mMovieQueryBuilder = MovieQueryBuilder.getInstance();
@@ -174,8 +169,6 @@ public class MovieListFragment extends Fragment
 //        setRetainInstance(true);
         //enable fragment to append menu items to toolbar
         setHasOptionsMenu(true);
-        //get genres value list from cache
-        mGenreListFromApi = ( (App) getActivity().getApplicationContext()).getGenreListFromApi();
     }
 
     @Override
@@ -189,8 +182,8 @@ public class MovieListFragment extends Fragment
 
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         //get placeholder view and set it to display when the list is empty
-        mPlaceholderView = (TextView) view.findViewById(R.id.placeholder_view);
-        mRecyclerView.setPlaceholderView(mPlaceholderView);
+        TextView placeholderView = (TextView) view.findViewById(R.id.placeholder_view);
+        mRecyclerView.setPlaceholderView(placeholderView);
 
         //setup adapter
         mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this, R.menu.home_movie_list_item_popup_menu);
@@ -294,6 +287,23 @@ public class MovieListFragment extends Fragment
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt(SCROLL_POSITION_KEY, firstVisibleItem);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if(savedInstanceState != null) {
+            int scrollPosition = savedInstanceState.getInt(SCROLL_POSITION_KEY);
+            if(scrollPosition > 0) {
+                mRecyclerView.getLayoutManager().scrollToPosition(scrollPosition);
+            }
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         resetLoadMore();
@@ -316,8 +326,6 @@ public class MovieListFragment extends Fragment
             menu.findItem(R.id.action_grid_list_display_type).setVisible(true);
             menu.findItem(R.id.action_list_display_type).setVisible(false);
         }
-
-        populateMovieList();
     }
 
     @Override
@@ -364,13 +372,13 @@ public class MovieListFragment extends Fragment
             case R.id.action_grid_list_display_type:
                 mPrefs.edit().putBoolean(DISPLAY_LIST_IN_GRID_KEY, true).apply();
                 getActivity().invalidateOptionsMenu();
-//                updateListDisplayTypeMenu(mMenu);
+                populateMovieList();
                 break;
 
             case R.id.action_list_display_type:
                 mPrefs.edit().putBoolean(DISPLAY_LIST_IN_GRID_KEY, false).apply();
                 getActivity().invalidateOptionsMenu();
-//                updateListDisplayTypeMenu(mMenu);
+                populateMovieList();
                 break;
 
             default:
@@ -477,7 +485,6 @@ public class MovieListFragment extends Fragment
 
     private void makeMovieRequest(String url) {
         mSwipeRefreshLayout.setRefreshing(true);
-        mPlaceholderView.setText(R.string.loading);
         //start getting movies
         mPresenter.getMovies(url);
     }
@@ -526,29 +533,12 @@ public class MovieListFragment extends Fragment
             }
         }
 
-        //sorting movies
-        int sortType = mPrefs.getInt(MOVIE_SORT_SETTINGS_KEY, MOVIE_VOTE_SORT);
-        switch (sortType) {
-            case MOVIE_NAME_SORT:
-                Collections.sort(mMoviesList, Movie.MovieNameSort);
-                break;
-            case MOVIE_DATE_SORT:
-                Collections.sort(mMoviesList, Movie.MovieReleaseDateSort);
-                break;
-            case MOVIE_VOTE_SORT:
-                Collections.sort(mMoviesList, Movie.MovieVoteSort);
-                break;
-            default:
-                break;
-        }
-
         mAdapter.notifyDataSetChanged();
         mSwipeRefreshLayout.setRefreshing(false);
-        mPlaceholderView.setText(R.string.no_movies_found);
     }
 
     @Override
-    public void showSnackBarWithResult(MovieSourceManager.RESULT result) {
+    public void showSnackBarWithResult(MovieStoreManager.RESULT result) {
         switch (result) {
             case SUCCESS_ADD_MOVIE:
                 Utils.createSnackBar(getResources(), mParentContainer, getString(R.string.success_add_movie)).show();

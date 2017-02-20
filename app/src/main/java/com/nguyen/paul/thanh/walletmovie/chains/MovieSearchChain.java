@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface MovieSearchChain {
 
+    //callback for passing movie list back when complete getting movies from api
     interface MoviesSearchChainListener {
         void onMoviesSearchComplete(List<Movie> movieList);
     }

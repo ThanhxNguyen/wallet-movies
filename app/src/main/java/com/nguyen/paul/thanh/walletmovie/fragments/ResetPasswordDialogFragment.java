@@ -11,6 +11,8 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -29,7 +31,6 @@ public class ResetPasswordDialogFragment extends DialogFragment {
 
     private FormInputValidator mFormValidator;
     private ResetPasswordAcquireListener mListener;
-    private Context mContext;
 
     public interface ResetPasswordAcquireListener {
         void onResetPasswordAcquire(String email);
@@ -47,14 +48,7 @@ public class ResetPasswordDialogFragment extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mContext = context;
         mFormValidator = FormInputValidator.getInstance();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     }
 
     @Override
@@ -68,9 +62,17 @@ public class ResetPasswordDialogFragment extends DialogFragment {
         mCancelBtn = (Button) view.findViewById(R.id.negative_btn);
         mProceedBtn = (Button) view.findViewById(R.id.positive_btn);
 
+
         setTextChangeListenerForEmailInput();
         setCancelBtnClickListener();
         setProceedBtnClickListener();
+
+        Window window = getDialog().getWindow();
+        if(window != null) {
+//            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            //adjust dialog height when keyboard appears
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        }
 
         return view;
     }
@@ -96,8 +98,6 @@ public class ResetPasswordDialogFragment extends DialogFragment {
                     if(mListener != null) {
                         mListener.onResetPasswordAcquire(newEmail);
                         getDialog().dismiss();
-                    } else {
-//                        Log.d(TAG, "onClick: EmailAcquireListener is null");
                     }
                 }
             }

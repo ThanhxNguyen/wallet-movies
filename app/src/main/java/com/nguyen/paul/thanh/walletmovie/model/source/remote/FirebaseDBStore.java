@@ -8,33 +8,37 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
-import com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager;
-import com.nguyen.paul.thanh.walletmovie.model.source.SimpleDataSource;
+import com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager;
+import com.nguyen.paul.thanh.walletmovie.model.source.SimpleDataStore;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager.RESULT.FAIL_ADD_MOVIE;
-import static com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager.RESULT.FAIL_DELETE;
-import static com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager.RESULT.MOVIE_EXIST;
-import static com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager.RESULT.SUCCESS_ADD_MOVIE;
-import static com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager.RESULT.SUCCESS_DELETE;
+import static com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager.RESULT.FAIL_ADD_MOVIE;
+import static com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager.RESULT.FAIL_DELETE;
+import static com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager.RESULT.MOVIE_EXIST;
+import static com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager.RESULT.SUCCESS_ADD_MOVIE;
+import static com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager.RESULT.SUCCESS_DELETE;
 
 /**
- * Created by THANH on 17/02/2017.
+ * This class handles reading/writing data to Firebase database
  */
 
-public class FirebaseDBSource extends SimpleDataSource {
+public class FirebaseDBStore extends SimpleDataStore {
+
+    //constants for Firebase database nodes
+    public static final String NODE_USERS = "users";
+    public static final String NODE_FAVOURITE_MOVIES = "favourite_movies";
 
     private final ValueEventListener mValueEventListener;
     private DatabaseReference mUsersRef;
     private FirebaseAuth mAuth;
-    private MovieSourceManager.MovieOperationListener mListener;
+    private MovieStoreManager.MovieOperationListener mListener;
 
-    public FirebaseDBSource(MovieSourceManager.MovieOperationListener listener) {
+    public FirebaseDBStore(MovieStoreManager.MovieOperationListener listener) {
         mListener = listener;
         mAuth = FirebaseAuth.getInstance();
-        mUsersRef = FirebaseDatabase.getInstance().getReference("users");
+        mUsersRef = FirebaseDatabase.getInstance().getReference(NODE_USERS);
 
         //initialize ValueEventListener
         mValueEventListener = new ValueEventListener() {
@@ -56,7 +60,7 @@ public class FirebaseDBSource extends SimpleDataSource {
         if(user != null) {
             if(mValueEventListener != null) {
                 mUsersRef.child(user.getUid())
-                        .child("favourite_movies")
+                        .child(NODE_FAVOURITE_MOVIES)
                         .removeEventListener(mValueEventListener);
             }
         }
@@ -69,7 +73,7 @@ public class FirebaseDBSource extends SimpleDataSource {
         if(user != null) {
             //user is currently signed in
             mUsersRef.child(user.getUid())
-                    .child("favourite_movies")
+                    .child(NODE_FAVOURITE_MOVIES)
                     .addValueEventListener(mValueEventListener);
 
         }
@@ -85,7 +89,7 @@ public class FirebaseDBSource extends SimpleDataSource {
         if(user != null) {
             final String uid = user.getUid();
             mUsersRef.child(uid)
-                    .child("favourite_movies")
+                    .child(NODE_FAVOURITE_MOVIES)
                     .child(String.valueOf(movie.getId()))
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -98,7 +102,7 @@ public class FirebaseDBSource extends SimpleDataSource {
                             } else {
                                 //no existing movie, safe to add
                                 mUsersRef.child(uid)
-                                        .child("favourite_movies")
+                                        .child(NODE_FAVOURITE_MOVIES)
                                         .child(String.valueOf(movie.getId()))
                                         .setValue(movie, new DatabaseReference.CompletionListener() {
                                             @Override
@@ -132,7 +136,7 @@ public class FirebaseDBSource extends SimpleDataSource {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null) {
             mUsersRef.child(currentUser.getUid())
-                    .child("favourite_movies")
+                    .child(NODE_FAVOURITE_MOVIES)
                     .child(String.valueOf(movie.getId()))
                     .removeValue(new DatabaseReference.CompletionListener() {
 

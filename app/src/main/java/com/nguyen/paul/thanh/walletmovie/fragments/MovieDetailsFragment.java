@@ -64,7 +64,7 @@ import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
  */
 public class MovieDetailsFragment extends Fragment
                                 implements YouTubePlayer.OnInitializedListener,
-                                            CastRecyclerViewAdapter.OnMovieCastItemClick{
+                                            CastRecyclerViewAdapter.OnMovieCastItemClick {
 
     private static final String TAG = "MovieDetailsFragment";
 
@@ -312,10 +312,8 @@ public class MovieDetailsFragment extends Fragment
         mMoviePoster = (ImageView) view.findViewById(R.id.movie_poster);
 
         mCastListSpinner = (ProgressBar) view.findViewById(R.id.spinner);
-        //hide cast list while loading and show spinner
-//        mCastRecyclerView.setVisibility(View.GONE);
-        mPlaceholderView.setText(R.string.loading);
         mCastListSpinner.setVisibility(View.VISIBLE);
+        mPlaceholderView.setVisibility(View.GONE);
 
         Bundle args = getArguments();
         if(args != null) {
@@ -365,6 +363,7 @@ public class MovieDetailsFragment extends Fragment
                             //show cast list
                             mCastRecyclerView.setVisibility(View.VISIBLE);
                             mCastListSpinner.setVisibility(View.GONE);
+                            if(mCastList.size() == 0) mPlaceholderView.setVisibility(View.VISIBLE);
 
                         } catch (JSONException e) {
                             e.printStackTrace();

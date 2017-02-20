@@ -3,6 +3,7 @@ package com.nguyen.paul.thanh.walletmovie.adapters;
 import android.content.Context;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -176,15 +177,7 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
             //set click listener for 3-dots popup menu
             mThreeDotsMenu.setOnClickListener(mThreeDotsMenuClickListener);
 
-            if(mMovie.getPosterPath().equals("")) {
-                Glide.with(mContext)
-                        .load("")
-                        .placeholder(R.drawable.ic_image_placeholder_white_24dp)
-                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                        .error(R.drawable.ic_image_placeholder_white_24dp)
-                        .crossFade()
-                        .into(mThumbnail);
-            } else {
+            if(!TextUtils.isEmpty(mMovie.getPosterPath())) {
                 //if display image in grid, get the image size w342 otherwise w92 (w=width)
                 String sizeConfig = (displayListInGrid) ? "w342" : "w92";
                 //load movie thumb from internet

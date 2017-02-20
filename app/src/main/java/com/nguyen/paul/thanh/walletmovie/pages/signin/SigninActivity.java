@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -418,8 +419,9 @@ public class SigninActivity extends AppCompatActivity
 
     private void openResetPasswordDialog() {
         ResetPasswordDialogFragment dialog = new ResetPasswordDialogFragment();
+        dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.AppTheme);
         dialog.setResetPasswordAcquireListener(this);
-        dialog.setCancelable(false);
+//        dialog.setCancelable(false);
         dialog.show(getSupportFragmentManager(), RESET_PASSWORD_DIALOG_TAG);
     }
 

@@ -108,8 +108,8 @@
     <string name="old_password_hint">Old password</string>
     <string name="new_password_hint">New password</string>
     <string name="reset_password_text">Reset password</string>
-    <string name="change_email_dialog_title">Change email</string>
-    <string name="old_email_label">Old email</string>
+    <string name="change_email_dialog_title">Update email</string>
+    <string name="old_email_label">Old email:</string>
     <string name="new_email_tv_hint">New email</string>
     <string name="forgot_password_reset">Forgot password? Reset now</string>
     <string name="title_about">About</string>
@@ -127,5 +127,6 @@
     <string name="fail_delete_movie">Error! Trouble removing the movie from favourites</string>
     <string name="dialog_user_registration_title">User Registration</string>
     <string name="dialog_user_registration_message">Registering user...</string>
+    <string name="email_exist">Email has already been registered!</string>
 
 </resources>

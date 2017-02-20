@@ -6,8 +6,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.nguyen.paul.thanh.walletmovie.App;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
-import com.nguyen.paul.thanh.walletmovie.model.source.local.LocalDBSource;
-import com.nguyen.paul.thanh.walletmovie.model.source.remote.FirebaseDBSource;
+import com.nguyen.paul.thanh.walletmovie.model.source.local.LocalDBStore;
+import com.nguyen.paul.thanh.walletmovie.model.source.remote.FirebaseDBStore;
 
 import java.util.List;
 
@@ -19,26 +19,27 @@ import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
  * Created by THANH on 17/02/2017.
  */
 
-public class MovieSourceManager extends SimpleDataSource {
+public class MovieStoreManager extends SimpleDataStore {
 
-    private DataSource mLocalDBSource;
+    private DataStore mLocalDBStore;
     private MovieOperationListener mListener;
-    private DataSource mFirebaseDBSource;
+    private DataStore mFirebaseDBStore;
 
     public interface MovieOperationListener {
         void onAddMovieComplete(RESULT result);
         void onDeleteMovieComplete(RESULT result);
         void onGetMoviesComplete(List<Movie> movieList);
+        void onErrorsOccur(String errorMessage);
     }
 
     public enum RESULT {
         SUCCESS_ADD_MOVIE, FAIL_ADD_MOVIE, MOVIE_EXIST, SUCCESS_DELETE, FAIL_DELETE
     }
 
-    public MovieSourceManager(MovieOperationListener listener) {
+    public MovieStoreManager(MovieOperationListener listener) {
         mListener = listener;
-        mLocalDBSource = new LocalDBSource(mListener);
-        mFirebaseDBSource = new FirebaseDBSource(mListener);
+        mLocalDBStore = new LocalDBStore(mListener);
+        mFirebaseDBStore = new FirebaseDBStore(mListener);
     }
 
     @Override
@@ -48,10 +49,10 @@ public class MovieSourceManager extends SimpleDataSource {
 
         if(isGuest) {
             //get favourite movies from local DB
-            mLocalDBSource.getMovies();
+            mLocalDBStore.getMovies();
         } else {
             //get favourite movies from Firebase DB
-            mFirebaseDBSource.getMovies();
+            mFirebaseDBStore.getMovies();
         }
     }
 
@@ -60,12 +61,13 @@ public class MovieSourceManager extends SimpleDataSource {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser user = auth.getCurrentUser();
 
+        //do some checking here wether add locally or remotely
         if(user != null) {
             //user is signed in, store the movie on Firebase
-            mFirebaseDBSource.addMovie(movie);
+            mFirebaseDBStore.addMovie(movie);
         } else {
-            //do some checking here wether add locally or remotely
-            mLocalDBSource.addMovie(movie);
+            //store movie locally
+            mLocalDBStore.addMovie(movie);
         }
     }
 
@@ -75,13 +77,13 @@ public class MovieSourceManager extends SimpleDataSource {
         boolean isGuest = prefs.getBoolean(GUEST_MODE_PREF_KEY, true);
 
         if(isGuest) {
-            mLocalDBSource.deleteMovie(movie);
+            mLocalDBStore.deleteMovie(movie);
         } else {
-            mFirebaseDBSource.deleteMovie(movie);
+            mFirebaseDBStore.deleteMovie(movie);
         }
     }
 
     public void removeFirebaseListener() {
-        ( (FirebaseDBSource) mFirebaseDBSource).removeFirebaseListener();
+        ( (FirebaseDBStore) mFirebaseDBStore).removeFirebaseListener();
     }
 }

@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -54,12 +56,6 @@ public class ChangePasswordDialogFragment extends DialogFragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -75,6 +71,13 @@ public class ChangePasswordDialogFragment extends DialogFragment {
         mOldPasswordWrapper = (TextInputLayout) view.findViewById(R.id.old_email);
         mNewPasswordWrapper = (TextInputLayout) view.findViewById(R.id.new_email_wrapper);
         mConfirmPasswordWrapper = (TextInputLayout) view.findViewById(R.id.password_wrapper);
+
+        Window window = getDialog().getWindow();
+        if(window != null) {
+//            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            //adjust dialog height when keyboard appears
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        }
 
         setOldPasswordTvTextChange();
         setNewPasswordTvTextChange();

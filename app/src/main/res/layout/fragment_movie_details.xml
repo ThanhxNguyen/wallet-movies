@@ -191,7 +191,7 @@
 
                 <ProgressBar
                     android:id="@+id/spinner"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toBottomOf="@+id/movie_cast_list_text"
                     app:layout_constraintLeft_toLeftOf="@+id/movie_cast_list_text"
@@ -226,6 +226,7 @@
                     android:textStyle="normal|italic"
                     android:visibility="gone"
                     app:layout_goneMarginTop="12dp"
+                    android:layout_marginBottom="8dp"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"

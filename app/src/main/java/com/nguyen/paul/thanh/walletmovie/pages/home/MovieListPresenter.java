@@ -1,7 +1,7 @@
 package com.nguyen.paul.thanh.walletmovie.pages.home;
 
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
-import com.nguyen.paul.thanh.walletmovie.model.source.MovieSourceManager;
+import com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager;
 import com.nguyen.paul.thanh.walletmovie.model.source.remote.TMDBSource;
 
 import java.util.List;
@@ -12,15 +12,15 @@ import java.util.List;
 
 public class MovieListPresenter implements MovieListContract.Presenter,
         TMDBSource.MovieRequestListener,
-        MovieSourceManager.MovieOperationListener {
+        MovieStoreManager.MovieOperationListener {
 
     private TMDBSource mTMDBSource;
-    private MovieSourceManager mMovieSourceManager;
+    private MovieStoreManager mMovieSourceManager;
     private MovieListContract.View mView;
 
     MovieListPresenter(MovieListContract.View view) {
         mTMDBSource = new TMDBSource(this);
-        mMovieSourceManager = new MovieSourceManager(this);
+        mMovieSourceManager = new MovieStoreManager(this);
         mView = view;
     }
 
@@ -47,17 +47,22 @@ public class MovieListPresenter implements MovieListContract.Presenter,
     //callbacks when complete movie operations such as add, delete, get etc...
     //it will pass the result back to view
     @Override
-    public void onAddMovieComplete(MovieSourceManager.RESULT result) {
+    public void onAddMovieComplete(MovieStoreManager.RESULT result) {
         mView.showSnackBarWithResult(result);
     }
 
     @Override
-    public void onDeleteMovieComplete(MovieSourceManager.RESULT result) {
+    public void onDeleteMovieComplete(MovieStoreManager.RESULT result) {
 
     }
 
     @Override
     public void onGetMoviesComplete(List<Movie> movieList) {
+
+    }
+
+    @Override
+    public void onErrorsOccur(String errorMessage) {
 
     }
 }

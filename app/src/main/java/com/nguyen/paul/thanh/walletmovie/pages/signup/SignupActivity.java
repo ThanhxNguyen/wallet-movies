@@ -226,7 +226,7 @@ public class SignupActivity extends AppCompatActivity {
                                             mProgressDialog.dismiss();
                                             throw task.getException();
                                         } catch (FirebaseAuthUserCollisionException e) {
-                                            createAlertDialogForRegistrationFail("Email has already been registered!").show();
+                                            createAlertDialogForRegistrationFail(getString(R.string.email_exist)).show();
                                         } catch (Exception e) {
                                             createAlertDialogForRegistrationFail(getString(R.string.dialog_message_registration_fail)).show();
                                         }

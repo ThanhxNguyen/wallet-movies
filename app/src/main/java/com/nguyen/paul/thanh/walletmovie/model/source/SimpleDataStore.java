@@ -6,7 +6,7 @@ import com.nguyen.paul.thanh.walletmovie.model.Movie;
  * Created by THANH on 17/02/2017.
  */
 
-public class SimpleDataSource implements DataSource {
+public class SimpleDataStore implements DataStore {
 
     @Override
     public void addMovie(Movie movie) {
