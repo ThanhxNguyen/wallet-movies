@@ -24,10 +24,11 @@
 
         <activity
             android:launchMode="singleTop"
-            android:name=".activities.MainActivity"
+            android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="android.intent.action.SEARCH"/>
@@ -40,31 +41,28 @@
                 android:resource="@xml/searchable"/>
         </activity>
         <activity
-            android:name=".activities.SigninActivity"
-            android:label="@string/signin_text"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:parentActivityName=".activities.MainActivity">
+            android:name=".pages.signin.SigninActivity"
+            android:windowSoftInputMode="adjustResize|stateVisible"
+            android:parentActivityName=".MainActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity" />
+                android:value=".MainActivity" />
         </activity>
         <activity
-            android:name=".activities.SignupActivity"
-            android:label="@string/signup_text"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:parentActivityName=".activities.SigninActivity">
+            android:name=".pages.signup.SignupActivity"
+            android:windowSoftInputMode="adjustResize|stateVisible"
+            android:parentActivityName=".pages.signin.SigninActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.SigninActivity" />
+                android:value=".pages.signin.SigninActivity" />
         </activity>
 
         <activity
-            android:name=".activities.WelcomeActivity"
-            android:label="@string/app_name"/>
+            android:name=".pages.intro.WelcomeActivity"/>
     </application>
 
 </manifest>

@@ -1,6 +1,7 @@
 package com.nguyen.paul.thanh.walletmovie;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 
@@ -26,10 +27,17 @@ public class App extends Application {
 
     public static final String MOVIE_SORT_SETTINGS_KEY = "movie_sort_setttings_key";
 
+    private static Context mAppContext;
 
     private String searchQuery = "";
 
     private List<Genre> mGenreListFromApi = new ArrayList<>();
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mAppContext = getApplicationContext();
+    }
 
     public List<Genre> getGenreListFromApi() {
         return mGenreListFromApi;
@@ -45,6 +53,10 @@ public class App extends Application {
 
     public void setSearchQuery(String searchQuery) {
         this.searchQuery = searchQuery;
+    }
+
+    public static Context getAppContext() {
+        return mAppContext;
     }
 
 }

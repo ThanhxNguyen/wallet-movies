@@ -1,4 +1,4 @@
-package com.nguyen.paul.thanh.walletmovie.activities;
+package com.nguyen.paul.thanh.walletmovie.pages.signup;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -23,12 +23,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.nguyen.paul.thanh.walletmovie.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.utilities.FormInputValidator;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 import static com.nguyen.paul.thanh.walletmovie.App.FIRST_TIME_USER_PREF_KEY;
 import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -170,14 +172,17 @@ public class SignupActivity extends AppCompatActivity {
     private void setListenerForSignupBtn() {
 
         mProgressDialog = new ProgressDialog(SignupActivity.this, ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setTitle("User Registration");
-        mProgressDialog.setMessage("Registering user...");
+        mProgressDialog.setTitle(getString(R.string.dialog_user_registration_title));
+        mProgressDialog.setMessage(getString(R.string.dialog_user_registration_message));
         mProgressDialog.setCancelable(false);
 
 
         mSignupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                //hide soft keyboard
+                Utils.hideKeyboard(SignupActivity.this, mSignupBtn);
 
                 final String firstName = mFirstNameTv.getText().toString().trim();
                 final String lastName = mLastNameTv.getText().toString().trim();
@@ -203,13 +208,18 @@ public class SignupActivity extends AppCompatActivity {
                                     if(task.isSuccessful()) {
                                         //since user signed in, disable guest mode
                                         SharedPreferences prefs = getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
-                                        SharedPreferences.Editor editor = prefs.edit();
 
                                         boolean isFirstTimeUser = prefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
 
                                         if(isFirstTimeUser) {
-                                            editor.putBoolean(FIRST_TIME_USER_PREF_KEY, false);
-                                            editor.apply();
+                                            prefs.edit().putBoolean(FIRST_TIME_USER_PREF_KEY, false).apply();
+                                        }
+
+                                        //since user is signed in, disable guest mode if it's enabled
+                                        boolean isGuest = prefs.getBoolean(GUEST_MODE_PREF_KEY, true);
+
+                                        if(isGuest) {
+                                            prefs.edit().putBoolean(GUEST_MODE_PREF_KEY, false).apply();
                                         }
 
                                         //update profile info
@@ -219,7 +229,7 @@ public class SignupActivity extends AppCompatActivity {
                                             mProgressDialog.dismiss();
                                             throw task.getException();
                                         } catch (FirebaseAuthUserCollisionException e) {
-                                            createAlertDialogForRegistrationFail("Email has already been registered!").show();
+                                            createAlertDialogForRegistrationFail(getString(R.string.email_exist)).show();
                                         } catch (Exception e) {
                                             createAlertDialogForRegistrationFail(getString(R.string.dialog_message_registration_fail)).show();
                                         }

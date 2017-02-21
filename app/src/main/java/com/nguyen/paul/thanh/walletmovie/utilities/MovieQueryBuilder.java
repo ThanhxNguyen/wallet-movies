@@ -12,7 +12,7 @@ package com.nguyen.paul.thanh.walletmovie.utilities;
 
 public class MovieQueryBuilder {
 
-    private String apiKey = "1bd3f3a91c22eef0c9d9c15212f43593";
+    private final String apiKey = "1bd3f3a91c22eef0c9d9c15212f43593";
     private static MovieQueryBuilder mInstance;
 
     private MovieQueryBuilder() {

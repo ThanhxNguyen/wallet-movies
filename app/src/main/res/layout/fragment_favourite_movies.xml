@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="center"
-        tools:context="com.nguyen.paul.thanh.walletmovie.fragments.FavouriteMoviesFragment">
+        tools:context="com.nguyen.paul.thanh.walletmovie.pages.favourites.FavouriteMoviesFragment">
 
         <com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView
             android:layout_width="match_parent"

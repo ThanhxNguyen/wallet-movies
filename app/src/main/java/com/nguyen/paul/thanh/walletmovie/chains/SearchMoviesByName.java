@@ -1,7 +1,5 @@
 package com.nguyen.paul.thanh.walletmovie.chains;
 
-import android.app.Activity;
-
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -19,26 +17,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Concrete implementation of RequestChain
+ * Concrete implementation of MovieSearchChain
  */
 
-public class SearchMoviesByName implements RequestChain {
+public class SearchMoviesByName implements MovieSearchChain {
 
-    private RequestChain mNextChain;
-    private RequestChainComplete mListener;
+    private MovieSearchChain mNextChain;
+    private MoviesSearchChainListener mListener;
     private NetworkRequest mNetworkRequest;
     private String requestTag;
-    private Activity mActivity;
 
-    public SearchMoviesByName(Activity activity, RequestChainComplete listener, NetworkRequest networkRequest, String requestTag) {
+    public SearchMoviesByName(MoviesSearchChainListener listener, String requestTag) {
         mListener = listener;
-        mNetworkRequest = networkRequest;
+        mNetworkRequest = NetworkRequest.getInstance(App.getAppContext());
         this.requestTag = requestTag;
-        mActivity = activity;
     }
 
     @Override
-    public void setNextChain(RequestChain nextChain) {
+    public void setNextChain(MovieSearchChain nextChain) {
         mNextChain = nextChain;
     }
 
@@ -65,7 +61,7 @@ public class SearchMoviesByName implements RequestChain {
                             //or if movie list is empty, no results when search movies by name
                             //try next chain and search movie by actors/actresses
                             if(movieList.size() > 0) {
-                                mListener.onSearchChainComplete(movieList);
+                                mListener.onMoviesSearchComplete(movieList);
                             } else {
                                 //pass request to next chain to handle
                                 mNextChain.search(url);
@@ -73,9 +69,9 @@ public class SearchMoviesByName implements RequestChain {
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            e.printStackTrace();
-                            //there is error or can't find any movie
-                            mListener.onSearchChainComplete(null);
+                            //there is error, can't handle the search, pass to next search chain to handle
+//                            mListener.onMoviesSearchComplete(null);
+                            mNextChain.search(url);
                         }
                     }
                 },
@@ -93,38 +89,39 @@ public class SearchMoviesByName implements RequestChain {
     }
 
     private Movie parseMovieJsonObject(JSONObject obj) {
-        Movie movie = new Movie();
-        try {
+        Movie movie = null;
 
-            movie.setId(obj.getInt("id"));
-            movie.setTitle(obj.getString("title"));
-            movie.setOverview(obj.getString("overview"));
-            movie.setReleaseDate(obj.getString("release_date"));
-            movie.setRuntime(0);//put ternary condition here maybe
-            movie.setCountry("Unknown");
-            movie.setStatus("Unknown");
-            movie.setVoteAverage(obj.getDouble("vote_average"));
-            movie.setPosterPath( (obj.isNull("poster_path"))
-                    ? ""
-                    : obj.getString("poster_path"));
-            //get genre id from movie json object and use it to get genre name from genre list
-            JSONArray genreIds = obj.getJSONArray("genre_ids");
-            //get genre values from cache
-            List<Genre> genreListFromApi = ((App) mActivity.getApplication()).getGenreListFromApi();
-            if(genreListFromApi.size() > 0) {
-                List<Genre> movieGenreList = new ArrayList<>();
-                for(int i=0; i<genreIds.length(); i++) {
-                    for(Genre g : genreListFromApi) {
-                        if(genreIds.getInt(i) == g.getId()) {
-                            //found matching id
-                            movieGenreList.add(g);
-                            break;
+        try {
+            if(!obj.isNull("poster_path")) {
+                movie = new Movie();
+                movie.setId(obj.getInt("id"));
+                movie.setTitle(obj.getString("title"));
+                movie.setOverview(obj.getString("overview"));
+                movie.setReleaseDate(obj.getString("release_date"));
+                movie.setRuntime(0);//put ternary condition here maybe
+                movie.setCountry("Unknown");
+                movie.setStatus("Unknown");
+                movie.setVoteAverage(obj.getDouble("vote_average"));
+                movie.setPosterPath(obj.getString("poster_path"));
+                //get genre id from movie json object and use it to get genre name from genre list
+                JSONArray genreIds = obj.getJSONArray("genre_ids");
+                //get genre values from cache
+                List<Genre> genreListFromApi = ((App) App.getAppContext()).getGenreListFromApi();
+                if (genreListFromApi.size() > 0) {
+                    List<Genre> movieGenreList = new ArrayList<>();
+                    for (int i = 0; i < genreIds.length(); i++) {
+                        for (Genre g : genreListFromApi) {
+                            if (genreIds.getInt(i) == g.getId()) {
+                                //found matching id
+                                movieGenreList.add(g);
+                                break;
+                            }
                         }
                     }
+
+                    movie.setGenres(movieGenreList);
+
                 }
-
-                movie.setGenres(movieGenreList);
-
             }
 
         } catch (JSONException e) {

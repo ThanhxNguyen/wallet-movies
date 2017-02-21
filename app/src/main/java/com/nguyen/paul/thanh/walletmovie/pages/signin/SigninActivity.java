@@ -1,4 +1,4 @@
-package com.nguyen.paul.thanh.walletmovie.activities;
+package com.nguyen.paul.thanh.walletmovie.pages.signin;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -38,12 +39,14 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.pages.signup.SignupActivity;
 import com.nguyen.paul.thanh.walletmovie.fragments.ResetPasswordDialogFragment;
 import com.nguyen.paul.thanh.walletmovie.utilities.FormInputValidator;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 import static com.nguyen.paul.thanh.walletmovie.App.FIRST_TIME_USER_PREF_KEY;
 import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
+import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
 
 public class SigninActivity extends AppCompatActivity
         implements GoogleApiClient.OnConnectionFailedListener,
@@ -83,7 +86,7 @@ public class SigninActivity extends AppCompatActivity
 
         //initiate ProgressDialog
         mProgressDialog = new ProgressDialog(this, ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setMessage("Loading...");
+        mProgressDialog.setMessage(getString(R.string.loading));
         mProgressDialog.setCancelable(false);
 
         mAuthErrorMessage = (TextView) findViewById(R.id.auth_error_message);
@@ -121,7 +124,7 @@ public class SigninActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        mProgressDialog.dismiss();
+//        mProgressDialog.dismiss();
     }
 
     @Override
@@ -303,13 +306,11 @@ public class SigninActivity extends AppCompatActivity
     }
 
     private void setClickListenerForSigninBtn() {
-        final ProgressDialog progressDialog = new ProgressDialog(SigninActivity.this, ProgressDialog.STYLE_SPINNER);
-        progressDialog.setTitle("User Authentication");
-        progressDialog.setMessage("Authenticating...");
-
         mSigninBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //hide soft keyboard
+                Utils.hideKeyboard(SigninActivity.this, mSigninBtn);
                 String emailInput = mEmailTv.getText().toString().trim();
                 final String passwordInput = mPasswordTv.getText().toString().trim();
 
@@ -319,7 +320,7 @@ public class SigninActivity extends AppCompatActivity
 
                 if(validEmail && validPassword) {
                     //show progress dialog
-                    progressDialog.show();
+                    mProgressDialog.show();
 
                     //sign in user with email and password
                     mAuth.signInWithEmailAndPassword(emailInput, passwordInput)
@@ -331,14 +332,14 @@ public class SigninActivity extends AppCompatActivity
                                         disableGuestMode();
 
                                         //dimiss the progress dialog
-                                        progressDialog.dismiss();
+                                        mProgressDialog.dismiss();
                                         //successfully signed in, redirect to MainActivity for now
                                         showSnackBar("Sign in successfully!");
                                         finish();
 
                                     } else {
                                         //dismiss progress dialog and display errors
-                                        progressDialog.dismiss();
+                                        mProgressDialog.dismiss();
                                         mAuthErrorMessage.setVisibility(View.VISIBLE);
                                         mAuthErrorMessage.setText(getString(R.string.error_auth_fail));
                                     }
@@ -420,8 +421,9 @@ public class SigninActivity extends AppCompatActivity
 
     private void openResetPasswordDialog() {
         ResetPasswordDialogFragment dialog = new ResetPasswordDialogFragment();
+        dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.AppTheme);
         dialog.setResetPasswordAcquireListener(this);
-        dialog.setCancelable(false);
+//        dialog.setCancelable(false);
         dialog.show(getSupportFragmentManager(), RESET_PASSWORD_DIALOG_TAG);
     }
 
@@ -489,13 +491,18 @@ public class SigninActivity extends AppCompatActivity
     private void disableGuestMode() {
         //since user signed in, disable guest mode
         SharedPreferences prefs = getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
 
         boolean isFirstTimeUser = prefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
 
         if(isFirstTimeUser) {
-            editor.putBoolean(FIRST_TIME_USER_PREF_KEY, false);
-            editor.apply();
+            prefs.edit().putBoolean(FIRST_TIME_USER_PREF_KEY, false).apply();
+        }
+
+        //since user is signed in, disable guest mode if it's enabled
+        boolean isGuest = prefs.getBoolean(GUEST_MODE_PREF_KEY, true);
+
+        if(isGuest) {
+            prefs.edit().putBoolean(GUEST_MODE_PREF_KEY, false).apply();
         }
     }
 }

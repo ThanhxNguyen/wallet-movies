@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
-        tools:context="com.nguyen.paul.thanh.walletmovie.fragments.MovieListFragment">
+        tools:context="com.nguyen.paul.thanh.walletmovie.pages.home.MovieListFragment">
 
         <com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView
             android:id="@+id/movie_list"

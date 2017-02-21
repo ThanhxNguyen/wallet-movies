@@ -1,4 +1,4 @@
-package com.nguyen.paul.thanh.walletmovie.activities;
+package com.nguyen.paul.thanh.walletmovie.pages.intro;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,7 +8,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import com.nguyen.paul.thanh.walletmovie.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.pages.signin.SigninActivity;
+import com.nguyen.paul.thanh.walletmovie.pages.signup.SignupActivity;
 
 import static com.nguyen.paul.thanh.walletmovie.App.FIRST_TIME_USER_PREF_KEY;
 import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
@@ -25,6 +28,8 @@ public class WelcomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
 
+        if(getSupportActionBar() != null) getSupportActionBar().hide();
+
         mSignupBtn = (Button) findViewById(R.id.signup_btn);
         mSigninAsGuestBtn = (Button) findViewById(R.id.signin_as_guest_btn);
         mSigninBtn = (Button) findViewById(R.id.signin_btn);
@@ -32,6 +37,20 @@ public class WelcomeActivity extends AppCompatActivity {
         setClickListenerForSignupBtn();
         setClickListenerForSigninAsGuestBtn();
         setClickListenerForSigninBtn();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences prefs = getSharedPreferences(GLOBAL_PREF_KEY, MODE_PRIVATE);
+        boolean isFirstTimeUser = prefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
+        //since this page is only accessible to first time user only, redirect if not
+        if(!isFirstTimeUser) {
+            Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+            startActivity(intent);
+            //remove from backstack as well
+            finish();
+        }
     }
 
     private void setClickListenerForSigninBtn() {
