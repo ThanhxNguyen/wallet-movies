@@ -91,6 +91,9 @@ public class MovieListFragment extends Fragment
     private MovieQueryBuilder mMovieQueryBuilder;
     private MovieListPresenter mPresenter;
 
+    //flag to indicate when this fragment is visible to users
+    private boolean isViewVisible = false;
+
     public MovieListFragment() {
         // Required empty public constructor
     }
@@ -178,7 +181,11 @@ public class MovieListFragment extends Fragment
         mRecyclerView.setPlaceholderView(placeholderView);
         //setup adapter
         mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this, R.menu.home_movie_list_item_popup_menu);
-//        populateMovieList();
+
+        //to avoid populating the list twice because setUserVisibleHint is called outside of fragment lifecycle
+        if(!isViewVisible) {
+            populateMovieList();
+        }
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -279,7 +286,10 @@ public class MovieListFragment extends Fragment
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if(isVisibleToUser) populateMovieList();
+        if(getView() != null) {
+            isViewVisible = true;
+            populateMovieList();
+        }
     }
 
     @Override
