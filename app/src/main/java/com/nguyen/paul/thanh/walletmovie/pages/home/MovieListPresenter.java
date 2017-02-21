@@ -8,7 +8,7 @@ import com.nguyen.paul.thanh.walletmovie.model.source.remote.TMDBSource;
 import java.util.List;
 
 /**
- * Created by THANH on 17/02/2017.
+ * Presenter for movie list. Will handle communicate between movie list and data source
  */
 
 public class MovieListPresenter implements MovieListContract.Presenter,

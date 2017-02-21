@@ -1,9 +1,5 @@
 package com.nguyen.paul.thanh.walletmovie.pages.moviedetails;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-
-import com.nguyen.paul.thanh.walletmovie.App;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.model.Cast;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
@@ -12,23 +8,19 @@ import com.nguyen.paul.thanh.walletmovie.model.source.remote.TMDBSource;
 
 import java.util.List;
 
-import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
-
 /**
- * Created by THANH on 21/02/2017.
+ * Presenter for movie details. Will handle communication between movie details page and data source
  */
 
 public class MovieDetailsPresenter implements MovieDetailsContract.Presenter,
                                             MovieStoreManager.MovieOperationListener {
 
     private MovieDetailsContract.View mView;
-    private SharedPreferences mPrefs;
     private MovieStoreManager mMovieStoreManager;
     private TMDBSource mTMDBSource;
 
     public MovieDetailsPresenter(MovieDetailsContract.View view) {
         mView = view;
-        mPrefs = App.getAppContext().getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
         mMovieStoreManager = new MovieStoreManager(this);
         mTMDBSource = new TMDBSource();
         //set callback when complete getting movie trailers

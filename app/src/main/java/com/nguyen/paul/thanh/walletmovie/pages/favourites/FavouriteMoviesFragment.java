@@ -24,8 +24,6 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.nguyen.paul.thanh.walletmovie.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
@@ -68,9 +66,6 @@ public class FavouriteMoviesFragment extends Fragment
 
     //Firebase
     private FirebaseAuth mAuth;
-    private DatabaseReference mUserRef;
-    //listener to listen for data changes
-//    private ValueEventListener mValueEventListener;
     private SharedPreferences mPrefs;
 
     //flag to indicate if the user is in guest mode or register mode
@@ -122,25 +117,6 @@ public class FavouriteMoviesFragment extends Fragment
 
         //initialize Firebase stuffs
         mAuth = FirebaseAuth.getInstance();
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        mUserRef = firebaseDatabase.getReference("users");
-
-        //initialize ValueEventListener
-//        mValueEventListener = new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                mMoviesList = parseMovieResultsFromFirebase(dataSnapshot);
-//                mSwipeRefreshLayout.setRefreshing(false);
-//                populateMovieList();
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                //errors occur
-//                Utils.createSnackBar(getResources(), mViewContainer, databaseError.toString()).show();
-//            }
-//        };
-
     }
 
     @Override
@@ -330,13 +306,6 @@ public class FavouriteMoviesFragment extends Fragment
             mRecyclerView.setLayoutManager(layoutManager);
         }
         mAdapter.notifyDataSetChanged();
-
-//        int numRows = getNumRowsForMovieList();
-//
-//        GridLayoutManager gridLayoutManager = (GridLayoutManager) mRecyclerView.getLayoutManager();
-//        gridLayoutManager.setSpanCount(numRows);
-//        mRecyclerView.setLayoutManager(gridLayoutManager);
-//        mAdapter.notifyDataSetChanged();
     }
 
     private int getNumRowsForMovieList() {

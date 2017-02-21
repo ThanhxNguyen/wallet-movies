@@ -5,7 +5,7 @@ import com.nguyen.paul.thanh.walletmovie.BaseView;
 import com.nguyen.paul.thanh.walletmovie.model.Cast;
 
 /**
- * Created by THANH on 21/02/2017.
+ * Contract for cast details View and Presenter
  */
 
 public interface CastDetailsContract {

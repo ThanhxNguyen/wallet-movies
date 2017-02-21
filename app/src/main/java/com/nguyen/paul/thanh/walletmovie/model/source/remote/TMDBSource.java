@@ -1,5 +1,7 @@
 package com.nguyen.paul.thanh.walletmovie.model.source.remote;
 
+import android.util.Log;
+
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -23,30 +25,33 @@ import java.util.List;
 import static com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest.NETWORK_REQUEST_TAG;
 
 /**
- * Created by THANH on 17/02/2017.
+ * This class handles getting data from api (themoviedb.org)
  */
 
 public class TMDBSource implements MovieSearchChain.MoviesSearchChainListener {
 
-    private NetworkRequest mNetworkRequest;
     private MovieRequestListener mMovieRequestListener;
     private MoviesMultiSearch mMovieSearch;
     private TrailersRequestListener mTrailersRequestListener;
     private MovieCastsRequestListener mMovieCastsRequestListener;
     private CastDetailsRequestListener mCastDetailsRequestListener;
 
+    //callback for getting movies
     public interface MovieRequestListener {
         void onMovieRequestComplete(List<Movie> movies);
     }
 
+    //callback for getting movie trailers
     public interface TrailersRequestListener {
         void onTrailersRequestComplete(List<String> trailerList);
     }
 
+    //callback for getting movie casts
     public interface MovieCastsRequestListener {
         void onMovieCastsRequestComplete(List<Cast> castList);
     }
 
+    //callback for getting cast details
     public interface CastDetailsRequestListener {
         void onCastDetailsRequestComplete(Cast cast);
     }
@@ -58,6 +63,7 @@ public class TMDBSource implements MovieSearchChain.MoviesSearchChainListener {
             String genreListUrl = MovieQueryBuilder.getInstance().getGenreListUrl();
             sendRequestToGetGenreList(genreListUrl);
         }
+        //initialize movie search chain
         mMovieSearch = new MoviesMultiSearch(this, NETWORK_REQUEST_TAG);
     }
 
@@ -87,8 +93,10 @@ public class TMDBSource implements MovieSearchChain.MoviesSearchChainListener {
                 .cancelAll(NETWORK_REQUEST_TAG);
     }
 
+    //callback for movie search chain and will be invoked when the search is complete
     @Override
     public void onMoviesSearchComplete(List<Movie> movieList) {
+        //invoke callback and pass back movie list from results
         mMovieRequestListener.onMovieRequestComplete(movieList);
     }
 
@@ -214,15 +222,14 @@ public class TMDBSource implements MovieSearchChain.MoviesSearchChainListener {
     }
 
     public void getCastDetails(String castDetailsUrl) {
+        Log.d("test", "getCastDetails: url: " + castDetailsUrl);
         JsonObjectRequest castDetailsJsonRequest = new JsonObjectRequest(Request.Method.GET, castDetailsUrl, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        String unknown = "Unknown";
-                        //there is no need to set id, name, character, profile image path
-                        //because they have been set from MovieDetailsFragment
                         try {
                             Cast cast = new Cast();
+                            cast.setName(response.getString("name"));
                             cast.setBirthday(response.getString("birthday"));
                             cast.setPlaceOfBirth(response.getString("place_of_birth"));
                             cast.setBiography(response.getString("biography"));

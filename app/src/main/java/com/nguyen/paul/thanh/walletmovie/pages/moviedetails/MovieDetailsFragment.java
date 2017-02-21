@@ -32,15 +32,14 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
-import com.google.firebase.auth.FirebaseAuth;
 import com.nguyen.paul.thanh.walletmovie.App;
 import com.nguyen.paul.thanh.walletmovie.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.adapters.CastRecyclerViewAdapter;
-import com.nguyen.paul.thanh.walletmovie.pages.castdetails.CastDetailsFragment;
 import com.nguyen.paul.thanh.walletmovie.model.Cast;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
+import com.nguyen.paul.thanh.walletmovie.pages.castdetails.CastDetailsFragment;
 import com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView;
 import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
 import com.nguyen.paul.thanh.walletmovie.utilities.NetworkRequest;
@@ -69,7 +68,6 @@ public class MovieDetailsFragment extends Fragment
 
     private static final String NETWORK_REQUEST_TAG = "network_request_tag";
     private static final String DEFAULT_ERROR_MESSAGE = "An error has occured!";
-    private static final String FAIL_LOAD_YOUTUBE_VIDEO_ERROR = "Failed to load trailer video!";
     private static final String YOUTUBE_FRAGMENT_TAG = "youtube_fragment_tag";
 
     private NetworkRequest mNetworkRequest;
@@ -91,8 +89,6 @@ public class MovieDetailsFragment extends Fragment
     private MovieDetailsContract.Presenter mPresenter;
 
     private ViewGroup mParentContainer;
-
-    private FirebaseAuth mAuth;
 
     //display mMovie poster image if there is no trailers available
     private ImageView mMoviePoster;
@@ -127,7 +123,6 @@ public class MovieDetailsFragment extends Fragment
         }
         mNetworkRequest = NetworkRequest.getInstance(mContext);
         mCastList = new ArrayList<>();
-        mAuth = FirebaseAuth.getInstance();
 
         //get genre values from cache
         mGenreListFromApi = ((App) getActivity().getApplication()).getGenreListFromApi();
@@ -315,7 +310,6 @@ public class MovieDetailsFragment extends Fragment
 
     private void populateCastList(int movieId) {
         mCastList.clear();
-        final int castLimit = 6;
         String movieCastListUrl = MovieQueryBuilder.getInstance()
                 .movies()
                 .getCasts(movieId)

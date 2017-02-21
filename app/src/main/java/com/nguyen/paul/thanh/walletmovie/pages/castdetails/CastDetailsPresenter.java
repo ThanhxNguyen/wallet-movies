@@ -4,7 +4,7 @@ import com.nguyen.paul.thanh.walletmovie.model.Cast;
 import com.nguyen.paul.thanh.walletmovie.model.source.remote.TMDBSource;
 
 /**
- * Created by THANH on 21/02/2017.
+ * Presenter for cast details
  */
 
 public class CastDetailsPresenter implements CastDetailsContract.Presenter {

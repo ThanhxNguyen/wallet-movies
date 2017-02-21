@@ -35,14 +35,12 @@ public class CastDetailsFragment extends Fragment implements CastDetailsContract
     private Context mContext;
     private MainActivity mActivity;
     private NetworkRequest mNetworkRequest;
-//    private ImageView mCastProfile;
     private TextView mCastName;
     private TextView mCastBirthdayValue;
     private TextView mCastBirthPlaceValue;
     private TextView mCastBiography;
     private ImageView mParallaxImage;
     private ConstraintLayout mLayout;
-//    private ProgressBar mSpinner;
 
     private CastDetailsContract.Presenter mPresenter;
 
@@ -101,6 +99,7 @@ public class CastDetailsFragment extends Fragment implements CastDetailsContract
         //get reference of the parallax image from parent AppbarLayout
         mParallaxImage = (ImageView) getActivity().getWindow().getDecorView().findViewById(R.id.parallax_image);
         mParallaxImage.setVisibility(View.VISIBLE);
+
         //get CollapsingToolbarLayout reference and set title appropriately
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) getActivity().getWindow().getDecorView().findViewById(R.id.collapsing_toolbar);
         collapsingToolbarLayout.setTitle(getString(R.string.title_cast_details));
@@ -115,9 +114,8 @@ public class CastDetailsFragment extends Fragment implements CastDetailsContract
         mCastBiography = (TextView) view.findViewById(R.id.movie_cast_biography);
         Button moviesForThisCastBtn = (Button) view.findViewById(R.id.movies_for_this_cast_btn);
 
-        //show spinner initially
+
         mLayout.setVisibility(View.GONE);
-//        mSpinner.setVisibility(View.VISIBLE);
 
         Bundle args = getArguments();
         if(args != null) {
@@ -164,7 +162,6 @@ public class CastDetailsFragment extends Fragment implements CastDetailsContract
             mCastBiography.setText(castBio);
 
             //show cast details
-//            mSpinner.setVisibility(View.GONE);
             mLayout.setVisibility(View.VISIBLE);
 
             String castProfilePhotoSize = "w342";

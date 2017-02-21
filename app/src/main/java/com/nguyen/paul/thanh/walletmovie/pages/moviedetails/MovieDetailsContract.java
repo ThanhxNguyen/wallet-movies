@@ -8,7 +8,7 @@ import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import java.util.List;
 
 /**
- * Created by THANH on 21/02/2017.
+ * Contract for movie details View and Presenter
  */
 
 public interface MovieDetailsContract {

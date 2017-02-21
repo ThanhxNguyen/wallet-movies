@@ -3,9 +3,6 @@ package com.nguyen.paul.thanh.walletmovie.model.source.local;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.nguyen.paul.thanh.walletmovie.App;
 import com.nguyen.paul.thanh.walletmovie.database.MoviesTableOperator;
 import com.nguyen.paul.thanh.walletmovie.database.interfaces.DatabaseOperator;
@@ -23,7 +20,7 @@ import static com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager.R
 import static com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager.RESULT.SUCCESS_DELETE;
 
 /**
- * Created by THANH on 17/02/2017.
+ * This class handles local data storage mechanism
  */
 
 public class LocalDBStore extends SimpleDataStore {
@@ -82,12 +79,11 @@ public class LocalDBStore extends SimpleDataStore {
             } else {
                 //failed to remove movie from favourites
                 mListener.onDeleteMovieComplete(FAIL_DELETE);
-//                Utils.createSnackBar(getResources(), mViewContainer, "Error! Sorry failed to remove this movie").show();
             }
         }
     }
 
-
+    //handle data operation in background thread
     public static class GetFavouriteMoviesTask extends AsyncTask<Void, Void, List<Movie>> {
         private Context mContext;
         private MovieStoreManager.MovieOperationListener mListener;
@@ -113,12 +109,10 @@ public class LocalDBStore extends SimpleDataStore {
         }
     }
 
-    //AsyncTask to handle adding movies locally or remotely
+    //handle data operation in background thread
     public static class AddFavouriteTask extends AsyncTask<Movie, Void, MovieStoreManager.RESULT> {
 
         private Context mContext;
-        private FirebaseAuth mAuth;
-        private DatabaseReference mUsersRef;
         private List<Genre> mGenreListFromApi;
         private MovieStoreManager.MovieOperationListener mListener;
 
@@ -126,16 +120,12 @@ public class LocalDBStore extends SimpleDataStore {
             mContext = context;
             mGenreListFromApi = genreList;
             mListener = listener;
-            mAuth = FirebaseAuth.getInstance();
-            FirebaseDatabase firebaseDB = FirebaseDatabase.getInstance();
-            mUsersRef = firebaseDB.getReference("users");
         }
 
         @Override
         protected MovieStoreManager.RESULT doInBackground(Movie... movies) {
             Movie movie = movies[0];
 
-            //user is in guest mode
             //store movie in local db (SQLite)
             DatabaseOperator movieDBOperator = MoviesTableOperator.getInstance(mContext);
             long operationResult = movieDBOperator.insert(movie, mGenreListFromApi);
@@ -143,15 +133,12 @@ public class LocalDBStore extends SimpleDataStore {
             movieDBOperator.closeDB();
 
             if(operationResult == movie.getId()) {
-                //successfully added movie, return result back to presenter
                 return SUCCESS_ADD_MOVIE;
 
             } else if(operationResult == 0) {
-                //movie already existed, return result back to presenter
                 return MOVIE_EXIST;
 
             } else {
-                //Failed to add movie, return result back to presenter
                 return FAIL_ADD_MOVIE;
 
             }
@@ -161,6 +148,7 @@ public class LocalDBStore extends SimpleDataStore {
         @Override
         protected void onPostExecute(MovieStoreManager.RESULT result) {
             super.onPostExecute(result);
+            //return result back by invoking callback
             mListener.onAddMovieComplete(result);
         }
 

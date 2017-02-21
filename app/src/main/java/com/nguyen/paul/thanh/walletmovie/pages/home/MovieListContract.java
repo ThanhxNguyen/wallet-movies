@@ -7,7 +7,7 @@ import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import java.util.List;
 
 /**
- * Created by THANH on 17/02/2017.
+ * Contracts for movie list View and Presenter
  */
 
 public interface MovieListContract {

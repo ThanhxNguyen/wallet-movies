@@ -5,9 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -71,12 +69,9 @@ public class AccountFragment extends Fragment
     private ProgressDialog mProgressDialog;
     private String currentName;
 
-    private IBinder windowToken;
-
     //flag to indicate if the user is signed in using email and password
     private boolean signedInWithEmail;
     private String providerName;
-    private ConstraintLayout mLayout;
 
     public AccountFragment() {
         // Required empty public constructor

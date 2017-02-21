@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -54,7 +53,6 @@ public class MovieListFragment extends Fragment
     public static final String TAB_POSITION_KEY = "tab_position_key";
     public static final String SEARCH_QUERY_KEY = "search_query_key";
     public static final String CAST_ID_KEY = "cast_id_key";
-    public static final String SCROLL_POSITION_KEY = "scroll_position_key";
 
     //these constants will be used to identify what kind of movies it should display
     //such as movies for viewpager from home page, movies for user search query or
@@ -69,7 +67,6 @@ public class MovieListFragment extends Fragment
     private List<Movie> mMoviesList;
     private MovieRecyclerViewAdapter mAdapter;
     private RecyclerViewWithEmptyView mRecyclerView;
-//    private MoviesMultiSearch mMoviesMultiSearch;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     //flag to indicate the display type of list view
     private boolean displayInGrid;
@@ -151,9 +148,6 @@ public class MovieListFragment extends Fragment
 
         mMovieQueryBuilder = MovieQueryBuilder.getInstance();
 
-        //initialize movie search chain
-//        mMoviesMultiSearch = new MoviesMultiSearch(getActivity(), this, mNetworkRequest, NETWORK_REQUEST_TAG);
-
         //initialize shared preference
         mPrefs = mContext.getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
 
@@ -178,16 +172,13 @@ public class MovieListFragment extends Fragment
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_movie_list, container, false);
 
         mRecyclerView = (RecyclerViewWithEmptyView) view.findViewById(R.id.movie_list);
-
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         //get placeholder view and set it to display when the list is empty
         TextView placeholderView = (TextView) view.findViewById(R.id.placeholder_view);
         mRecyclerView.setPlaceholderView(placeholderView);
-
         //setup adapter
         mAdapter = new MovieRecyclerViewAdapter(mContext, mMoviesList, this, R.menu.home_movie_list_item_popup_menu);
-
-        populateMovieList();
+//        populateMovieList();
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -285,24 +276,11 @@ public class MovieListFragment extends Fragment
         return view;
     }
 
-    //not working properly
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putInt(SCROLL_POSITION_KEY, firstVisibleItem);
-        super.onSaveInstanceState(outState);
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if(isVisibleToUser) populateMovieList();
     }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if(savedInstanceState != null) {
-            int scrollPosition = savedInstanceState.getInt(SCROLL_POSITION_KEY);
-            if(scrollPosition > 0) {
-                mRecyclerView.getLayoutManager().scrollToPosition(scrollPosition);
-            }
-        }
-    }
-    //not working properly
 
     @Override
     public void onDestroyView() {
@@ -317,7 +295,6 @@ public class MovieListFragment extends Fragment
     }
 
     private void updateListDisplayTypeMenu(Menu menu) {
-//        ( (AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Test");
         displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
         //update list view display type icon based on user preference
         if(displayInGrid) {
@@ -347,7 +324,6 @@ public class MovieListFragment extends Fragment
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-//        displayInGrid = mPrefs.getBoolean(DISPLAY_LIST_IN_GRID_KEY, true);
         int id = item.getItemId();
         item.setChecked(true);
 
