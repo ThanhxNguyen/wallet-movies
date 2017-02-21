@@ -12,7 +12,7 @@
                                              xmlns:tools="http://schemas.android.com/tools"
                                              android:layout_width="match_parent"
                                              android:layout_height="match_parent"
-                                             tools:context="com.nguyen.paul.thanh.walletmovie.fragments.MovieCastDetailsFragment">
+                                             tools:context="com.nguyen.paul.thanh.walletmovie.pages.castdetails.MovieCastDetailsFragment">
 
         <TextView
             android:id="@+id/movie_cast_name"

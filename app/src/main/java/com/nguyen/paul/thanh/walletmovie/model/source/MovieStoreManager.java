@@ -2,8 +2,6 @@ package com.nguyen.paul.thanh.walletmovie.model.source;
 
 import android.content.SharedPreferences;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.nguyen.paul.thanh.walletmovie.App;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import com.nguyen.paul.thanh.walletmovie.model.source.local.LocalDBStore;
@@ -24,6 +22,7 @@ public class MovieStoreManager extends SimpleDataStore {
     private DataStore mLocalDBStore;
     private MovieOperationListener mListener;
     private DataStore mFirebaseDBStore;
+    private SharedPreferences mPrefs;
 
     public interface MovieOperationListener {
         void onAddMovieComplete(RESULT result);
@@ -40,12 +39,13 @@ public class MovieStoreManager extends SimpleDataStore {
         mListener = listener;
         mLocalDBStore = new LocalDBStore(mListener);
         mFirebaseDBStore = new FirebaseDBStore(mListener);
+
+        mPrefs = App.getAppContext().getSharedPreferences(GLOBAL_PREF_KEY, MODE_PRIVATE);
     }
 
     @Override
     public void getMovies() {
-        SharedPreferences prefs = App.getAppContext().getSharedPreferences(GLOBAL_PREF_KEY, MODE_PRIVATE);
-        boolean isGuest = prefs.getBoolean(GUEST_MODE_PREF_KEY, true);
+        boolean isGuest = mPrefs.getBoolean(GUEST_MODE_PREF_KEY, true);
 
         if(isGuest) {
             //get favourite movies from local DB
@@ -58,16 +58,14 @@ public class MovieStoreManager extends SimpleDataStore {
 
     @Override
     public void addMovie(Movie movie) {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        FirebaseUser user = auth.getCurrentUser();
+        boolean isGuest = mPrefs.getBoolean(GUEST_MODE_PREF_KEY, true);
 
-        //do some checking here wether add locally or remotely
-        if(user != null) {
-            //user is signed in, store the movie on Firebase
-            mFirebaseDBStore.addMovie(movie);
-        } else {
+        if(isGuest) {
             //store movie locally
             mLocalDBStore.addMovie(movie);
+        } else {
+            //store movie remotely on cloud
+            mFirebaseDBStore.addMovie(movie);
         }
     }
 

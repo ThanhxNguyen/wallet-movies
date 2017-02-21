@@ -24,6 +24,8 @@ public class FirebaseAuthManager implements AuthManager {
         void onSignOut();
     }
 
+    public FirebaseAuthManager() {}
+
     public FirebaseAuthManager(AuthenticateListener listener) {
         mListener = listener;
         mAuth = FirebaseAuth.getInstance();
@@ -34,9 +36,9 @@ public class FirebaseAuthManager implements AuthManager {
 
                 if(user != null) {
                     //user is signed in
-                    mListener.onSignIn();
+                    if(mListener != null) mListener.onSignIn();
                 } else {
-                    mListener.onSignOut();
+                    if(mListener != null) mListener.onSignOut();
                 }
             }
         };
@@ -76,7 +78,7 @@ public class FirebaseAuthManager implements AuthManager {
 
     @Override
     public void on() {
-        mAuth.addAuthStateListener(mAuthStateListener);
+        if(mAuthStateListener != null) mAuth.addAuthStateListener(mAuthStateListener);
     }
 
     @Override

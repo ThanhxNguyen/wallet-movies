@@ -1,4 +1,4 @@
-package com.nguyen.paul.thanh.walletmovie.fragments;
+package com.nguyen.paul.thanh.walletmovie.pages.castdetails;
 
 
 import android.app.ProgressDialog;

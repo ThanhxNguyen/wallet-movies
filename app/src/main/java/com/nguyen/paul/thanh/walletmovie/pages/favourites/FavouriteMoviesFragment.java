@@ -29,9 +29,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.nguyen.paul.thanh.walletmovie.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
-import com.nguyen.paul.thanh.walletmovie.fragments.MovieDetailsFragment;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
-import com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager;
+import com.nguyen.paul.thanh.walletmovie.pages.moviedetails.MovieDetailsFragment;
 import com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView;
 import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
@@ -423,18 +422,13 @@ public class FavouriteMoviesFragment extends Fragment
     }
 
     @Override
-    public void showSnackBarWithResult(MovieStoreManager.RESULT result) {
-        switch (result) {
-            case SUCCESS_DELETE:
-                Utils.createSnackBar(getResources(), mViewContainer, getString(R.string.success_delete_movie)).show();
-                break;
-            case FAIL_DELETE:
-                Utils.createSnackBar(getResources(), mViewContainer, getString(R.string.fail_delete_movie)).show();
-                break;
-            default:
-                Utils.createSnackBar(getResources(), mViewContainer, getString(R.string.default_snackbar_error_message)).show();
-                break;
-        }
+    public void showSnackBarWithResult(int resStringId) {
+        Utils.createSnackBar(getResources(), mViewContainer, getString(resStringId)).show();
+    }
+
+    @Override
+    public void showSnackBarWithResult(String message) {
+        Utils.createSnackBar(getResources(), mViewContainer, message).show();
     }
 
     @Override
@@ -442,34 +436,4 @@ public class FavouriteMoviesFragment extends Fragment
         mPresenter.getFavouriteMovies();
     }
 
-//    //handle data operation in background thread
-//    private class DeleteMovieFromFavouritesTask extends AsyncTask<Movie, Void, Movie> {
-//
-//        @Override
-//        protected Movie doInBackground(Movie... movies) {
-//            Movie movie = movies[0];
-//            DatabaseOperator databaseOperator = MoviesTableOperator.getInstance(mContext);
-//            int result = databaseOperator.delete(movie.getId());
-//
-//            if(result > 0) {
-//                //successfully deleted
-//                return movie;
-//            }
-//            return null;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Movie movie) {
-//            if(movie != null) {
-//                //successfully removed movie
-//                Utils.createSnackBar(getResources(), mViewContainer, "Successfully removed from favourite").show();
-//                //update movie list and adapter
-//                mMoviesList.remove(movie);
-//                mAdapter.notifyDataSetChanged();
-//            } else {
-//                //failed to remove movie from favourites
-//                Utils.createSnackBar(getResources(), mViewContainer, "Error! Sorry failed to remove this movie").show();
-//            }
-//        }
-//    }
 }

@@ -3,6 +3,7 @@ package com.nguyen.paul.thanh.walletmovie.pages.favourites;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager;
 
@@ -56,7 +57,18 @@ public class FavouritesPresenter implements FavouritesContract.Presenter,
     @Override
     public void onDeleteMovieComplete(MovieStoreManager.RESULT result) {
         mView.notifyListChange();
-        mView.showSnackBarWithResult(result);
+
+        switch (result) {
+            case SUCCESS_DELETE:
+                mView.showSnackBarWithResult(R.string.success_delete_movie);
+                break;
+            case FAIL_DELETE:
+                mView.showSnackBarWithResult(R.string.fail_delete_movie);
+                break;
+            default:
+                mView.showSnackBarWithResult(R.string.default_snackbar_error_message);
+                break;
+        }
     }
 
     @Override
@@ -66,6 +78,6 @@ public class FavouritesPresenter implements FavouritesContract.Presenter,
 
     @Override
     public void onErrorsOccur(String errorMessage) {
-
+        mView.showSnackBarWithResult(errorMessage);
     }
 }

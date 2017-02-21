@@ -24,9 +24,8 @@ import android.widget.TextView;
 import com.nguyen.paul.thanh.walletmovie.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.adapters.MovieRecyclerViewAdapter;
-import com.nguyen.paul.thanh.walletmovie.fragments.MovieDetailsFragment;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
-import com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager;
+import com.nguyen.paul.thanh.walletmovie.pages.moviedetails.MovieDetailsFragment;
 import com.nguyen.paul.thanh.walletmovie.ui.RecyclerViewWithEmptyView;
 import com.nguyen.paul.thanh.walletmovie.utilities.MovieQueryBuilder;
 import com.nguyen.paul.thanh.walletmovie.utilities.ScreenMeasurer;
@@ -286,6 +285,7 @@ public class MovieListFragment extends Fragment
         return view;
     }
 
+    //not working properly
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putInt(SCROLL_POSITION_KEY, firstVisibleItem);
@@ -302,6 +302,7 @@ public class MovieListFragment extends Fragment
             }
         }
     }
+    //not working properly
 
     @Override
     public void onDestroyView() {
@@ -538,20 +539,12 @@ public class MovieListFragment extends Fragment
     }
 
     @Override
-    public void showSnackBarWithResult(MovieStoreManager.RESULT result) {
-        switch (result) {
-            case SUCCESS_ADD_MOVIE:
-                Utils.createSnackBar(getResources(), mParentContainer, getString(R.string.success_add_movie)).show();
-                break;
-            case FAIL_ADD_MOVIE:
-                Utils.createSnackBar(getResources(), mParentContainer, getString(R.string.fail_add_movie)).show();
-                break;
-            case MOVIE_EXIST:
-                Utils.createSnackBar(getResources(), mParentContainer, getString(R.string.movie_exist)).show();
-                break;
-            default:
-                Utils.createSnackBar(getResources(), mParentContainer, getString(R.string.default_snackbar_error_message)).show();
-                break;
-        }
+    public void showSnackBarWithResult(int resStringId) {
+        Utils.createSnackBar(getResources(), mParentContainer, getString(resStringId)).show();
+    }
+
+    @Override
+    public void showSnackBarWithResult(String message) {
+        Utils.createSnackBar(getResources(), mParentContainer, message).show();
     }
 }

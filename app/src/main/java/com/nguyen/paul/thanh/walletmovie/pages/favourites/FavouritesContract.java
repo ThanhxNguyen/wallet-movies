@@ -3,7 +3,6 @@ package com.nguyen.paul.thanh.walletmovie.pages.favourites;
 import com.nguyen.paul.thanh.walletmovie.BasePresenter;
 import com.nguyen.paul.thanh.walletmovie.BaseView;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
-import com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager;
 
 import java.util.List;
 
@@ -15,7 +14,8 @@ public interface FavouritesContract {
 
     interface View extends BaseView {
         void updateMovieList(List<Movie> movieList);
-        void showSnackBarWithResult(MovieStoreManager.RESULT result);
+        void showSnackBarWithResult(int resStringId);
+        void showSnackBarWithResult(String message);
         void notifyListChange();
     }
 

@@ -15,7 +15,7 @@ import com.android.volley.toolbox.Volley;
  */
 public class NetworkRequest {
 
-    public static final String MOVIE_REQUEST_TAG = "movie_request_tag";
+    public static final String NETWORK_REQUEST_TAG = "movie_request_tag";
     public static final String GENRE_REQUEST_TAG = "genre_request_tag";
 
     private RequestQueue mRequestQueue;

@@ -1,5 +1,6 @@
 package com.nguyen.paul.thanh.walletmovie.pages.home;
 
+import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
 import com.nguyen.paul.thanh.walletmovie.model.source.MovieStoreManager;
 import com.nguyen.paul.thanh.walletmovie.model.source.remote.TMDBSource;
@@ -15,12 +16,13 @@ public class MovieListPresenter implements MovieListContract.Presenter,
         MovieStoreManager.MovieOperationListener {
 
     private TMDBSource mTMDBSource;
-    private MovieStoreManager mMovieSourceManager;
+    private MovieStoreManager mMovieStoreManager;
     private MovieListContract.View mView;
 
     MovieListPresenter(MovieListContract.View view) {
-        mTMDBSource = new TMDBSource(this);
-        mMovieSourceManager = new MovieStoreManager(this);
+        mTMDBSource = new TMDBSource();
+        mTMDBSource.setMovieRequestListener(this);
+        mMovieStoreManager = new MovieStoreManager(this);
         mView = view;
     }
 
@@ -36,7 +38,7 @@ public class MovieListPresenter implements MovieListContract.Presenter,
 
     @Override
     public void addMovieToFavourite(Movie movie) {
-        mMovieSourceManager.addMovie(movie);
+        mMovieStoreManager.addMovie(movie);
     }
 
     @Override
@@ -48,7 +50,20 @@ public class MovieListPresenter implements MovieListContract.Presenter,
     //it will pass the result back to view
     @Override
     public void onAddMovieComplete(MovieStoreManager.RESULT result) {
-        mView.showSnackBarWithResult(result);
+        switch (result) {
+            case SUCCESS_ADD_MOVIE:
+                mView.showSnackBarWithResult(R.string.success_add_movie);
+                break;
+            case FAIL_ADD_MOVIE:
+                mView.showSnackBarWithResult(R.string.fail_add_movie);
+                break;
+            case MOVIE_EXIST:
+                mView.showSnackBarWithResult(R.string.movie_exist);
+                break;
+            default:
+                mView.showSnackBarWithResult(R.string.default_snackbar_error_message);
+                break;
+        }
     }
 
     @Override
@@ -63,6 +78,6 @@ public class MovieListPresenter implements MovieListContract.Presenter,
 
     @Override
     public void onErrorsOccur(String errorMessage) {
-
+        mView.showSnackBarWithResult(errorMessage);
     }
 }

@@ -29,6 +29,8 @@ public class FirebaseDBStore extends SimpleDataStore {
     //constants for Firebase database nodes
     public static final String NODE_USERS = "users";
     public static final String NODE_FAVOURITE_MOVIES = "favourite_movies";
+    private static final String SIGN_IN_REQUIRED_ERROR_MESSAGE = "Please sign in to proceed";
+    private static final String DEFAULT_ERROR_MESSAGE = "An error has occured!";
 
     private final ValueEventListener mValueEventListener;
     private DatabaseReference mUsersRef;
@@ -50,7 +52,7 @@ public class FirebaseDBStore extends SimpleDataStore {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                //errors occur
+                mListener.onErrorsOccur(DEFAULT_ERROR_MESSAGE);
             }
         };
     }
@@ -63,6 +65,9 @@ public class FirebaseDBStore extends SimpleDataStore {
                         .child(NODE_FAVOURITE_MOVIES)
                         .removeEventListener(mValueEventListener);
             }
+        } else {
+            //user not signed in, return back error message
+            mListener.onErrorsOccur(SIGN_IN_REQUIRED_ERROR_MESSAGE);
         }
     }
 
@@ -76,6 +81,9 @@ public class FirebaseDBStore extends SimpleDataStore {
                     .child(NODE_FAVOURITE_MOVIES)
                     .addValueEventListener(mValueEventListener);
 
+        } else {
+            //user not signed in, return back error message
+            mListener.onErrorsOccur(SIGN_IN_REQUIRED_ERROR_MESSAGE);
         }
     }
 
@@ -123,10 +131,14 @@ public class FirebaseDBStore extends SimpleDataStore {
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
-                            //handle errors
+                            //return an error message back to user
+                            mListener.onErrorsOccur(DEFAULT_ERROR_MESSAGE);
                         }
                     });
 
+        } else {
+            //user is not signed in, show message to ask user to sign in
+            mListener.onErrorsOccur(SIGN_IN_REQUIRED_ERROR_MESSAGE);
         }
 
     }
