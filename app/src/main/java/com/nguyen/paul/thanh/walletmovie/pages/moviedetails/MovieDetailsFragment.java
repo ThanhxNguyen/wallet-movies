@@ -37,7 +37,7 @@ import com.nguyen.paul.thanh.walletmovie.App;
 import com.nguyen.paul.thanh.walletmovie.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.adapters.CastRecyclerViewAdapter;
-import com.nguyen.paul.thanh.walletmovie.pages.castdetails.MovieCastDetailsFragment;
+import com.nguyen.paul.thanh.walletmovie.pages.castdetails.CastDetailsFragment;
 import com.nguyen.paul.thanh.walletmovie.model.Cast;
 import com.nguyen.paul.thanh.walletmovie.model.Genre;
 import com.nguyen.paul.thanh.walletmovie.model.Movie;
@@ -414,7 +414,7 @@ public class MovieDetailsFragment extends Fragment
 
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.content_frame, MovieCastDetailsFragment.newInstance(cast))
+                .replace(R.id.content_frame, CastDetailsFragment.newInstance(cast))
                 .addToBackStack(null)
                 .commit();
     }

@@ -33,6 +33,7 @@ public class TMDBSource implements MovieSearchChain.MoviesSearchChainListener {
     private MoviesMultiSearch mMovieSearch;
     private TrailersRequestListener mTrailersRequestListener;
     private MovieCastsRequestListener mMovieCastsRequestListener;
+    private CastDetailsRequestListener mCastDetailsRequestListener;
 
     public interface MovieRequestListener {
         void onMovieRequestComplete(List<Movie> movies);
@@ -44,6 +45,10 @@ public class TMDBSource implements MovieSearchChain.MoviesSearchChainListener {
 
     public interface MovieCastsRequestListener {
         void onMovieCastsRequestComplete(List<Cast> castList);
+    }
+
+    public interface CastDetailsRequestListener {
+        void onCastDetailsRequestComplete(Cast cast);
     }
 
     public TMDBSource() {
@@ -66,6 +71,10 @@ public class TMDBSource implements MovieSearchChain.MoviesSearchChainListener {
 
     public void setMovieCastsRequestListener(MovieCastsRequestListener listener) {
         mMovieCastsRequestListener = listener;
+    }
+
+    public void setCastDetailsRequestListener(CastDetailsRequestListener listener) {
+        mCastDetailsRequestListener = listener;
     }
 
     public void getMovies(String url) {
@@ -202,5 +211,40 @@ public class TMDBSource implements MovieSearchChain.MoviesSearchChainListener {
         castJsonObjectRequest.setTag(NETWORK_REQUEST_TAG);
         //add to request queue
         NetworkRequest.getInstance(App.getAppContext()).getRequestQueue().add(castJsonObjectRequest);
+    }
+
+    public void getCastDetails(String castDetailsUrl) {
+        JsonObjectRequest castDetailsJsonRequest = new JsonObjectRequest(Request.Method.GET, castDetailsUrl, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String unknown = "Unknown";
+                        //there is no need to set id, name, character, profile image path
+                        //because they have been set from MovieDetailsFragment
+                        try {
+                            Cast cast = new Cast();
+                            cast.setBirthday(response.getString("birthday"));
+                            cast.setPlaceOfBirth(response.getString("place_of_birth"));
+                            cast.setBiography(response.getString("biography"));
+                            cast.setProfilePath(response.getString("profile_path"));
+
+                            mCastDetailsRequestListener.onCastDetailsRequestComplete(cast);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            mCastDetailsRequestListener.onCastDetailsRequestComplete(null);
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //handle error
+                        mCastDetailsRequestListener.onCastDetailsRequestComplete(null);
+                    }
+                });
+
+        castDetailsJsonRequest.setTag(NETWORK_REQUEST_TAG);
+        NetworkRequest.getInstance(App.getAppContext()).getRequestQueue().add(castDetailsJsonRequest);
     }
 }
