@@ -1,11 +1,13 @@
-package com.nguyen.paul.thanh.walletmovie.fragments;
+package com.nguyen.paul.thanh.walletmovie.pages.account;
 
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -35,6 +37,9 @@ import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.nguyen.paul.thanh.walletmovie.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.R;
+import com.nguyen.paul.thanh.walletmovie.fragments.ChangeEmailDialogFragment;
+import com.nguyen.paul.thanh.walletmovie.fragments.ChangePasswordDialogFragment;
+import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -66,9 +71,12 @@ public class AccountFragment extends Fragment
     private ProgressDialog mProgressDialog;
     private String currentName;
 
+    private IBinder windowToken;
+
     //flag to indicate if the user is signed in using email and password
     private boolean signedInWithEmail;
     private String providerName;
+    private ConstraintLayout mLayout;
 
     public AccountFragment() {
         // Required empty public constructor
@@ -144,7 +152,7 @@ public class AccountFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        // Inflate the mLayout for this fragment
         View view = inflater.inflate(R.layout.fragment_account, container, false);
 
         mDisplayName = (EditText) view.findViewById(R.id.display_name);
@@ -154,6 +162,16 @@ public class AccountFragment extends Fragment
         mChangePasswordBtn = (Button) view.findViewById(R.id.change_password_btn);
         mChangeEmailBtn = (Button) view.findViewById(R.id.change_email_btn);
         mResetPasswordBtn = (Button) view.findViewById(R.id.reset_password_btn);
+
+        //listen for edit text focus change and show/hide soft keyboard appropriately
+        mDisplayName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                if(!hasFocus) {
+                    Utils.hideKeyboard(mContext, mDisplayName);
+                }
+            }
+        });
 
         init();
 

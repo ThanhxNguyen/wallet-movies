@@ -309,6 +309,8 @@ public class SigninActivity extends AppCompatActivity
         mSigninBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //hide soft keyboard
+                Utils.hideKeyboard(SigninActivity.this, mSigninBtn);
                 String emailInput = mEmailTv.getText().toString().trim();
                 final String passwordInput = mPasswordTv.getText().toString().trim();
 

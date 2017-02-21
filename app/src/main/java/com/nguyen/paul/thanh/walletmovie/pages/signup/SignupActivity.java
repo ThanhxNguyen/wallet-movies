@@ -181,6 +181,9 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+                //hide soft keyboard
+                Utils.hideKeyboard(SignupActivity.this, mSignupBtn);
+
                 final String firstName = mFirstNameTv.getText().toString().trim();
                 final String lastName = mLastNameTv.getText().toString().trim();
                 final String email = mEmailTv.getText().toString().trim();

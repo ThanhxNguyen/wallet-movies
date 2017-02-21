@@ -1,10 +1,12 @@
 package com.nguyen.paul.thanh.walletmovie.utilities;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import com.nguyen.paul.thanh.walletmovie.R;
@@ -34,5 +36,12 @@ public class Utils {
         textView.setTypeface(null, Typeface.BOLD);
         return snackbar;
     }
+
+    public static void hideKeyboard(Context context, View view) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
 
 }

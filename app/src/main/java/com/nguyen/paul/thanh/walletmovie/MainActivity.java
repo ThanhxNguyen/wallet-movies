@@ -39,7 +39,7 @@ import com.nguyen.paul.thanh.walletmovie.pages.intro.WelcomeActivity;
 import com.nguyen.paul.thanh.walletmovie.database.MovieSearchSuggestionProvider;
 import com.nguyen.paul.thanh.walletmovie.database.MoviesTableOperator;
 import com.nguyen.paul.thanh.walletmovie.pages.about.AboutUsFragment;
-import com.nguyen.paul.thanh.walletmovie.fragments.AccountFragment;
+import com.nguyen.paul.thanh.walletmovie.pages.account.AccountFragment;
 import com.nguyen.paul.thanh.walletmovie.pages.favourites.FavouriteMoviesFragment;
 import com.nguyen.paul.thanh.walletmovie.pages.home.HomeFragment;
 import com.nguyen.paul.thanh.walletmovie.pages.home.MovieListFragment;
