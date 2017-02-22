@@ -240,55 +240,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-//    private void prepareFireBaseAuthListener() {
-//        //setup listener for authentication changes (when user signin/signout)
-//        mAuthListener = new FirebaseAuth.AuthStateListener() {
-//            @Override
-//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-//                //get authenticated user, if user==null, user is signed out otherwise user is signed in
-//                FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-//
-//                if(currentUser != null) {
-//                    //set display name and email in navigation drawer header
-//                    mHeaderDisplayName.setText(currentUser.getDisplayName());
-//                    mHeaderDisplayEmail.setText(currentUser.getEmail());
-//
-//                    //since user is signed in, disable guest mode if it's enabled
-//                    boolean isGuest = mPrefs.getBoolean(GUEST_MODE_PREF_KEY, true);
-//
-//                    if(isGuest) {
-//                        mPrefs.edit().putBoolean(GUEST_MODE_PREF_KEY, false).apply();
-//                        //transfer movies from local db to cloud and empty local db
-//                        TransferLocalMoviesToCloudTask task = new TransferLocalMoviesToCloudTask();
-//                        task.execute();
-//                    }
-//
-//                    //show/hide navigation menu items appropriately
-////                    mNavMenu.findItem(R.id.nav_favourites).setVisible(true);
-//                    mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, true);
-//                    mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(false);
-//
-//                } else {
-//                    //set display name and email to guest mode since the user is signed out
-//                    mHeaderDisplayName.setText(R.string.guest);
-//                    mHeaderDisplayEmail.setText("");
-//
-//                    //user is signed out, show/hide menus appropriately
-////                    mNavMenu.findItem(R.id.nav_favourites).setVisible(false);
-//                    mNavMenu.findItem(R.id.auth).getSubMenu().setGroupVisible(R.id.nav_authenticated_group, false);
-//                    mNavMenu.findItem(R.id.auth).getSubMenu().findItem(R.id.nav_signin).setVisible(true);
-//                    //redirect to home page if the user is not currently on home page
-//                    if(currentDrawerItemSelected != null && (currentDrawerItemSelected.equals(FavouriteMoviesFragment.FRAGMENT_TAG)
-//                            || currentDrawerItemSelected.equals(AccountFragment.FRAGMENT_TAG)) ) {
-//                        //if the current page is favourites or profile page, pop backstack because these
-//                        //pages are visible to authenticated users only
-//                        onBackPressed();
-//                    }
-//                }
-//            }
-//        };
-//    }
-
     /**
      * This method helps to manage navigation drawer state, when activity is re-created
      * it won't select the first item to display. Instead, it will display the menu item
@@ -303,11 +254,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
-//        if(mAuthListener != null) {
-//            //remove auth listener
-//            mAuth.removeAuthStateListener(mAuthListener);
-//        }
-
         //stop listening for auth changes
         mAuth.off();
     }
@@ -535,49 +481,6 @@ public class MainActivity extends AppCompatActivity
         mSignOutDialog.show();
 
     }
-
-//    private void sendRequestToGetGenreList(String url) {
-//        JsonObjectRequest genreJsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-//                new Response.Listener<JSONObject>() {
-//                    @Override
-//                    public void onResponse(JSONObject response) {
-//                        //successfully get data
-//                        try {
-//                            JSONArray genres = response.getJSONArray("genres");
-//                            parseGenreList(genres);
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//
-//                    }
-//                },
-//                new Response.ErrorListener() {
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-////                        Log.d(TAG, "onErrorResponse: Error getting genre list " + error.toString());
-//                    }
-//                });
-//
-//        mNetworkRequest.addToRequestQueue(genreJsonRequest, NETWORK_REQUEST_TAG);
-//    }
-//
-//    private void parseGenreList(JSONArray genres) {
-//        for(int i=0; i<genres.length(); i++) {
-//            try {
-//                JSONObject genreJsonObj = genres.getJSONObject(i);
-//                int genreId = genreJsonObj.getInt("id");
-//                String genreName = genreJsonObj.getString("name");
-//
-//                Genre genre = new Genre(genreId, genreName);
-//                mGenreListFromApi.add(genre);
-//
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        //cache genres list value
-//        ((App) getApplication()).setGenreListFromApi(mGenreListFromApi);
-//    }
 
     @Override
     public void onSignIn() {
