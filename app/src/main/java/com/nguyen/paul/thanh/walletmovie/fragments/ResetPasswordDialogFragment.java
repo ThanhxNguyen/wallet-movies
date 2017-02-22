@@ -18,6 +18,7 @@ import android.widget.EditText;
 
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.utilities.FormInputValidator;
+import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -31,6 +32,7 @@ public class ResetPasswordDialogFragment extends DialogFragment {
 
     private FormInputValidator mFormValidator;
     private ResetPasswordAcquireListener mListener;
+    private Context mContext;
 
     public interface ResetPasswordAcquireListener {
         void onResetPasswordAcquire(String email);
@@ -48,6 +50,7 @@ public class ResetPasswordDialogFragment extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        mContext = context;
         mFormValidator = FormInputValidator.getInstance();
     }
 
@@ -81,6 +84,8 @@ public class ResetPasswordDialogFragment extends DialogFragment {
         mCancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //hide soft keyboard
+                Utils.hideKeyboard(mContext, mCancelBtn);
                 getDialog().dismiss();
             }
         });
@@ -90,6 +95,8 @@ public class ResetPasswordDialogFragment extends DialogFragment {
         mProceedBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //hide soft keyboard
+                Utils.hideKeyboard(mContext, mProceedBtn);
                 String newEmail = mEmail.getText().toString().trim();
 
                 boolean isEmailValid = validateEmailInput(newEmail);

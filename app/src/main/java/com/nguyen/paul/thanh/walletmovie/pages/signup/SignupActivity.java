@@ -1,12 +1,10 @@
 package com.nguyen.paul.thanh.walletmovie.pages.signup;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -16,23 +14,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
-import com.nguyen.paul.thanh.walletmovie.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.utilities.FormInputValidator;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
-import static com.nguyen.paul.thanh.walletmovie.App.FIRST_TIME_USER_PREF_KEY;
-import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
-import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
-
-public class SignupActivity extends AppCompatActivity {
+public class SignupActivity extends AppCompatActivity implements SignUpContract.View {
 
     private ProgressDialog mProgressDialog;
 
@@ -42,6 +28,7 @@ public class SignupActivity extends AppCompatActivity {
     private TextView mPasswordTv;
     private TextView mConfirmPasswordTv;
     private Button mSignupBtn;
+    private ConstraintLayout mLayout;
 
     private TextInputLayout mFirstNameWrapper;
     private TextInputLayout mLastNameWrapper;
@@ -49,21 +36,26 @@ public class SignupActivity extends AppCompatActivity {
     private TextInputLayout mPasswordWrapper;
     private TextInputLayout mConfirmPasswordWrapper;
 
-
     private FormInputValidator mFormValidator;
 
-    //firebase auth
-    private FirebaseAuth mAuth;
+    private SignUpContract.Presenter mPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
-        //initialize Firebase auth
-        mAuth = FirebaseAuth.getInstance();
         mFormValidator = FormInputValidator.getInstance();
 
+        mPresenter = new SignUpPresenter(this);
+
+        //create progress dialog
+        mProgressDialog = new ProgressDialog(SignupActivity.this, ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setTitle(getString(R.string.dialog_user_registration_title));
+        mProgressDialog.setMessage(getString(R.string.dialog_user_registration_message));
+        mProgressDialog.setCancelable(false);
+
+        mLayout = (ConstraintLayout) findViewById(R.id.signup_form_activity);
         mFirstNameTv = (TextView) findViewById(R.id.first_name);
         mLastNameTv = (TextView) findViewById(R.id.last_name);
         mEmailTv = (TextView) findViewById(R.id.email);
@@ -170,13 +162,6 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private void setListenerForSignupBtn() {
-
-        mProgressDialog = new ProgressDialog(SignupActivity.this, ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setTitle(getString(R.string.dialog_user_registration_title));
-        mProgressDialog.setMessage(getString(R.string.dialog_user_registration_message));
-        mProgressDialog.setCancelable(false);
-
-
         mSignupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -199,45 +184,7 @@ public class SignupActivity extends AppCompatActivity {
                 if(validFirstName && validLastName && validEmail && validPassword && passwordMatch) {
                     //show progress dialog
                     mProgressDialog.show();
-
-                    //sign up user with email and password
-                    mAuth.createUserWithEmailAndPassword(email, password)
-                            .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if(task.isSuccessful()) {
-                                        //since user signed in, disable guest mode
-                                        SharedPreferences prefs = getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
-
-                                        boolean isFirstTimeUser = prefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
-
-                                        if(isFirstTimeUser) {
-                                            prefs.edit().putBoolean(FIRST_TIME_USER_PREF_KEY, false).apply();
-                                        }
-
-                                        //since user is signed in, disable guest mode if it's enabled
-                                        boolean isGuest = prefs.getBoolean(GUEST_MODE_PREF_KEY, true);
-
-                                        if(isGuest) {
-                                            prefs.edit().putBoolean(GUEST_MODE_PREF_KEY, false).apply();
-                                        }
-
-                                        //update profile info
-                                        setUserDisplayNameAfterSignup(firstName, lastName, email, password);
-                                    } else {
-                                        try {
-                                            mProgressDialog.dismiss();
-                                            throw task.getException();
-                                        } catch (FirebaseAuthUserCollisionException e) {
-                                            createAlertDialogForRegistrationFail(getString(R.string.email_exist)).show();
-                                        } catch (Exception e) {
-                                            createAlertDialogForRegistrationFail(getString(R.string.dialog_message_registration_fail)).show();
-                                        }
-
-                                    }
-                                }
-                            });
-
+                    mPresenter.registerUser(firstName, lastName, email, password);
                 }
 
             }
@@ -352,63 +299,21 @@ public class SignupActivity extends AppCompatActivity {
         }
     }
 
-    private void setUserDisplayNameAfterSignup(String firstName, String lastName, final String email, final String password) {
-        FirebaseUser user = mAuth.getCurrentUser();
+    @Override
+    public void showSnackBarWithResult(String message) {
+        mProgressDialog.dismiss();
+        Utils.createSnackBar(getResources(), mLayout, message).show();
+    }
 
-        //convert the first letter to uppercase
-        String fname = firstName.substring(0, 1).toUpperCase() + firstName.substring(1).toLowerCase();
-        String lname = lastName.substring(0, 1).toUpperCase() + lastName.substring(1).toLowerCase();
+    @Override
+    public void showDialogResult(String message) {
+        mProgressDialog.dismiss();
+        createAlertDialogForRegistrationFail(message).show();
+    }
 
-        //make sure user is currently signed in
-        if(user != null) {
-            UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder()
-                                                    .setDisplayName(fname + " " + lname)
-                                                    .build();
-
-            //start updating user profile
-            user.updateProfile(profile)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful()) {
-
-                                //Firebase currently has a bug that it doesn't show display name when the user signed up for
-                                //the first time. A workaround is sign in the user manually after registration.
-                                mAuth.signInWithEmailAndPassword(email, password)
-                                        .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                                if(task.isSuccessful()) {
-
-                                                    //since user signed in, disable guest mode
-                                                    SharedPreferences prefs = getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
-                                                    SharedPreferences.Editor editor = prefs.edit();
-
-                                                    boolean isFirstTimeUser = prefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
-
-                                                    if(isFirstTimeUser) {
-                                                        editor.putBoolean(FIRST_TIME_USER_PREF_KEY, false);
-                                                        editor.apply();
-                                                    }
-
-                                                    //dimiss the progress dialog
-                                                    mProgressDialog.dismiss();
-                                                    Utils.createSnackBar(getResources(), findViewById(R.id.signup_form_activity), "Sign up Successfully").show();
-                                                    //redirect
-                                                    Intent intent = new Intent(SignupActivity.this, MainActivity.class);
-                                                    startActivity(intent);
-
-                                                } else {
-                                                    //dismiss progress dialog and display errors
-                                                    mProgressDialog.dismiss();
-                                                    createAlertDialogForRegistrationFail("Error! Something went wrong.");
-                                                }
-                                            }
-                                        });
-
-                            }    
-                        }
-                    });
-        }
+    @Override
+    public void redirect(Class<?> redirectTo) {
+        mProgressDialog.dismiss();
+        startActivity(new Intent(SignupActivity.this, redirectTo));
     }
 }

@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.utilities.FormInputValidator;
+import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 public class ChangeEmailDialogFragment extends DialogFragment {
 
@@ -38,6 +39,7 @@ public class ChangeEmailDialogFragment extends DialogFragment {
     private FirebaseAuth mAuth;
     private FormInputValidator mFormValidator;
     private EmailAcquireListener mListener;
+    private Context mContext;
 
     public interface EmailAcquireListener {
         void onEmailAcquire(String newEmail, String password);
@@ -54,6 +56,7 @@ public class ChangeEmailDialogFragment extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        mContext = context;
         mAuth = FirebaseAuth.getInstance();
         mFormValidator = FormInputValidator.getInstance();
     }
@@ -104,6 +107,9 @@ public class ChangeEmailDialogFragment extends DialogFragment {
         mCancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //hide soft keyboard
+                Utils.hideKeyboard(mContext, mCancelBtn);
+
                 getDialog().dismiss();
             }
         });
@@ -113,6 +119,9 @@ public class ChangeEmailDialogFragment extends DialogFragment {
         mProceedBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //hide soft keyboard
+                Utils.hideKeyboard(mContext, mProceedBtn);
+
                 String newEmail = mNewEmail.getText().toString().trim();
                 String password = mPassword.getText().toString().trim();
 

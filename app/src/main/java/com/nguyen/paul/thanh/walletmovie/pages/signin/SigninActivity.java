@@ -1,24 +1,21 @@
 package com.nguyen.paul.thanh.walletmovie.pages.signin;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -31,32 +28,21 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FacebookAuthProvider;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.GoogleAuthProvider;
 import com.nguyen.paul.thanh.walletmovie.R;
-import com.nguyen.paul.thanh.walletmovie.pages.signup.SignupActivity;
 import com.nguyen.paul.thanh.walletmovie.fragments.ResetPasswordDialogFragment;
+import com.nguyen.paul.thanh.walletmovie.pages.signup.SignupActivity;
 import com.nguyen.paul.thanh.walletmovie.utilities.FormInputValidator;
 import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
-import static com.nguyen.paul.thanh.walletmovie.App.FIRST_TIME_USER_PREF_KEY;
-import static com.nguyen.paul.thanh.walletmovie.App.GLOBAL_PREF_KEY;
-import static com.nguyen.paul.thanh.walletmovie.App.GUEST_MODE_PREF_KEY;
-
 public class SigninActivity extends AppCompatActivity
         implements GoogleApiClient.OnConnectionFailedListener,
-        ResetPasswordDialogFragment.ResetPasswordAcquireListener {
-
-    private static final String TAG = "SigninActivity";
+        ResetPasswordDialogFragment.ResetPasswordAcquireListener,
+        SignInContract.View {
 
     private static final int RC_SIGN_IN = 100;
     public static final String RESET_PASSWORD_DIALOG_TAG = "reset_password_dialog_tag";
 
+    private ConstraintLayout mLayout;
     private TextView mEmailTv;
     private TextView mPasswordTv;
     private Button mSigninBtn;
@@ -72,17 +58,16 @@ public class SigninActivity extends AppCompatActivity
     private GoogleApiClient mGoogleApiClient;
     private Button mResetPasswordBtn;
 
-    //Firebase auth
-    private FirebaseAuth mAuth;
+    private SignInContract.Presenter mPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signin);
 
-        //initialize Firebase auth
-        mAuth = FirebaseAuth.getInstance();
         mFormValidator = FormInputValidator.getInstance();
+
+        mPresenter = new SignInPresenter(this);
 
         //initiate ProgressDialog
         mProgressDialog = new ProgressDialog(this, ProgressDialog.STYLE_SPINNER);
@@ -91,6 +76,7 @@ public class SigninActivity extends AppCompatActivity
 
         mAuthErrorMessage = (TextView) findViewById(R.id.auth_error_message);
 
+        mLayout = (ConstraintLayout) findViewById(R.id.signin_form_activity);
         mEmailTv = (TextView) findViewById(R.id.email);
         mPasswordTv = (TextView) findViewById(R.id.password);
         mSigninBtn = (Button) findViewById(R.id.signin_btn);
@@ -122,12 +108,6 @@ public class SigninActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-//        mProgressDialog.dismiss();
-    }
-
-    @Override
     protected void onStop() {
         super.onStop();
         mProgressDialog.dismiss();
@@ -140,47 +120,20 @@ public class SigninActivity extends AppCompatActivity
 
             @Override
             public void onSuccess(LoginResult loginResult) {
-                signinFirebaseWithFacebookToken(loginResult.getAccessToken());
+                mProgressDialog.show();
+                mPresenter.firebaseAuthWithFacebookToken(loginResult.getAccessToken());
             }
 
             @Override
             public void onCancel() {
-                Log.d(TAG, "facebook:onCancel");
+                showSnackBarWithResult("Sign in with Facebook was canceled");
             }
 
             @Override
             public void onError(FacebookException error) {
-                Log.d(TAG, "facebook:onError", error);
+                showSnackBarWithResult("Errors occur while signin in with Facebook account");
             }
         });
-    }
-
-    private void signinFirebaseWithFacebookToken(AccessToken token) {
-        //show progress dialog
-        mProgressDialog.show();
-
-        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        // If sign in fails, display a snackbar with failure message to the user. If sign in succeeds
-                        // redirect the user back to MainActivity
-                        if(task.isSuccessful()) {
-                            //disable guest mode
-                            disableGuestMode();
-
-                            //successfully signed in with Google account
-                            mProgressDialog.dismiss();
-                            //redirect back
-                            finish();
-                        } else {
-                            //failed to signed in with Google account
-                            mProgressDialog.dismiss();
-                            showSnackBar("Authentication failed.");
-                        }
-                    }
-                });
     }
 
     private void setUpSigninWithGoogle() {
@@ -198,7 +151,6 @@ public class SigninActivity extends AppCompatActivity
         mGoogleSigninButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //show progress dialog
                 mProgressDialog.show();
 
                 //sign in with google
@@ -223,53 +175,19 @@ public class SigninActivity extends AppCompatActivity
             if (result.isSuccess()) {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = result.getSignInAccount();
-                firebaseAuthWithGoogle(account);
+                mProgressDialog.show();
+                mPresenter.firebaseAuthWithGoogle(account);
             } else {
                 //hide progress dialog
                 mProgressDialog.dismiss();
                 // Google Sign In failed
-                showSnackBar("Failed to sign in with google");
+                showSnackBarWithResult("Failed to sign in with google");
             }
         } else {
             // Pass the activity result back to the Facebook SDK
             mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
-
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        //show progress dialog
-        mProgressDialog.show();
-
-        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        //Firebase sign in with Google email and password
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        //successfully signed in with Google account
-                        if(task.isSuccessful()) {
-                            //disable guest mode
-                            disableGuestMode();
-                            mProgressDialog.dismiss();
-                            //redirect back
-                            finish();
-                        } else {
-                            //failed to signed in with Google account
-                            mProgressDialog.dismiss();
-                            showSnackBar("Authentication failed.");
-                        }
-
-                    }
-                });
-    }
-
-    /*
-     * Helper method to display a snackbar
-     */
-    private void showSnackBar(String message) {
-        Utils.createSnackBar(getResources(), findViewById(R.id.signin_form_activity), message).show();
-    }
-
 
     private void setTextChangeListenerForEmailInput() {
         mEmailTv.addTextChangedListener(new TextWatcher() {
@@ -321,30 +239,7 @@ public class SigninActivity extends AppCompatActivity
                 if(validEmail && validPassword) {
                     //show progress dialog
                     mProgressDialog.show();
-
-                    //sign in user with email and password
-                    mAuth.signInWithEmailAndPassword(emailInput, passwordInput)
-                            .addOnCompleteListener(SigninActivity.this, new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if(task.isSuccessful()) {
-
-                                        disableGuestMode();
-
-                                        //dimiss the progress dialog
-                                        mProgressDialog.dismiss();
-                                        //successfully signed in, redirect to MainActivity for now
-                                        showSnackBar("Sign in successfully!");
-                                        finish();
-
-                                    } else {
-                                        //dismiss progress dialog and display errors
-                                        mProgressDialog.dismiss();
-                                        mAuthErrorMessage.setVisibility(View.VISIBLE);
-                                        mAuthErrorMessage.setText(getString(R.string.error_auth_fail));
-                                    }
-                                }
-                            });
+                    mPresenter.signInUser(emailInput, passwordInput);
 
                 }
             }
@@ -402,6 +297,7 @@ public class SigninActivity extends AppCompatActivity
         mSignupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Utils.hideKeyboard(SigninActivity.this, mSignupBtn);
                 //redirect to signup activity
                 Intent intent = new Intent(SigninActivity.this, SignupActivity.class);
                 startActivity(intent);
@@ -413,6 +309,7 @@ public class SigninActivity extends AppCompatActivity
         mResetPasswordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Utils.hideKeyboard(SigninActivity.this, mResetPasswordBtn);
                 openResetPasswordDialog();
             }
         });
@@ -427,45 +324,16 @@ public class SigninActivity extends AppCompatActivity
         dialog.show(getSupportFragmentManager(), RESET_PASSWORD_DIALOG_TAG);
     }
 
-    private void sendEmailResetPassword(final String email) {
-        mProgressDialog.show();
-        mAuth.sendPasswordResetEmail(email)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        mProgressDialog.dismiss();
-                        if(task.isSuccessful()) {
-                            createAlertDialog("A reset password link has been sent to " + email).show();
-                        } else {
-                            createAlertDialog("Error! Could not send a reset password email. Please try again later!").show();
-                        }
-                    }
-                });
-
-    }
-
-    private AlertDialog createAlertDialog(String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Alert");
-        builder.setMessage(message);
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
-
-        return builder.create();
-    }
-
-
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         //called when google sign in fails
+        showSnackBarWithResult("Errors occur while signing in with Google account");
     }
 
     @Override
     public void onResetPasswordAcquire(final String email) {
+        mProgressDialog.dismiss();
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Reset Password");
         builder.setMessage("Are you sure you want to reset your password?");
@@ -479,7 +347,7 @@ public class SigninActivity extends AppCompatActivity
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                sendEmailResetPassword(email);
+                mPresenter.resetPassword(email);
             }
         });
 
@@ -488,21 +356,44 @@ public class SigninActivity extends AppCompatActivity
         alertDialog.show();
     }
 
-    private void disableGuestMode() {
-        //since user signed in, disable guest mode
-        SharedPreferences prefs = getSharedPreferences(GLOBAL_PREF_KEY, Context.MODE_PRIVATE);
-
-        boolean isFirstTimeUser = prefs.getBoolean(FIRST_TIME_USER_PREF_KEY, true);
-
-        if(isFirstTimeUser) {
-            prefs.edit().putBoolean(FIRST_TIME_USER_PREF_KEY, false).apply();
-        }
-
-        //since user is signed in, disable guest mode if it's enabled
-        boolean isGuest = prefs.getBoolean(GUEST_MODE_PREF_KEY, true);
-
-        if(isGuest) {
-            prefs.edit().putBoolean(GUEST_MODE_PREF_KEY, false).apply();
-        }
+    @Override
+    public void showSnackBarWithResult(String message) {
+        mProgressDialog.dismiss();
+        Utils.createSnackBar(getResources(), mLayout, message).show();
     }
+
+    @Override
+    public void showDialogResult(String message) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SigninActivity.this);
+
+        dialogBuilder.setTitle(R.string.alert)
+                .setMessage(message);
+
+        dialogBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        dialogBuilder.create().show();
+    }
+
+    @Override
+    public void redirect(Class<?> redirectTo) {
+        startActivity(new Intent(SigninActivity.this, redirectTo));
+    }
+
+    @Override
+    public void goBack() {
+        finish();
+    }
+
+    @Override
+    public void setAuthErrorMessage(String message) {
+        mProgressDialog.dismiss();
+        mAuthErrorMessage.setVisibility(View.VISIBLE);
+        mAuthErrorMessage.setText(message);
+    }
+
 }

@@ -18,6 +18,7 @@ import android.widget.EditText;
 
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.utilities.FormInputValidator;
+import com.nguyen.paul.thanh.walletmovie.utilities.Utils;
 
 public class ChangePasswordDialogFragment extends DialogFragment {
 
@@ -36,6 +37,7 @@ public class ChangePasswordDialogFragment extends DialogFragment {
     private Button mProceedBtn;
 
     private PasswordsAcquireListener mListener;
+    private Context mContext;
 
     public interface PasswordsAcquireListener {
         void onPasswordsAcquire(String oldPassword, String newPassword);
@@ -52,6 +54,7 @@ public class ChangePasswordDialogFragment extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        mContext = context;
         mFormValidator = FormInputValidator.getInstance();
     }
 
@@ -93,6 +96,8 @@ public class ChangePasswordDialogFragment extends DialogFragment {
         mCancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //hide soft keyboard
+                Utils.hideKeyboard(mContext, mCancelBtn);
                 getDialog().dismiss();
             }
         });
@@ -102,6 +107,9 @@ public class ChangePasswordDialogFragment extends DialogFragment {
         mProceedBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //hide soft keyboard
+                Utils.hideKeyboard(mContext, mProceedBtn);
+
                 String oldPass = mOldPassword.getText().toString().trim();
                 String newPass = mNewPassword.getText().toString().trim();
                 String confirmPass = mConfirmPassword.getText().toString().trim();
