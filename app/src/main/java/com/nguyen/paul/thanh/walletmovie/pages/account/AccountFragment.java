@@ -5,14 +5,12 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,16 +21,9 @@ import android.widget.EditText;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.nguyen.paul.thanh.walletmovie.MainActivity;
 import com.nguyen.paul.thanh.walletmovie.R;
 import com.nguyen.paul.thanh.walletmovie.fragments.ChangeEmailDialogFragment;
@@ -47,8 +38,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class AccountFragment extends Fragment
         implements ChangePasswordDialogFragment.PasswordsAcquireListener,
-        ChangeEmailDialogFragment.EmailAcquireListener {
-    private static final String TAG = "AccountFragment";
+        ChangeEmailDialogFragment.EmailAcquireListener,
+        AccountContract.View {
 
     public static final String FRAGMENT_TAG = AccountFragment.class.getSimpleName();
     public static final String CHANGE_PASSWORD_DIALOG_TAG = "change_password_dialog_tag";
@@ -69,9 +60,12 @@ public class AccountFragment extends Fragment
     private ProgressDialog mProgressDialog;
     private String currentName;
 
+    private AccountContract.Presenter mPresenter;
+
     //flag to indicate if the user is signed in using email and password
     private boolean signedInWithEmail;
     private String providerName;
+    private ViewGroup mParentView;
 
     public AccountFragment() {
         // Required empty public constructor
@@ -100,6 +94,8 @@ public class AccountFragment extends Fragment
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = context;
+        mPresenter = new AccountPresenter(this);
+
         if(getActivity() instanceof MainActivity) {
             mActivity = (MainActivity) getActivity();
         }
@@ -147,6 +143,7 @@ public class AccountFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        mParentView = container;
         // Inflate the mLayout for this fragment
         View view = inflater.inflate(R.layout.fragment_account, container, false);
 
@@ -290,21 +287,7 @@ public class AccountFragment extends Fragment
     }
 
     private void sendEmailResetPassword() {
-        final FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null) {
-            mAuth.sendPasswordResetEmail(currentUser.getEmail())
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            mProgressDialog.dismiss();
-                            if(task.isSuccessful()) {
-                                createAlertDialog("A reset password link has been sent to " + currentUser.getEmail()).show();
-                            } else {
-                                createAlertDialog("Error! Could not send a reset password email. Please try again later!").show();
-                            }
-                        }
-                    });
-        }
+        mPresenter.resetPassword();
     }
 
     private void openChangeEmailDialog() {
@@ -312,9 +295,6 @@ public class AccountFragment extends Fragment
         //set the dialog to full screen
         dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.AppTheme);
         dialog.setEmailAcquireListener(this);
-        //prevent user cancel dialog when click outside of dialog
-//        dialog.setCancelable(false);
-//        dialog.show(getActivity().getSupportFragmentManager(), CHANGE_EMAIL_DIALOG_TAG);
         dialog.show(getFragmentManager(), CHANGE_EMAIL_DIALOG_TAG);
     }
 
@@ -323,9 +303,6 @@ public class AccountFragment extends Fragment
         //set the dialog to full screen
         dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.AppTheme);
         dialog.setPasswordsAcquireListener(this);
-        //prevent user cancel dialog when click outside of dialog
-//        dialog.setCancelable(false);
-//        dialog.show(getActivity().getSupportFragmentManager(), CHANGE_PASSWORD_DIALOG_TAG);
         dialog.show(getFragmentManager(), CHANGE_PASSWORD_DIALOG_TAG);
     }
 
@@ -389,175 +366,44 @@ public class AccountFragment extends Fragment
     }
 
     private void updateDisplayName() {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
         final String newDisplayName = mDisplayName.getText().toString().trim();
 
-
-        //make sure user is currently signed in
-        if(currentUser != null) {
-            UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder()
-                    .setDisplayName(newDisplayName)
-                    .build();
-
-            if(currentName.equals(newDisplayName)) {
-                mProgressDialog.dismiss();
-                //display name was not changed
-                createAlertDialog("Display name was not changed! Please change the display name to update.").show();
-            } else {
-                //start updating user profile
-                currentUser.updateProfile(profile)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful()) {
-                                    Log.d(TAG, "onComplete: successfully update display name");
-                                    mProgressDialog.dismiss();
-                                    //update current name
-                                    currentName = newDisplayName;
-                                    //clear display name EditText focus
-                                    backToCleanState();
-                                    createAlertDialog("Successfully update display name!").show();
-                                } else {
-                                    Log.d(TAG, "onComplete: error : " + task.getException().toString());
-                                    mProgressDialog.dismiss();
-                                    createAlertDialog("Error! Could not update display name.");
-                                }
-                            }
-                        });
-
-            }
-        }
+        mPresenter.updateDisplayName(currentName, newDisplayName);
     }
 
-    private void updatePassword(final String oldPass, final String newPass) {
-        final FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null) {
-
-            currentUser.updatePassword(newPass)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful()) {
-                                Log.d(TAG, "onComplete: update password successfully");
-                                mProgressDialog.dismiss();
-                                createAlertDialog("Successfully changed password!").show();
-                            } else {
-                                try {
-                                    throw task.getException();
-                                } catch (FirebaseAuthRecentLoginRequiredException e) {
-                                    Log.d(TAG, "onComplete: Exception: " + e.toString());
-                                    //re-authenticate user
-                                    reAuthenticateUserToUpdatePassword(oldPass, newPass);
-
-                                } catch (Exception e) {
-                                    Log.d(TAG, "onComplete: Exception: " + e.toString());
-                                    mProgressDialog.dismiss();
-                                    createAlertDialog("Error! Could not update password. Please try another time!");
-                                }
-                            }
-                        }
-                    });
-
-
-        }
-    }
-
-    private void reAuthenticateUserToUpdatePassword(final String oldPass, final String newPass) {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null) {
-            AuthCredential credentials = EmailAuthProvider.getCredential(currentUser.getEmail(), oldPass);
-
-            //re-authenticate
-            currentUser.reauthenticate(credentials)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful()) {
-                                    Log.d(TAG, "onComplete: reauth success update again");
-                                    //invoke update password again
-                                    updatePassword(oldPass, newPass);
-                                } else {
-                                    mProgressDialog.dismiss();
-                                    createAlertDialog("Failed to update password! The old password is not correct?").show();
-                                }
-                            }
-                        });
-        }
-    }
-
-    private void updateEmail(final String newEmail, final String password) {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null) {
-            currentUser.updateEmail(newEmail)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful()) {
-                                    Log.d(TAG, "onComplete: update email successfully");
-                                    mProgressDialog.dismiss();
-                                    createAlertDialog("Successfully changed email!").show();
-                                } else {
-                                    try {
-                                        throw task.getException();
-                                    } catch (FirebaseAuthRecentLoginRequiredException e) {
-                                        Log.d(TAG, "onComplete: Exception: " + e.toString());
-                                        //re-authenticate user
-                                        reAuthenticateUserToUpdateEmail(newEmail, password);
-
-                                    } catch (FirebaseAuthUserCollisionException e) {
-                                        mProgressDialog.dismiss();
-                                        createAlertDialog("The email has already existed!").show();
-                                    } catch (Exception e) {
-                                        Log.d(TAG, "onComplete: Exception: " + e.toString());
-                                        mProgressDialog.dismiss();
-                                        createAlertDialog("Error! Could not update email. Please try another time!").show();
-                                    }
-                                }
-                            }
-                        });
-        }
-    }
-
-    //should refactor this method to avoid duplication
-    //clue: maybe using a flag to indicate
-    private void reAuthenticateUserToUpdateEmail(final String newEmail, final String password) {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null) {
-            AuthCredential credentials = EmailAuthProvider.getCredential(currentUser.getEmail(), password);
-
-            //re-authenticate
-            currentUser.reauthenticate(credentials)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful()) {
-                                Log.d(TAG, "onComplete: reauth success update again");
-                                //invoke update password again
-                                updateEmail(newEmail, password);
-                            } else {
-//                                if(task.getException() instanceof FirebaseAuthUserCollisionException) {
-//                                    mProgressDialog.dismiss();
-//                                    createAlertDialog("The email has already existed!").show();
-//                                } else {
-//                                }
-                                mProgressDialog.dismiss();
-                                createAlertDialog("Failed to update email! The password is not correct?").show();
-                            }
-                        }
-                    });
-        }
-    }
-
+    /*
+     * This callback will be invoked when complete getting necessary details from ChangePasswordDialogFragment
+     */
     @Override
     public void onPasswordsAcquire(String oldPassword, String newPassword) {
         mProgressDialog.show();
-        updatePassword(oldPassword, newPassword);
+        mPresenter.updatePassword(oldPassword, newPassword);
     }
 
+    /*
+     * This callback will be invoked when complete getting necessary details from ChangeEmailDialogFragment
+     */
     @Override
     public void onEmailAcquire(String newEmail, String password) {
         mProgressDialog.show();
-        updateEmail(newEmail, password);
+        mPresenter.updateEmail(newEmail, password);
+    }
+
+    @Override
+    public void setDisplayNameText(String displayName) {
+        currentName = displayName;
+        backToCleanState();
+    }
+
+    @Override
+    public void showDialogResult(String message) {
+        mProgressDialog.dismiss();
+        createAlertDialog(message).show();
+    }
+
+    @Override
+    public void showSnackBarWithResult(String message) {
+        mProgressDialog.dismiss();
+        Utils.createSnackBar(getResources(), mParentView, message).show();
     }
 }
