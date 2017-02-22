@@ -22,7 +22,7 @@ Link to [Google Play](https://goo.gl/grTMe7). The app is free to use.
 ### To-Do list
 - [x] signin with Google
 - [x] signin with Facebook
-- [ ] refactor the project to use MVP pattern (in progress)
+- [x] refactor the project to use MVP pattern
 - [ ] users communicate with each other
 - [ ] users can write review for a movie
 - [ ] users can invite their friend to watch a movie
