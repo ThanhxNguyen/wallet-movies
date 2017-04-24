@@ -12,9 +12,25 @@ package com.nguyen.paul.thanh.walletmovie.utilities;
 
 public class MovieQueryBuilder {
 
+    //api key for themoviedb
     private final String apiKey = "1bd3f3a91c22eef0c9d9c15212f43593";
     private static MovieQueryBuilder mInstance;
 
+    //this class holds constants for movie image size configuration
+    public class MovieImageSize {
+        //avoid the class being instantiated
+        private MovieImageSize() {}
+
+        public static final String W92 = "w92";
+        public static final String W154 = "w154";
+        public static final String W185 = "w185";
+        public static final String W342 = "w342";
+        public static final String W500 = "w500";
+        public static final String W780 = "w780";
+        public static final String ORIGINAL = "original";
+    }
+
+    //singleton pattern
     private MovieQueryBuilder() {
     }
 
@@ -40,14 +56,12 @@ public class MovieQueryBuilder {
         return TMDBMoviesQueryBuilder.getInstance(apiKey);
     }
 
-    //static method to get poster image for a movie with different sizes
+    //method to get poster image for a movie with different sizes
     public String getImageBaseUrl(String sizeConfig) {
-
         return "http://image.tmdb.org/t/p/" + sizeConfig;
     }
 
     public String getGenreListUrl() {
-
         return "https://api.themoviedb.org/3/genre/movie/list?api_key=" + apiKey;
     }
 

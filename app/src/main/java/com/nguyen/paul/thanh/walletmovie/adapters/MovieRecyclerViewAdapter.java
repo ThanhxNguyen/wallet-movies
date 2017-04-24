@@ -168,7 +168,7 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
                 genreValues.append(prefix);
 
             }
-            mGenres.setText( (genreValues.toString().length()>0) ? genreValues.delete(genreValues.length()-2, genreValues.length()-1) : "Unknown");
+            mGenres.setText( (genreValues.toString().length() > 0) ? genreValues.delete(genreValues.length()-2, genreValues.length()-1) : "Unknown");
             if(displayListInGrid) {
                 mDescription.setText( (mMovie.getOverview().length() > 100) ? mMovie.getOverview().substring(0, 101) + "..." : mMovie.getOverview() );
             }
@@ -181,7 +181,9 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
 
             if(!TextUtils.isEmpty(mMovie.getPosterPath())) {
                 //if display image in grid, get the image size w342 otherwise w92 (w=width)
-                String sizeConfig = (displayListInGrid) ? "w342" : "w92";
+                String sizeConfig = (displayListInGrid) ?
+                        MovieQueryBuilder.MovieImageSize.W342 :
+                        MovieQueryBuilder.MovieImageSize.W92;
                 //load movie thumb from internet
                 String imgUrl = MovieQueryBuilder.getInstance().getImageBaseUrl(sizeConfig) + mMovie.getPosterPath();
 

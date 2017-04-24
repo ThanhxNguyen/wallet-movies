@@ -8,9 +8,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.nguyen.paul.thanh.walletmovie.model.User;
 
-/**
- *
- */
 
 public class FirebaseAuthManager implements AuthManager {
 
