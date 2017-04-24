@@ -18,3 +18,7 @@ Link to [Google Play](https://goo.gl/grTMe7). The app is free to use.
 * [CircleImageView](https://github.com/hdodenhof/CircleImageView) - displays image in circle with optional border
 * [Youtube API](https://developers.google.com/youtube/) - displays movie trailer videos
 
+### To-Do List
+[ ] Add review section for each movie
+[ ] A user can invite another user for a movie
+
