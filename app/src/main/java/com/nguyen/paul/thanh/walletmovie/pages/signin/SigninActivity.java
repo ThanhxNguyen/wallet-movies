@@ -12,6 +12,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -131,7 +132,8 @@ public class SigninActivity extends AppCompatActivity
 
             @Override
             public void onError(FacebookException error) {
-                showSnackBarWithResult("Errors occur while signin in with Facebook account");
+                showSnackBarWithResult("Errors occur while signing in with Facebook account");
+                Log.d("test", "onError: Facebook " + error.toString());
             }
         });
     }
